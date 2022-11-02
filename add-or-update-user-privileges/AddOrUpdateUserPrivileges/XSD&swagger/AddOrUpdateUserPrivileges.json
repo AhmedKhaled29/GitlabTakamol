@@ -1,0 +1,349 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "title" : "AddOrUpdateUserPrivileges",
+    "version" : "1.0.0",
+    "description" : "AddOrUpdateUserPrivileges"
+  },
+  "paths" : {
+    "/addorupdateuserprivileges" : {
+      "post" : {
+        "operationId" : "AddOrUpdateUserPrivileges",
+        "responses" : {
+          "200" : {
+            "description" : "The operation was successful.",
+            "schema" : {
+              "$ref" : "#/definitions/AddOrUpdateUserPrivilegesRs_MessageType"
+            }
+          }
+        },
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "description" : "Add or Update User privileges",
+        "parameters" : [ {
+          "name" : "body",
+          "in" : "body",
+          "schema" : {
+            "$ref" : "#/definitions/AddOrUpdateUserPrivilegesRq_MessageType"
+          },
+          "description" : "AddOrUpdateUserPrivilegesRq",
+          "required" : true
+        } ]
+      }
+    }
+  },
+  "basePath" : "/usermanagement",
+  "definitions" : {
+    "AddOrUpdateUserPrivilegesRq_MessageType" : {
+      "type" : "object",
+      "properties" : {
+        "AddOrUpdateUserPrivilegesRq" : {
+          "$ref" : "#/definitions/AddOrUpdateUserPrivilegesRq_Type"
+        }
+      }
+    },
+    "AddOrUpdateUserPrivilegesRs_MessageType" : {
+      "type" : "object",
+      "properties" : {
+        "AddOrUpdateUserPrivilegesRs" : {
+          "$ref" : "#/definitions/AddOrUpdateUserPrivilegesRs_Type"
+        }
+      }
+    },
+    "AddOrUpdateUserPrivilegesRq_Type" : {
+      "type" : "object",
+      "properties" : {
+        "Header" : {
+          "$ref" : "#/definitions/ESBXMLRequestHeader_Type"
+        },
+        "Body" : {
+          "$ref" : "#/definitions/AddOrUpdateUserPrivilegesRq_BodyType"
+        }
+      }
+    },
+    "AddOrUpdateUserPrivilegesRq_BodyType" : {
+      "type" : "object",
+      "properties" : {
+	  
+        "UserId" : {
+          "type" : "integer"
+        },
+        "IdNo" : {
+          "type" : "string"
+        },
+        "EstablishmentsList" : {
+          "$ref" : "#/definitions/EstablishmentsList_Type"
+        },
+      
+		 "AddOrUpdate" : {
+          "type" : "integer"
+        }
+     
+    }
+	 
+	
+  },
+  
+  	"EstablishmentsList_Type" : {
+      "type" : "object",
+      "properties" : {
+        "EstablishmentsItem" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/EstablishmentsItem_Type"
+          }
+        }
+      }
+    },
+	
+   	"EstablishmentsItem_Type" : {
+      "type" : "object",
+      "properties" : {
+      
+      "LaborOfficeId":{
+	  "type":"integer"
+	  },
+	  "EstablishmentSequence":{
+	  "type":"integer"
+	  },
+	  "EstablishmentId":{
+		  "type":"integer" 
+		  },
+	   "ServicesList" : {
+         
+            "$ref" : "#/definitions/ServicesList_Type"
+          
+        }
+	  
+      }
+    },
+  	
+   "ServicesList_Type" : {
+      "type" : "object",
+      "properties" : {
+        "ServicesItem" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/ServicesItem_Type"
+          }
+        }
+      }
+    },
+	
+	
+   	"ServicesItem_Type" : {
+      "type" : "object",
+      "properties" : {
+      
+      "ServiceId":{
+	  "type":"integer"
+	  }
+	 
+      }
+    },
+	
+   
+    "AddOrUpdateUserPrivilegesRs_Type" : {
+      "type" : "object",
+      "properties" : {
+        "Header" : {
+          "$ref" : "#/definitions/ESBXMLResponseHeader_Type"
+        },
+        "Body" : {
+          "$ref" : "#/definitions/AddOrUpdateUserPrivilegesRs_BodyType"
+        }
+      }
+    },
+    "AddOrUpdateUserPrivilegesRs_BodyType" : {
+      "type" : "object",
+      "properties" : {
+    	  
+    	  "EstablishmentsInfoList" : {
+          	"$ref" : "#/definitions/EstablishmentsInfoList_Type"
+          		}
+                 
+      }
+    },
+  
+    
+    "EstablishmentsInfoList_Type" : {
+        "type" : "object",
+        "properties" : {
+          "EstablishmentsInfoItem" : {
+            "type" : "array" ,
+            "items" :{ 
+             "$ref" : "#/definitions/EstablishmentsInfoItem_Type"
+
+              }
+          
+          }
+        }
+      },
+
+      "EstablishmentsInfoItem_Type" : {
+          "type" : "object",
+          "properties" : {
+        "LaborofficeId" : {
+              "type" : "integer"
+            },
+        "EstablishmentSequence" : {
+              "type" : "integer"
+            },
+            "EstablishmentId" : {
+                "type" : "integer"
+              },
+                  
+        "Status" : {
+                "type" : "string"
+              },
+        "StatusDescription" : {
+                  "type" : "string"
+              }
+                
+          }
+      },
+
+   
+  
+    "ESBXMLRequestHeader_Type" : {
+      "type" : "object",
+      "properties" : {
+        "TransactionId" : {
+          "type" : "string"
+        },
+        "ChannelId" : {
+          "type" : "string"
+        },
+        "SessionId" : {
+          "type" : "string"
+        },
+        "RequestTime" : {
+          "type" : "string"
+        },
+        "MWRequestTime" : {
+          "type" : "string"
+        },
+        "ServiceCode" : {
+          "type" : "string"
+        },
+        "DebugFlag" : {
+          "type" : "integer"
+        },
+        "UserInfo" : {
+          "$ref" : "#/definitions/UserInfo_Type"
+        },
+        "UDF" : {
+          "$ref" : "#/definitions/UDF_Type"
+        }
+      },
+      "required" : [ "ServiceCode", "ChannelId", "TransactionId", "RequestTime" ]
+    },
+    "ESBXMLResponseHeader_Type" : {
+      "type" : "object",
+      "properties" : {
+        "TransactionId" : {
+          "type" : "string"
+        },
+        "ChannelId" : {
+          "type" : "string"
+        },
+        "SessionId" : {
+          "type" : "string"
+        },
+        "RequestTime" : {
+          "type" : "string"
+        },
+        "MWRequestTime" : {
+          "type" : "string"
+        },
+        "MWResponseime" : {
+          "type" : "string"
+        },
+        "ServiceCode" : {
+          "type" : "string"
+        },
+        "DebugFlag" : {
+          "type" : "integer"
+        },
+        "UserInfo" : {
+          "$ref" : "#/definitions/UserInfo_Type"
+        },
+        "UDF" : {
+          "$ref" : "#/definitions/UDF_Type"
+        },
+        "ResponseStatus" : {
+          "$ref" : "#/definitions/MWResponseStatus_Type"
+        },
+        "BackendError" : {
+          "$ref" : "#/definitions/BackendError_Type"
+        }
+      },
+      "required" : [ "TransactionId", "ChannelId", "RequestTime", "ServiceCode" ]
+    },
+    "UDF_Type" : {
+      "type" : "object",
+      "properties" : {
+        "KeyValueArr" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/KeyValueArr_Type"
+          }
+        }
+      }
+    },
+    "KeyValueArr_Type" : {
+      "type" : "object",
+      "properties" : {
+        "key" : {
+          "type" : "string"
+        },
+        "value" : {
+          "type" : "string"
+        }
+      }
+    },
+    "Tmstmp_Type" : {
+      "type" : "object"
+    },
+    "UserInfo_Type" : {
+      "type" : "object",
+      "properties" : {
+        "UserId" : {
+          "type" : "integer"
+        },
+        "IDNumber" : {
+          "type" : "integer"
+        }
+      }
+    },
+    "MWResponseStatus_Type" : {
+      "type" : "object",
+      "properties" : {
+        "Status" : {
+          "type" : "string"
+        },
+        "Code" : {
+          "type" : "string"
+        },
+        "ArabicMsg" : {
+          "type" : "string"
+        },
+        "EnglishMsg" : {
+          "type" : "string"
+        }
+      },
+      "required" : [ "Code", "Status", "ArabicMsg", "EnglishMsg" ]
+    },
+    "BackendError_Type" : {
+      "type" : "object",
+      "properties" : {
+        "ErrorCode" : {
+          "type" : "string"
+        },
+        "ErrorDescription" : {
+          "type" : "string"
+        }
+      }
+    }
+  }
+}

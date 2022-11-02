@@ -1,0 +1,12 @@
+BROKER SCHEMA com.qiwa.esb.subscribeusertoestablishments
+
+
+CREATE FILTER MODULE CalcUMSubsPrice_Timeout
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE loadproperties REFERENCE TO Environment.Properties.subscribeUserToEstablishments.subscribeUserToEstablishmentsFlow.Variables;
+        SET Environment.Variables.MWResponse.status = loadproperties.MW;
+		RETURN TRUE;
+	END;
+
+END MODULE;

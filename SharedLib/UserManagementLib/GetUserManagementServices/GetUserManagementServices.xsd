@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?><xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://Qiwa/UserManagement/GetUserManagementServices/v1.0" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:bons0="http://Qiwa/UserManagement/GetUserManagementServices/v1.0" xmlns:bons1="http://Qiwa/Common/Types" xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions">
+
+	<xsd:import namespace="http://Qiwa/Common/Types" schemaLocation="../common/types/ESB_common_types_v1.0.xsd"/>
+
+	
+	<xsd:element name="GetUserManagementServicesRq" type="bons0:GetUserManagementServicesRq_Type"/>
+	<xsd:element name="GetUserManagementServicesRs" type="bons0:GetUserManagementServicesRs_Type"/>
+	
+	<complexType name="GetUserManagementServicesRq_Type">
+		<sequence>
+			<xsd:element name="Header" type="bons1:ESBXMLRequestHeader_Type"/>
+			<xsd:element name="Body" type="bons0:GetUserManagementServicesRq_BodyType"/>
+		</sequence>
+	</complexType>
+	
+	<complexType name="GetUserManagementServicesRs_Type">
+		<sequence>
+			<xsd:element name="Header" type="bons1:ESBXMLResponseHeader_Type"/>
+			<xsd:element minOccurs="0" name="Body" type="bons0:GetUserManagementServicesRs_BodyType"/>
+		</sequence>
+	</complexType>
+
+	<complexType name="GetUserManagementServicesRq_BodyType">
+		
+	</complexType>	
+	
+	<complexType name="GetUserManagementServicesRs_BodyType">
+    <all>
+     <element minOccurs="1" name="ServicesList" type="bons0:ServicesList_Type"/>
+    </all>
+	</complexType>
+	
+	<complexType name="ServicesList_Type">
+		<sequence>
+			<element maxOccurs="unbounded" minOccurs="0" name="ServiceItem" type="bons0:ServiceItem_Type"/>
+		</sequence>
+	</complexType>
+		
+	<complexType name="ServiceItem_Type">
+		<all>
+		 <element minOccurs="1" name="GroupId" type="integer"/>
+		   <element minOccurs="1" name="GroupNameEn" type="string"/>
+		   <element minOccurs="1" name="GroupNameAr" type="string"/>
+	       <element minOccurs="1" name="ServiceId" type="integer"/>
+		   <element minOccurs="1" name="ServiceNameEn" type="string"/>
+		   <element minOccurs="1" name="ServiceNameAr" type="string"/>
+		   <element minOccurs="1" name="Subscription" type="string"/>
+			
+		</all>
+	</complexType>
+	
+</xsd:schema>

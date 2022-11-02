@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmCompute.msgnode="ComIbmCompute.msgnode" xmlns:ComIbmFilter.msgnode="ComIbmFilter.msgnode" xmlns:ComIbmWSRequest.msgnode="ComIbmWSRequest.msgnode" xmlns:HRSD_Framework_Lib_GetUnifiedNumberTotalLaborersCountHRSD.subflow="HRSD/Framework/Lib/GetUnifiedNumberTotalLaborersCountHRSD.subflow" xmlns:Qiwa_Framework_Lib_InternalServiceCaller.subflow="Qiwa/Framework/Lib/InternalServiceCaller.subflow" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="com/qiwa/esb/calculateusermanagementsubscriptionprice/CallGetUnified.subflow" nsPrefix="com_qiwa_esb_calculateusermanagementsubscriptionprice_CallGetUnified.subflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1" useDefaults="true" udpSupport="true">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <translation xmi:type="utility:TranslatableString" key="CallGetUnified" bundleName="com/qiwa/esb/calculateusermanagementsubscriptionprice/CallGetUnified" pluginId="CalcUserMgmSubPrice"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/CalcUserMgmSubPrice/icons/full/obj16/CallGetUnified.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/CalcUserMgmSubPrice/icons/full/obj30/CallGetUnified.gif"/>
+    <composition>
+      <nodes xmi:type="Qiwa_Framework_Lib_InternalServiceCaller.subflow:FCMComposite_1" xmi:id="FCMComposite_1_1" location="722,341" waitInterval="15000">
+        <translation xmi:type="utility:ConstantString" string="InternalServiceCaller"/>
+      </nodes>
+      <nodes xmi:type="eflow:FCMSource" xmi:id="InTerminal.Input" location="74,96">
+        <translation xmi:type="utility:TranslatableString" key="InTerminal.Input" bundleName="com/qiwa/esb/calculateusermanagementsubscriptionprice/CallGetUnified" pluginId="CalcUserMgmSubPrice"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_2" location="616,343" computeExpression="esql://routine/com.qiwa.esb.calculateusermanagementsubscriptionprice#CallGetUnified_CallGetUnified.Main">
+        <translation xmi:type="utility:ConstantString" string="CallGetUnified"/>
+      </nodes>
+      <nodes xmi:type="ComIbmFilter.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_3" location="947,338" filterExpression="esql://routine/com.qiwa.esb.calculateusermanagementsubscriptionprice#CallGetUnified_IsScuccess.Main">
+        <translation xmi:type="utility:ConstantString" string="IsScuccess"/>
+      </nodes>
+      <nodes xmi:type="ComIbmFilter.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_4" location="952,443" filterExpression="esql://routine/com.qiwa.esb.calculateusermanagementsubscriptionprice#CallGetUnified_SetTimeOutError.Main">
+        <translation xmi:type="utility:ConstantString" string="Timeout"/>
+      </nodes>
+      <nodes xmi:type="eflow:FCMSink" xmi:id="OutTerminal.Output" location="716,75">
+        <translation xmi:type="utility:TranslatableString" key="OutTerminal.Output" bundleName="com/qiwa/esb/calculateusermanagementsubscriptionprice/CallGetUnified" pluginId="CalcUserMgmSubPrice"/>
+      </nodes>
+      <nodes xmi:type="eflow:FCMSink" xmi:id="OutTerminal.Error" location="1108,451">
+        <translation xmi:type="utility:TranslatableString" key="OutTerminal.Error" bundleName="com/qiwa/esb/calculateusermanagementsubscriptionprice/CallGetUnified" pluginId="CalcUserMgmSubPrice"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_5" location="450,348" computeExpression="esql://routine/com.qiwa.esb.calculateusermanagementsubscriptionprice#CallGetUnified_PrepareRs.Main">
+        <translation xmi:type="utility:ConstantString" string="PrepareRs"/>
+      </nodes>
+      <nodes xmi:type="ComIbmWSRequest.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_6" location="231,348" URLSpecifier="http://server/path" timeoutForServer="10" httpVersion="1.1" protocol="TLS" messageDomainProperty="XMLNSC">
+        <translation xmi:type="utility:ConstantString" string="HTTP Request"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_7" location="73,347" computeExpression="esql://routine/com.qiwa.esb.calculateusermanagementsubscriptionprice#CallGetUnified_Prepare.Main" computeMode="destinationAndMessage">
+        <translation xmi:type="utility:ConstantString" string="Prepare"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_8" location="157,96" computeExpression="esql://routine/com.qiwa.esb.calculateusermanagementsubscriptionprice#CallGetUnified_Request.Main">
+        <translation xmi:type="utility:ConstantString" string="Request"/>
+      </nodes>
+      <nodes xmi:type="HRSD_Framework_Lib_GetUnifiedNumberTotalLaborersCountHRSD.subflow:FCMComposite_1" xmi:id="FCMComposite_1_9" location="229,97">
+        <translation xmi:type="utility:ConstantString" string="GetUnifiedNumberTotalLaborersCountHRSD"/>
+      </nodes>
+      <nodes xmi:type="ComIbmFilter.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_10" location="564,63" filterExpression="esql://routine/com.qiwa.esb.calculateusermanagementsubscriptionprice#CallGetUnified_Success.Main">
+        <translation xmi:type="utility:ConstantString" string="Success"/>
+      </nodes>
+      <nodes xmi:type="ComIbmFilter.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_11" location="566,185" filterExpression="esql://routine/com.qiwa.esb.calculateusermanagementsubscriptionprice#CallGetUnified_TimeOut.Main">
+        <translation xmi:type="utility:ConstantString" string="TimeOut"/>
+      </nodes>
+      <nodes xmi:type="eflow:FCMSink" xmi:id="OutTerminal.Output1" location="699,197">
+        <translation xmi:type="utility:TranslatableString" key="OutTerminal.Err" bundleName="com/qiwa/esb/calculateusermanagementsubscriptionprice/CallGetUnified" pluginId="CalcUserMgmSubPrice"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="OutTerminal.Error" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.false" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.Output1" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_1" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_5" targetNode="OutTerminal.Error" sourceNode="FCMComposite_1_4" sourceTerminalName="OutTerminal.true" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_7" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_8" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_6" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_9" targetNode="FCMComposite_1_6" sourceNode="FCMComposite_1_7" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="FCMComposite_1_8" sourceNode="InTerminal.Input" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_6" targetNode="FCMComposite_1_9" sourceNode="FCMComposite_1_8" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_10" targetNode="FCMComposite_1_10" sourceNode="FCMComposite_1_9" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_11" targetNode="FCMComposite_1_11" sourceNode="FCMComposite_1_9" sourceTerminalName="OutTerminal.Output1" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_12" targetNode="OutTerminal.Output" sourceNode="FCMComposite_1_10" sourceTerminalName="OutTerminal.true" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_13" targetNode="OutTerminal.Output1" sourceNode="FCMComposite_1_10" sourceTerminalName="OutTerminal.false" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_14" targetNode="OutTerminal.Output1" sourceNode="FCMComposite_1_11" sourceTerminalName="OutTerminal.true" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_15" targetNode="OutTerminal.Output1" sourceNode="FCMComposite_1_8" sourceTerminalName="OutTerminal.out1" targetTerminalName="InTerminal.in"/>
+    </composition>
+    <propertyOrganizer/>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

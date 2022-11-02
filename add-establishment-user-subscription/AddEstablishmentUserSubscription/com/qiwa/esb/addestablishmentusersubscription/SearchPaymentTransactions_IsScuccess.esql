@@ -1,0 +1,28 @@
+BROKER SCHEMA com.qiwa.esb.addestablishmentusersubscription
+PATH Qiwa.Framework.Lib; 
+
+
+CREATE FILTER MODULE SearchPaymentTransactions_IsScuccess
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		
+		  DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.AddEstablishmentUserSubscription.AddEstablishmentUserSubscriptionFlow.Variables;
+       IF Root.XMLNSC.SearchPaymentTransactionsRs.Header.ResponseStatus.Code  = GetESBSuccessCode() THEN 
+			  SET Environment.Variabl.SearchPayRs = Root.XMLNSC.SearchPaymentTransactionsRs.Body;         
+		
+			  RETURN TRUE;
+	  
+		   ELSEIF 
+       	Root.XMLNSC.SearchPaymentTransactionsRs.Header.ResponseStatus.Code = loadedPropertiesRef.NoDataFound THEN 
+       	
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.NOPAY;
+			RETURN FALSE;
+       ELSE  
+			SET Environment.Variables.MWResponse.status = Root.XMLNSC.SearchPaymentTransactionsRs.Header.ResponseStatus.Code;
+			 
+			RETURN FALSE; 
+		 
+		END IF;
+		END;	
+
+END MODULE;

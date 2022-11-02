@@ -1,0 +1,204 @@
+BROKER SCHEMA com.qiwa.esb.getusereligibleservices
+
+
+CREATE COMPUTE MODULE GetUserEligibleServicesFlow_DPRs
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage();
+		
+		DECLARE rInputHeader REFERENCE TO Environment.Variables.XMLNSC.GetWorkPermitDetailsMLSDRq.Header;
+		DECLARE rInBodyRef REFERENCE TO Environment.Variables.XMLNSC.GetWorkPermitDetailsMLSDRq.Body;  
+		DECLARE resultV1, resultV2 INT; 
+		
+		DECLARE bodyRef REFERENCE TO Environment.Variables.XMLNSC.GetUserEligibleServicesRq;  
+	
+		
+		DECLARE MLSDrow ROW ;  
+		DECLARE loopsize INT CARDINALITY (InputRoot.XMLNSC.sql.row[]); 
+		DECLARE u INT 1 ; 
+		DECLARE terminateSub INT; 
+		WHILE u<= loopsize DO 
+			 SET MLSDrow.UserType[]= (  
+	                SELECT R.value AS UserType  
+	                FROM InputRoot.XMLNSC.sql.row[u].column[] as R  
+	                WHERE R.name = 'UserType');    
+	         SET MLSDrow.IdNumber[]= (   
+	                SELECT R.value AS IdNumber    
+	                FROM InputRoot.XMLNSC.sql.row[u].column[] as R  
+	                WHERE R.name = 'IdNumber');  
+	         SET MLSDrow.UnifiedNumberId[]= (    
+	                SELECT R.value AS UnifiedNumberId    
+	                FROM InputRoot.XMLNSC.sql.row[u].column[] as R   
+	                WHERE R.name = 'UnifiedNumberId'); 
+	         SET MLSDrow.FK_LaborerStatusId[]= (   
+	                SELECT R.value AS FK_LaborerStatusId   
+	                FROM InputRoot.XMLNSC.sql.row[u].column[] as R  
+	                WHERE R.name = 'FK_LaborerStatusId'); 
+	           
+	           IF MLSDrow.UserType.UserType.isNull = 'true' THEN 
+	        		SET MLSDrow.UserType.UserType VALUE = NULL;
+	           END IF;      
+	            
+	           IF MLSDrow.UnifiedNumberId.UnifiedNumberId.isNull = 'true' THEN  
+	        		SET MLSDrow.UnifiedNumberId.UnifiedNumberId VALUE = NULL;
+	           END IF;       
+	                
+	          IF  MLSDrow.IdNumber.IdNumber = bodyRef.Body.IdNo THEN  
+		          SET Environment.Variabl.RowUser[1].UserType = MLSDrow.UserType.UserType;  
+		          SET Environment.Variabl.RowUser[1].IsEmployee =    MLSDrow.FK_LaborerStatusId.FK_LaborerStatusId;  
+		          SET Environment.Variabl.RowUser[1].IdNo =    MLSDrow.IdNumber.IdNumber;  
+		          SET Environment.Variabl.RowUser[1].UnifiedNumberId =    MLSDrow.UnifiedNumberId.UnifiedNumberId;  
+		         
+	          ELSE 
+	          	  SET Environment.Variabl.RowOwner[1].UserType = MLSDrow.UserType.UserType;  
+		          SET Environment.Variabl.RowOwner[1].IsEmployee =    MLSDrow.FK_LaborerStatusId.FK_LaborerStatusId;  
+		          SET Environment.Variabl.RowOwner[1].IdNo =    MLSDrow.IdNumber.IdNumber;    
+		          SET Environment.Variabl.RowOwner[1].UnifiedNumberId =    MLSDrow.UnifiedNumberId.UnifiedNumberId;  
+	          	    
+	          END IF; 
+	          	
+	          SET u = u+1;      
+		END WHILE; 
+	         
+                
+                
+       
+        -- is employee                 
+--        IF MLSDrow.IsEmployee.IsEmployee.isNull='true' THEN   
+--        	SET  MLSDrow.IsEmployee.IsEmployee=0; 
+--        ELSE 
+--        	SET MLSDrow.IsEmployee.IsEmployee=1; 
+--        END IF; 
+         
+        --is owner
+--        IF MLSDrow.unifiedNo.unifiedNo.isNull='true' THEN    
+--        	SET  MLSDrow.unifiedNo.unifiedNo=0; 
+--        ELSE 
+--        	SET MLSDrow.unifiedNo.unifiedNo=1;  
+--        END IF; 
+         -- if requester doesnt exust in hrsd anymore then skip        
+		IF ((NOT EXISTS(Environment.Variabl.RowUser[1].UserType[]))OR (Environment.Variabl.RowUser[1].UserType IS NULL)) OR ((NOT EXISTS(Environment.Variabl.RowUser[1].UnifiedNumberId[]))OR (Environment.Variabl.RowUser[1].UnifiedNumberId IS NULL)) THEN
+			--skip to sp search  
+			RETURN TRUE; 
+			  
+		ELSE 
+			-- check the user type , if it doesnt equal the one in qiwa call the update qiwa sp
+			IF ((Environment.Variabl.RowUser[1].UserType <> Environment.Variables.DB.UserType.MLSDUserTypeId)) AND (Environment.Variabl.RowUser[1].UserType=1)THEN 	 
+				    -- if the owner unified is null then terminate his sub, and the onwer exists on qiwa DB
+				    IF (Environment.Variabl.RowOwner[1].UnifiedNumberId IS NULL) AND (Environment.Variables.DB.UserType.OwnerId IS NOT NULL) THEN
+				    	SET terminateSub = 1;-- terminate 
+				    ELSE  
+				    	SET terminateSub = 0; -- do nth
+				    END IF;
+				    
+				    
+				    
+				    -- check if owner becmae two and is emp			 	
+					IF 	(Environment.Variabl.RowOwner[1].IsEmployee= 1) AND (terminateSub <>1) AND (Environment.Variabl.RowOwner[1].UserType=2) THEN 
+						 CALL Update_Privileges  (	CAST(bodyRef.Body.IdNo AS CHAR), 
+	 											COALESCE(CAST(COALESCE(Environment.Variabl.RowOwner[1].IdNo,Environment.Variables.DB.UserType.OwnerId) AS CHAR),NULL) , --owner    
+												1, --give all privelges 
+												0,-- do nth 
+												CAST(Environment.Variables.DB.UserType.UnifiedNumber AS INTEGER), 
+												Environment.Variables.DB.UserTypePrivilgies[])INTO resultV2;
+												 
+					ELSE 
+						--if owner anything other than 2 or 2 but not emp then revoke all privilges
+						 CALL Update_Privileges (	CAST(bodyRef.Body.IdNo AS CHAR), 
+	 											COALESCE(CAST(COALESCE(Environment.Variabl.RowOwner[1].IdNo,Environment.Variables.DB.UserType.OwnerId) AS CHAR),NULL)  , --owner    
+												1, --give all privelges 
+												3,-- revoke all privilges for owner  
+												CAST(Environment.Variables.DB.UserType.UnifiedNumber AS INTEGER), 
+												Environment.Variables.DB.UserTypePrivilgies[])INTO resultV2;
+												
+						 
+					END IF;  
+				     --make the user type owner, and give him all privilges,    	
+					CALL Update_OwnerUserType(CAST(bodyRef.Body.IdNo AS CHAR), 
+												COALESCE(CAST(COALESCE(Environment.Variabl.RowOwner[1].IdNo,Environment.Variables.DB.UserType.OwnerId) AS CHAR),NULL) , --owner   
+												CAST(Environment.Variabl.RowUser[1].UserType AS INT), 
+												CAST(Environment.Variabl.RowOwner[1].UserType AS INT),    
+												COALESCE(terminateSub,0),        
+												CAST(Environment.Variables.DB.UserType.UnifiedNumber AS INT), 
+												Environment.Variables.DB.UserTypeUpdate[])INTO resultV1;
+	 				
+ 
+					
+					 
+					
+			ELSEIF ((Environment.Variabl.RowUser[1].UserType <> Environment.Variables.DB.UserType.MLSDUserTypeId)) AND (Environment.Variabl.RowUser[1].UserType<>1) THEN   
+				-- if the user becomes anything but 1 then we only update his type only , ignore owner		 
+				CALL Update_OwnerUserType(CAST(bodyRef.Body.IdNo AS CHAR), 
+												NULL , --owner   
+												CAST(Environment.Variabl.RowUser[1].UserType AS INT),   
+												NULL,       
+												0,     
+												CAST(Environment.Variables.DB.UserType.UnifiedNumber AS INT), 
+												Environment.Variables.DB.UserTypeUpdate[])INTO resultV1;		
+--				--if the user is type 2 and not emp revoke all his previgles
+--				IF 	(Environment.Variabl.RowUser[1].IsEmployee = 0) AND (Environment.Variabl.RowUser[1].UserType=2) THEN 
+--					
+--					CALL Update_Privileges  (	CAST(bodyRef.Body.IdNo AS CHAR), 
+--	 											COALESCE(CAST(Environment.Variabl.RowOwner[1].IdNo AS CHAR),NULL) , --owner    
+--												3, --revoke UM privilge  
+--												0, --do nth 
+--												CAST(Environment.Variables.DB.UserType.UnifiedNumber AS INTEGER), 
+--												Environment.Variables.DB.UserTypePrivilgies[])INTO resultV2;
+--										 
+--					 
+--					
+--				END IF; 	     
+					
+				
+				
+			END IF;    
+				
+						
+		END IF;     
+		
+		IF (resultV1 =-1) OR (resultV2 = -1)THEN 
+			SET Environment.Var.FailedToUpdate =1;
+		END IF;
+		
+		RETURN TRUE;  
+END; 
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+	
+	CREATE PROCEDURE Update_OwnerUserType (	IN RequestorId CHARACTER,
+												IN OwnerId CHARACTER,  
+												IN RequestorNewTypeId INTEGER, 
+												IN OwnerNewTypeId INTEGER ,
+												IN TerminateOwnerSubscription INTEGER,  
+												IN UnifiedNumber INTEGER  
+
+												 )
+							 					
+	RETURNS INTEGER												
+	LANGUAGE DATABASE DYNAMIC RESULT SETS 1 
+    EXTERNAL NAME "dbo.Update_OwnerUserType";  
+    
+    CREATE PROCEDURE Update_Privileges (	IN RequestorId CHARACTER,
+												IN OwnerId CHAR,
+												IN ActionForRequestor INT,											 
+							 					IN ActionForOwner INT,
+							 					IN UnifiedNumber INTEGER   )
+	RETURNS INTEGER											
+	LANGUAGE DATABASE DYNAMIC RESULT SETS 1 
+    EXTERNAL NAME "dbo.Update_Privileges"; 
+	
+	
+END MODULE;

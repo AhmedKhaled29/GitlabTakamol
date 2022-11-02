@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?><xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://Qiwa/UserManagement/UpdateOrTerminateUserSubscription/v1.0" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:bons0="http://Qiwa/UserManagement/UpdateOrTerminateUserSubscription/v1.0" xmlns:bons1="http://Qiwa/Common/Types" xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions">
+
+	<xsd:import namespace="http://Qiwa/Common/Types" schemaLocation="../common/types/ESB_common_types_v1.0.xsd"/>
+
+	
+	<xsd:element name="UpdateOrTerminateUserSubscriptionRq" type="bons0:UpdateOrTerminateUserSubscriptionRq_Type"/>
+	<xsd:element name="UpdateOrTerminateUserSubscriptionRs" type="bons0:UpdateOrTerminateUserSubscriptionRs_Type"/>
+	
+	<complexType name="UpdateOrTerminateUserSubscriptionRq_Type">
+		<sequence>
+			<xsd:element name="Header" type="bons1:ESBXMLRequestHeader_Type"/>
+			<xsd:element name="Body" type="bons0:UpdateOrTerminateUserSubscriptionRq_BodyType"/>
+		</sequence>
+	</complexType>
+	
+	<complexType name="UpdateOrTerminateUserSubscriptionRs_Type">
+		<sequence>
+			<xsd:element name="Header" type="bons1:ESBXMLResponseHeader_Type"/>
+			<xsd:element minOccurs="0" name="Body" type="bons0:UpdateOrTerminateUserSubscriptionRs_BodyType"/>
+		</sequence>
+	</complexType>
+
+	<complexType name="UpdateOrTerminateUserSubscriptionRq_BodyType">
+	<all>
+	 <element minOccurs="0" name="UserId" type="integer"/>
+	 <element minOccurs="0" name="IdNo" type="string"/>
+	
+	 <element minOccurs="1" name="ActionType" >
+				<simpleType>
+					<restriction base="integer">
+						  <enumeration value="1"/>
+						  <enumeration value="2"/>
+					</restriction>
+				</simpleType>
+			</element>
+	 
+	 <element minOccurs="0" name="SubscriptionExpiryDate" type="bons1:Dt_Type"/>
+	 <element minOccurs="0" name="EstablishmentsList" type="bons0:EstablishmentsList_Type"/>
+	 
+    </all>
+	</complexType>	 
+	
+	<complexType name="EstablishmentsList_Type">
+    <sequence>
+    
+         <element minOccurs="1" maxOccurs='unbounded' name="Establishments" type="bons0:Establishments_Type"/>
+    
+    </sequence> 
+	</complexType>
+	
+	<complexType name="Establishments_Type">
+	<all>
+
+	      <element minOccurs="1" name="LaborOfficeId" type="integer"/>
+		 <element minOccurs="1" name="EstablishmentSequence" type="integer"/>
+	 
+    </all>
+	</complexType>	
+
+	
+	
+	<complexType name="UpdateOrTerminateUserSubscriptionRs_BodyType">
+    <sequence>
+    </sequence> 
+	</complexType>
+	
+	
+	
+</xsd:schema>

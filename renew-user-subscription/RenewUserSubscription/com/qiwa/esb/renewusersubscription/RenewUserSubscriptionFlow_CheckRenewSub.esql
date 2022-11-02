@@ -1,0 +1,100 @@
+
+
+BROKER SCHEMA com.qiwa.esb.renewusersubscription
+PATH Qiwa.Framework.Lib;
+
+CREATE COMPUTE MODULE RenewUserSubscriptionFlow_CheckRenewSub
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage();
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.RenewUserSubscription.RenewUserSubscriptionFlow.Variables;
+		DECLARE rInBodyRef REFERENCE TO Environment.Variables.XMLNSC.RenewUserSubscriptionRq.Body;
+		-- if the xml creation hasnt already occured inside the check user estab elig sub flow do it here
+		IF NOT EXISTS(Environment.Variables.SPXML.XMLNSC.UsersSubscriptionList.UserSubscription[]) THEN
+			CREATE FIELD Environment.Variables.SPXML;
+			CREATE FIRSTCHILD OF Environment.Variables.SPXML DOMAIN 'XMLNSC';
+			DECLARE i INT 1;
+			--cast user estabs from input into xml
+
+			FOR SOURCE AS rInBodyRef.EstablishmentsList.EstablishmentItem[] DO
+				SET Environment.Variables.SPXML.XMLNSC.UsersSubscriptionList.UserSubscription[i].LaborOfficeId = SOURCE.LaborOfficeId;
+				SET Environment.Variables.SPXML.XMLNSC.UsersSubscriptionList.UserSubscription[i].SequenceNumber = SOURCE.SequenceNumber;
+				SET i = i + 1;
+			END FOR;
+		END IF;
+
+		DECLARE UserSubScriptions CHAR ;
+		SET UserSubScriptions = CAST(ASBITSTREAM(Environment.Variables.SPXML.XMLNSC CCSID 1208) AS CHARACTER CCSID 1208);
+
+		DECLARE Result1 INT;
+		--check user estabs if apply to the renwal conditions( within the 30 days before expiry date and payment reference is valid) return service id 12 flag exists or not
+		CALL Check_RenewingSubscription (CAST(rInBodyRef.IdNo AS CHARACTER),
+		CAST(UserSubScriptions AS CHARACTER),
+		CAST(loadedPropertiesRef.RenewalPeriod AS INT),
+		COALESCE(CAST(rInBodyRef.PaymentReference AS CHARACTER),NULL),
+		Environment.Variables.DB.CheckRenwal[]
+		)INTO Result1;
+		COMMIT ;																													
+		-- if success
+		IF Result1 = 0 THEN
+			-- if the CallGetLabInfo flag is true then call get lab info
+			IF ((Environment.Variables.DB.CheckRenwal.HasUMPrivilege = 'true')OR (Environment.Variables.DB.CheckRenwal.HasUMPrivilege = 'True' )OR (Environment.Variables.DB.CheckRenwal.HasUMPrivilege = 'TRUE' ) OR (Environment.Variables.DB.CheckRenwal.HasUMPrivilege = '1' ))
+				AND (Environment.Variables.DB.CheckRenwal.MLSDUserTypeId <> 1) THEN
+				SET OutputRoot.Properties = Environment.Variables.Properties;
+				SET OutputRoot.MQMD = Environment.Variables.MQMD;
+				SET OutputRoot.MQRFH2 = Environment.Variables.MQRFH2;
+
+				SET OutputRoot.XMLNSC.data.LaborerIdNo = rInBodyRef.IdNo;
+				SET OutputLocalEnvironment.Destination.HTTP.RequestURL = loadedPropertiesRef.DBURL;
+				PROPAGATE TO TERMINAL 'out2';
+				RETURN FALSE;
+			ELSE
+				-- if there was no serviceid 12 in any subscription privilge skip the get lab info
+				RETURN TRUE;
+			END IF;
+
+		ELSE
+			-- result list of errors returned from Check_RenewingSubscription, exit flow
+			DECLARE EnDescription,ArDescription,errorStatus,ESB_CODE CHAR;
+			CALL getBackendEsb_MapErrorCode('QiwaDB',CAST(Result1 AS CHAR),NULL,EnDescription,ArDescription,errorStatus,ESB_CODE);
+			SET Environment.Variables.MWResponse.status =ESB_CODE;
+			PROPAGATE TO TERMINAL 'out1';
+			RETURN FALSE;
+
+		END IF;
+
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+
+	CREATE PROCEDURE Check_RenewingSubscription (IN LaborerIdNumber CHARACTER,
+	IN UserSubscriptions CHARACTER,
+	IN RenewalPeriod INT,
+	IN PaymentReference CHARACTER
+	)
+	RETURNS INTEGER
+	LANGUAGE DATABASE
+	DYNAMIC RESULT SETS 1
+	EXTERNAL NAME "dbo.Check_RenewingSubscription";	
+	
+	
+
+	
+
+
+
+END MODULE;

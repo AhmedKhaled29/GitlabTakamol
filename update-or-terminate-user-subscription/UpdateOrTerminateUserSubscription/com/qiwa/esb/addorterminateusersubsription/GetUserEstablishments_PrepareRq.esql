@@ -1,0 +1,47 @@
+BROKER SCHEMA com.qiwa.esb.addorterminateusersubsription
+
+
+CREATE COMPUTE MODULE GetUserEstablishments_PrepareRq
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage();
+		
+		DECLARE rInBodyRef REFERENCE TO Environment.Variables.XMLNSC.UpdateOrTerminateUserSubscriptionRq.Body;
+		DECLARE rInHeaderRef REFERENCE TO Environment.Variables.XMLNSC.UpdateOrTerminateUserSubscriptionRq.Header;
+		--CREATE LASTCHILD OF Environment NAME 'Variables';
+		
+		SET Environment.Variables.Header = rInHeaderRef;
+		SET Environment.Variables.Body = rInBodyRef;
+		
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.UpdateOrTerminateUserSubscription.UpdateOrTerminateUserSubscriptionFlow.Variables;
+		
+		-- DECLARE rInHeaderRef REFERENCE TO InputRoot.XMLNSC.GetUserEstablishmentsMLSDRq.Header;
+		-- CREATE FIRSTCHILD OF OutputRoot.XMLNSC.GetUserEstablishmentsMLSDRs NAME 'Header';
+		--DECLARE rOutHeaderRef REFERENCE TO OutputRoot.XMLNSC.GetUserEstablishmentsMLSDRs.Header;
+		--CREATE LASTCHILD OF OutputRoot.XMLNSC NAME 'data';
+		
+		
+		SET OutputRoot.XMLNSC.data.idNumber =  rInBodyRef.IdNo;
+		SET OutputRoot.XMLNSC.data.excludedSubEconomicActivities VALUE = 'NULL';
+		SET OutputRoot.XMLNSC.data.laborerOfficeId VALUE =  rInBodyRef.EstablishmentsList.Establishments.LaborOfficeId;
+		SET OutputRoot.XMLNSC.data.sequenceNumber VALUE =  rInBodyRef.EstablishmentsList.Establishments.EstablishmentSequence;
+		
+		SET OutputLocalEnvironment.Destination.HTTP.RequestURL = loadedPropertiesRef.DBURL;
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;

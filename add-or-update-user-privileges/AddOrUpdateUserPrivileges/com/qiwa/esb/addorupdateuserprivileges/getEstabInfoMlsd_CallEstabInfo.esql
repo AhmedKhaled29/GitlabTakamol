@@ -1,0 +1,56 @@
+BROKER SCHEMA com.qiwa.esb.addorupdateuserprivileges
+
+
+CREATE COMPUTE MODULE getEstabInfoMlsd_CallEstabInfo
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		
+		DECLARE bodyRef REFERENCE TO Environment.Variables.XMLNSC.AddOrUpdateUserPrivilegesRq.Body; 
+		DECLARE rInputHeader REFERENCE TO Environment.Variables.XMLNSC.AddOrUpdateUserPrivilegesRq.Header; 
+		DECLARE channel CHAR Environment.Properties.AddOrUpdateUserPrivileges.AddOrUpdateUserPrivilegesFlow.Variables.ChannelID; 
+		DECLARE code CHAR Environment.Properties.AddOrUpdateUserPrivileges.AddOrUpdateUserPrivilegesFlow.Variables.estabinfo;
+		  
+
+		SET OutputRoot.Properties = Environment.Variables.Properties ;
+		SET OutputRoot.MQMD =  Environment.Variables.MQMD  ;
+		SET OutputRoot.MQRFH2 = Environment.Variables.MQRFH2;  
+		
+		CREATE LASTCHILD OF OutputRoot DOMAIN ('XMLNSC');
+		 
+		SET OutputRoot.XMLNSC.GetEstablishmentInfoMLSDRq.Header = rInputHeader;   
+		  
+		DECLARE rOutputHeader REFERENCE TO OutputRoot.XMLNSC.GetEstablishmentInfoMLSDRq.Header;      
+		 
+		CREATE LASTCHILD OF OutputRoot.XMLNSC.GetEstablishmentInfoMLSDRq NAME 'Body';  
+		DECLARE outRef REFERENCE TO OutputRoot.XMLNSC.GetEstablishmentInfoMLSDRq.Body;      
+   
+		 SET rOutputHeader.ServiceCode = code ;    
+		 SET rOutputHeader.ChannelId = channel ;
+		 
+		DECLARE CountError INT CARDINALITY(bodyRef.EstablishmentsList.EstablishmentsItem[]); 
+		DECLARE a INT 1;
+		 
+		WHILE a <= CountError DO
+	    		 
+			SET outRef.LaborOfficeId = bodyRef.EstablishmentsList.EstablishmentsItem[a].LaborOfficeId;
+			SET outRef.EstablishmentSequanceNumber = bodyRef.EstablishmentsList.EstablishmentsItem[a].EstablishmentSequence;
+			SET a = a+1;
+		END WHILE; 	   
+ 
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;

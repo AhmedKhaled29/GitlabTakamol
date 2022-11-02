@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://Qiwa/UserManagement/GetQiwaWorkspaceEstablishments/v1.0" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:bons2="http://Qiwa/UserManagement/GetQiwaWorkspaceEstablishments/v1.0" xmlns:bons0="http://Qiwa/Common/Types" xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions">
+
+	<xsd:import namespace="http://Qiwa/Common/Types" schemaLocation="../common/types/ESB_common_types_v1.0.xsd"/>
+
+
+	<xsd:element name="GetQiwaWorkspaceEstablishmentsRq" type="bons2:GetQiwaWorkspaceEstablishmentsRq_Type"/>
+	<xsd:element name="GetQiwaWorkspaceEstablishmentsRs" type="bons2:GetQiwaWorkspaceEstablishmentsRs_Type"/>
+
+	<complexType ibmSchExtn:docRoot="true" name="GetQiwaWorkspaceEstablishmentsRq_Type">
+			<sequence>
+				<xsd:element name="Header" type="bons0:ESBXMLRequestHeader_Type"/>
+				<xsd:element name="Body" type="bons2:GetQiwaWorkspaceEstablishmentsRq_BodyType"/>
+			</sequence>
+	</complexType> 
+	
+	<complexType ibmSchExtn:docRoot="true" name="GetQiwaWorkspaceEstablishmentsRs_Type">
+			<sequence>
+				<xsd:element name="Header" type="bons0:ESBXMLResponseHeader_Type"/>
+				<xsd:element minOccurs="1" name="Body" type="bons2:GetQiwaWorkspaceEstablishmentsRs_BodyType"/>
+			</sequence>
+	</complexType>
+	
+	
+	<complexType name="GetQiwaWorkspaceEstablishmentsRq_BodyType">
+		<all>
+			<element minOccurs="1" name="IdNo" type="string"/>
+		</all>
+	</complexType>
+	
+			
+	
+	<complexType name="GetQiwaWorkspaceEstablishmentsRs_BodyType">
+		<all>
+			<xsd:element minOccurs="0" name="EligibleEstablishmentsList" type="bons2:EligibleEstablishmentsList_Type" />
+			<xsd:element minOccurs="0" name="NonEligibleEstablishmentsList" type="bons2:NonEligibleEstablishmentsList_Type" />
+			
+			
+		</all>
+	</complexType>
+	
+	<complexType name="EligibleEstablishmentsList_Type">
+			<sequence>
+			<element  maxOccurs="unbounded" minOccurs="0" name="EligibleEstablishmentsItem" type="bons2:EligibleEstablishmentsItem_Type"/> 
+				
+		    </sequence>
+	</complexType>
+	
+	<complexType name="EligibleEstablishmentsItem_Type">
+		<sequence>
+			<element  minOccurs="1" name="LaborOfficeId" type="integer"/> 
+			<element  minOccurs="1" name="EstablishmentSequence " type="integer"/> 
+			<element  minOccurs="1" name="EstablishmentName" type="string"/> 
+			<element  minOccurs="1" name="IsMainBranch" type="string"/> 
+			<element  minOccurs="1" name="UnifiedNumberId" type="string"/> 
+			<element minOccurs="1" name="EstablishmentId " type="integer"/>
+	        <element minOccurs="1" name="UserType " type="integer"/>
+		</sequence>
+	</complexType>
+	
+	<complexType name="NonEligibleEstablishmentsList_Type">
+			<sequence>
+			<element  maxOccurs="unbounded" minOccurs="0" name="NonEligibleEstablishmentsItem" type="bons2:NonEligibleEstablishmentsItem_Type"/> 
+				
+		    </sequence>
+	</complexType>
+	
+	<complexType name="NonEligibleEstablishmentsItem_Type">
+		<sequence>
+			<element  minOccurs="1" name="LaborOfficeId" type="integer"/> 
+			<element  minOccurs="1" name="EstablishmentSequence" type="integer"/> 
+			<element  minOccurs="1" name="EstablishmentName" type="string"/> 
+			<element  minOccurs="1" name="IsMainBranch" type="string"/> 
+			<element  minOccurs="1" name="UnifiedNumberId" type="string"/> 
+			<element  minOccurs="1" name="EligibleForSelfSubscripition" type="boolean"/>
+			<element minOccurs="1" name="EstablishmentId " type="integer"/>
+	        <element minOccurs="1" name="UserType " type="integer"/> 
+	         <element minOccurs="1" name="SubscriptionStatusId " type="integer"/>
+	        
+		</sequence>
+	</complexType>
+	
+	
+</xsd:schema>

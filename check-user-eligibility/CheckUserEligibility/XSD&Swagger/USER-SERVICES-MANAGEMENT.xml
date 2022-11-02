@@ -1,0 +1,38 @@
+<properties refresh-policy="automatic">
+
+		<group name="CheckUserEligibility.CheckUserEligibilityFlow"> 
+		<group name="Logging">
+			<property name="LogEnabled" value="TRUE" /> 
+			<property name="AuditEnabled" value="FALSE" />
+			<property name="key1" value="" />
+			<property name="value1" value="" />
+			<property name="key2" value="" />
+			<property name="value2" value="" />
+			<property name="key3" value="" />
+			<property name="value3" value="" />
+			<property name="key4" value="" />
+			<property name="value4" value="" />
+		</group>
+		<group name="Variables">
+		    <property name="NO_Privilege_Error" value="E0000046" />
+			<property name="MissingParameter" value="E0000004" />
+			<property name="ServiceCode" value="MGUE0001" />
+			<property name="ChannelId" value="ESB" />
+			<property name="No_Subscribtions" value="E0000047" />
+			<property name="No_Data" value="E0000008" />
+			<property name="NoDataFound" value="E0000128" />
+			<property name="Ask_Owner" value="E0000048" />
+			<property name="TimeOutError" value="E9999998" />
+				
+		</group>
+		<group name="SchemaValidation">
+            <property name="ValidationEnabled" value="TRUE" />
+        </group>
+		<group name="Retry">
+				<property name="RetryEnabled" value="FALSE" />
+			<property name="minWaitDurationSec" value="60" />
+			<property name="maxRetryCount" value="5" />
+		</group>
+	</group>
+</properties>
+	

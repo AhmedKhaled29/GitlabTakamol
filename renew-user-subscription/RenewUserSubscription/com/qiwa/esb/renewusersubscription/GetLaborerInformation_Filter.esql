@@ -1,0 +1,31 @@
+
+
+BROKER SCHEMA com.qiwa.esb.renewusersubscription
+PATH Qiwa.Framework.Lib;
+
+
+CREATE FILTER MODULE GetLaborerInformation_IsSuccess
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		IF FIELDNAME(Environment.Variables) IS NULL THEN
+			CREATE FIELD Environment.Variables;
+		END IF;
+		DECLARE EV REFERENCE TO Environment.Variables;
+		IF Root.XMLNSC.GetLaborerInformationMLSDRs.Header.ResponseStatus.Code = GetESBSuccessCode() THEN
+			FOR MSOURCE AS EV.SPXML1.XMLNSC.UsersSubscriptionList.UserSubscription[] DO
+				SET EV.MatchData[] = SELECT * FROM Root.XMLNSC.GetLaborerInformationMLSDRs.Body.EstablishmentInfo[] AS R WHERE R.SequanceNumber=MSOURCE.SequenceNumber AND R.LaborOfficeId=MSOURCE.LaborOfficeId;
+				IF EXISTS(EV.MatchData[]) THEN
+					CREATE FIELD EV.SPXML2.XMLNSC.UsersSubscriptionList.UserSubscription;
+					SET EV.SPXML2.XMLNSC.UsersSubscriptionList.UserSubscription[EV.cnt2].LaborOfficeId = MSOURCE.LaborOfficeId;
+					SET EV.SPXML2.XMLNSC.UsersSubscriptionList.UserSubscription[EV.cnt2].SequenceNumber = MSOURCE.SequenceNumber;
+					SET EV.SPXML2.XMLNSC.UsersSubscriptionList.UserSubscription[EV.cnt2].ServiceID=MSOURCE.ServiceID;
+					SET EV.cnt2 = EV.cnt2 + 1;
+				END IF;
+			END FOR;
+		ELSE
+			SET Environment.Variables.MWResponse.status = Root.XMLNSC.GetLaborerInformationMLSDRs.Header.ResponseStatus.Code;
+			SET EV.CallProc	=	TRUE;
+			RETURN FALSE;
+		END IF;
+	END;
+END MODULE;

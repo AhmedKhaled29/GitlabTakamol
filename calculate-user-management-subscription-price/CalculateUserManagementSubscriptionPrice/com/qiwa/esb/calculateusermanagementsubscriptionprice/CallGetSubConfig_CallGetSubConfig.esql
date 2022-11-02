@@ -1,0 +1,54 @@
+BROKER SCHEMA com.qiwa.esb.calculateusermanagementsubscriptionprice
+
+
+CREATE COMPUTE MODULE CallGetSubConfig_CallGetSubConfig
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+    CALL CopyMessageHeaders();    
+		-- CALL CopyEntireMessage(); 
+		--DECLARE Environment.Variables REFERENCE TO Environment.Variables;
+	
+	DECLARE bodyRef REFERENCE TO Environment.Variables.Body;   
+    DECLARE rInputHeader REFERENCE TO Environment.Variables.Header; 
+    DECLARE code CHAR Environment.Properties.CalculateUserManagementSubscriptionPrice.CalculateUserManagementSubscriptionPriceFlow.Variables.CodegetSus;
+    DECLARE channel CHAR Environment.Properties.CalculateUserManagementSubscriptionPrice.CalculateUserManagementSubscriptionPriceFlow.Variables.ChannelId;
+  
+	SET OutputRoot.Properties = Environment.Variables.Properties;
+	SET OutputRoot.MQMD = Environment.Variables.MQMD;
+	SET OutputRoot.MQRFH2 = Environment.Variables.MQRFH2;	      
+	
+
+	CREATE LASTCHILD OF OutputRoot DOMAIN ('XMLNSC');
+	
+	SET OutputRoot.XMLNSC.GetSubscriptionsConfigurationsRq.Header = rInputHeader;     
+	 
+	DECLARE rOutputHeader REFERENCE TO OutputRoot.XMLNSC.GetSubscriptionsConfigurationsRq.Header;      
+	 
+	CREATE LASTCHILD OF OutputRoot.XMLNSC.GetSubscriptionsConfigurationsRq NAME 'Body';  
+	DECLARE outRef REFERENCE TO OutputRoot.XMLNSC.GetSubscriptionsConfigurationsRq.Body;       
+  
+	SET rOutputHeader.ServiceCode = code  ;   
+	SET rOutputHeader.ChannelId = channel ;
+	
+	SET outRef.LaborersCount = Environment.Variabl.GetInfo.TotalRecordCount;
+	SET outRef.EstablishmentSize = -1 ; 
+	
+	SET Environment.InternalServiceCaller.callCorrIDOffset = SUBSTRING(rInputHeader.TransactionId FROM 1 FOR 1) || '2'; 
+	
+	RETURN TRUE; 
+END;
+
+CREATE PROCEDURE CopyMessageHeaders() BEGIN
+	DECLARE I INTEGER 1;
+	DECLARE J INTEGER;
+	SET J = CARDINALITY(InputRoot.*[]);
+	WHILE I < J DO
+		SET OutputRoot.*[I] = InputRoot.*[I];
+		SET I = I + 1;
+	END WHILE;
+END;
+
+CREATE PROCEDURE CopyEntireMessage() BEGIN
+	SET OutputRoot = InputRoot;
+END;
+END MODULE;

@@ -1,0 +1,38 @@
+BROKER SCHEMA com.qiwa.esb.renewusersubscription
+
+
+CREATE COMPUTE MODULE "GetUserInformationMlsdCall.subflow_Compute"
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		
+ 		IF InputRoot.XMLNSC.GetUserInformationRs.Body.Status.StatusId = 1 THEN
+			--NEED TO ADD LOGIC
+			SET Environment.Variables.esb.GetUserInformationRs.Body=InputRoot.XMLNSC.GetUserInformationRs.Body;
+                
+			RETURN TRUE;
+	
+		ELSE
+			
+			SET Environment.Variables.MWResponse.status = InputRoot.XMLNSC.GetUserInformationRs.Header.ResponseStatus.Code;
+			
+			RETURN FALSE;
+		END IF;
+	
+ 
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;

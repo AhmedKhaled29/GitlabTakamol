@@ -1,0 +1,140 @@
+ BROKER SCHEMA com.qiwa.esb.checkaddedusereligibility
+PATH Qiwa.Framework.Lib;  
+
+
+CREATE COMPUTE MODULE CheckAddedUserEligibilityFlow_CallProcedure
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyMessageHeaders();
+		DECLARE EV REFERENCE TO Environment.Variables;
+		SET OutputRoot.Properties = InputRoot.Properties;
+		SET OutputRoot.MQMD 	  = InputRoot.MQMD;
+		SET OutputRoot.MQRFH2 	  = InputRoot.MQRFH2;
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.CheckAddedUserEligibility.CheckAddedUserEligibilityFlow.Variables;
+		DECLARE rInHeaderRef REFERENCE TO InputRoot.XMLNSC.CheckAddedUserEligibilityRq.Header;
+		DECLARE rInBodyRef REFERENCE TO InputRoot.XMLNSC.CheckAddedUserEligibilityRq.Body;
+		CREATE FIRSTCHILD OF OutputRoot.XMLNSC.CheckAddedUserEligibilityRs NAME 'Header';
+		DECLARE rOutHeaderRef REFERENCE TO OutputRoot.XMLNSC.CheckAddedUserEligibilityRs.Header;
+		CREATE LASTCHILD OF OutputRoot.XMLNSC.CheckAddedUserEligibilityRs NAME 'Body';
+		
+		
+		DECLARE itemloop INT CARDINALITY( rInBodyRef.EstablishmentsUsersList.EstablishmentsUsersItem[]);
+			-- Declaer Ref to XML object
+		SET Environment.XmlObject VALUE = NULL;
+		DECLARE xmlObj reference to Environment.XmlObject;
+		DECLARE i INT 1;
+		
+		-- store the values in xml object	
+		
+		    WHILE i <= itemloop DO 
+		    SET xmlObj.UsersSubscriptionList.UserSubscription[i].IdNo = rInBodyRef.EstablishmentsUsersList.EstablishmentsUsersItem[i].IdNo;
+			SET xmlObj.UsersSubscriptionList.UserSubscription[i].LaborOfficeId = rInBodyRef.EstablishmentsUsersList.EstablishmentsUsersItem[i].LaborOfficeId;
+			SET xmlObj.UsersSubscriptionList.UserSubscription[i].SequenceNumber = rInBodyRef.EstablishmentsUsersList.EstablishmentsUsersItem[i].EstablishmentSequence;
+		    SET i = i+1;   
+		    END WHILE;
+		  
+		  Create LASTCHILD of Environment DOMAIN 'XMLNSC' Name 'xml';
+        --SET UsersSubsciptionList value 
+		SET Environment.xml.UsersSubscriptionList = xmlObj.UsersSubscriptionList;
+        --Pars UsersSubsciptionList object to XMl object
+		SET Environment.xml.UsersSubscriptionList = CAST(ASBITSTREAM(Environment.xml CCSID 1208 ) AS CHARACTER CCSID 1208);
+			 
+		
+		
+		
+		CALL Check_UsersEligibilityToAdd (CAST( Environment.xml.UsersSubscriptionList AS CHARACTER ),
+                                            EV.DB.ResultSet[]);
+                                            
+             DECLARE resultSetCount INT CARDINALITY(EV.DB.ResultSet[]); 
+                     
+          -- checking if there is any records for the sent User information 
+		IF resultSetCount <> 0 THEN 
+			
+		
+		
+		 
+		DECLARE OutRef REFERENCE TO OutputRoot.XMLNSC.CheckAddedUserEligibilityRs.Body;
+			
+		DECLARE z INT 1 ; 
+		DECLARE resultSetCount INT CARDINALITY(EV.DB.ResultSet[]);
+		DECLARE n INT 1 ;
+		DECLARE p INT 1;  
+		
+		-- check DB stored procedures and building response body accordingly   
+		WHILE (z <= resultSetCount) DO 
+			IF (EV.DB.ResultSet[z].EligibilityStatus =1 )THEN 
+				
+			
+			
+				SET OutRef.EligibleUsers.EligibleUsersItem[n].IdNo = EV.DB.ResultSet[z].IdNo;
+				SET OutRef.EligibleUsers.EligibleUsersItem[n].LaborOfficeId = EV.DB.ResultSet[z].LaborOfficeId;
+				SET OutRef.EligibleUsers.EligibleUsersItem[n].SequenceNumber =EV.DB.ResultSet[z].SequenceNumber;
+				SET OutRef.EligibleUsers.EligibleUsersItem[n].Description =loadedPropertiesRef.Active ;
+			SET n = n + 1; 	 
+			ELSE  
+				
+				DECLARE Description CHAR ;
+				SET Description = 
+                CASE EV.DB.ResultSet[z].EligibilityStatus
+                WHEN '-1' THEN 'Not Active User' 
+                WHEN '-2' THEN 'User has Active Subscription on the selected Establishment'
+                END;
+                
+				SET OutRef.NonEligibleUsers.NonEligibleUsersItem[p].IdNo = EV.DB.ResultSet[z].IdNo;
+			    SET OutRef.NonEligibleUsers.NonEligibleUsersItem[p].LaborOfficeId = EV.DB.ResultSet[z].LaborOfficeId;
+				SET OutRef.NonEligibleUsers.NonEligibleUsersItem[p].SequenceNumber =EV.DB.ResultSet[z].SequenceNumber;
+				SET OutRef.NonEligibleUsers.NonEligibleUsersItem[p].Description = Description;
+			SET p = p + 1; 	
+			END IF;
+		SET z = z + 1; 	
+		END WHILE; 
+		
+		DECLARE Eligible INT CARDINALITY(OutRef.EligibleUsers.EligibleUsersItem[]);
+		DECLARE NonEligible INT CARDINALITY(OutRef.NonEligibleUsers.NonEligibleUsersItem[]);
+		
+		IF (NonEligible=0 AND Eligible=resultSetCount) THEN 
+		 
+		 CALL Create_esbXML_Response_Header(GetESBSuccessCode(),rInHeaderRef,rOutHeaderRef);
+		 
+		ELSE
+			
+		CALL Create_esbXML_Response_Header(loadedPropertiesRef.NotSuccess,rInHeaderRef,rOutHeaderRef); 
+		 
+		END IF;
+		  ELSE 
+			-- if there is no data give a no data error in the response 
+			CALL Create_esbXML_Response_Header(loadedPropertiesRef.NoDataFound,rInHeaderRef,rOutHeaderRef); 
+		
+		END IF;
+		
+		
+			
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+	
+	
+	
+	
+	
+	CREATE PROCEDURE Check_UsersEligibilityToAdd (
+	                         IN UsersSubscriptionList CHARACTER
+				 		  	
+				 		  	 )
+
+															 
+LANGUAGE DATABASE DYNAMIC RESULT SETS 1 EXTERNAL NAME "dbo.Check_UsersEligibilityToAdd";
+END MODULE;

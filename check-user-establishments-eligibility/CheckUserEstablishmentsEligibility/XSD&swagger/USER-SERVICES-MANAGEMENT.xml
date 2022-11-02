@@ -1,0 +1,63 @@
+<properties refresh-policy="automatic">
+	
+	
+	
+	
+	
+<group name="CheckUserEstablishmentsEligibility.CheckUserEstablishmentsEligibilityFlow">
+		<group name="Logging">
+			<property name="LogEnabled" value="TRUE" />
+			<property name="AuditEnabled" value="FALSE" />
+			<property name="key1" value="" />
+			<property name="value1" value="" />
+			<property name="key2" value="" />
+			<property name="value2" value="" />
+			<property name="key3" value="" />
+			<property name="value3" value="" />
+			<property name="key4" value="" />
+			<property name="value4" value="" />
+		</group>
+		
+		<group name="Variables">
+			<property name="NotEligible" value="E0000046" />
+			<property name="MW" value="E9999998" />
+			<property name="MissingParameter" value="E0000004" /> 
+			<property name="Ask_Owner" value="E0000048"/> 
+			<property name="someEstabs" value="E0000132"/>
+			<property name="AllEstabs" value="E0000131"/>
+			<property name="mlsdEstabInfo" value="MGEI0002"/>
+            <property name="mlsdLaborerInfo" value="MGLI0001"/>
+			
+            <property name="Code" value="MGUE0001" />
+            <property name="Channel" value="ESB" />
+			<property name="NoEstError" value="E0000128" />
+			
+			
+		</group>
+		
+		<group name="column">
+                    <property name="column1" value="EstablishmentId" />
+                    <property name="column2" value="Name" />
+                    <property name="column3" value="IsMainBranch" />
+                    <property name="column4" value="UnifiedNumberId" />
+                    <property name="column5" value="LaborOffice" />
+                    <property name="column6" value="SequenceNumber" />
+                    <property name="column7" value="EstabStatusId" />  
+                    
+            </group>
+		
+		
+		<group name="SchemaValidation">
+            <property name="ValidationEnabled" value="TRUE" />
+        </group>		
+		
+		<group name="Retry">
+			<property name="RetryEnabled" value="FALSE" />
+			<property name="minWaitDurationSec" value="60" />
+			<property name="maxRetryCount" value="5" />
+		</group>
+	</group>
+	
+	
+</properties>
+	

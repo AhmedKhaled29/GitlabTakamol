@@ -1,0 +1,166 @@
+BROKER SCHEMA com.qiwa.esb.checkuserestablishmentseligibility
+
+
+CREATE COMPUTE MODULE getEstabInfoMlsd_CallMlsd
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		
+		-- CALL CopyEntireMessage(); 
+--		DECLARE bodyRef REFERENCE TO Environment.Variables.XMLNSC.CheckUserEstablishmentsEligibilityRq.Body; 
+--		DECLARE rInputHeader REFERENCE TO Environment.Variables.XMLNSC.CheckUserEstablishmentsEligibilityRq.Header;
+	    DECLARE loadedPropertiesRef REFERENCE TO  Environment.Properties.CheckUserEstablishmentsEligibility.CheckUserEstablishmentsEligibilityFlow; 
+      --DECLARE code CHAR Environment.Properties.CheckUserEstablishmentsEligibility.CheckUserEstablishmentsEligibilityFlow.Variables.mlsdEstabInfo;
+--		
+		   
+
+		SET OutputRoot.Properties = Environment.Variables.Properties;
+		SET OutputRoot.MQMD = Environment.Variables.MQMD;
+		SET OutputRoot.MQRFH2 = Environment.Variables.MQRFH2;
+		
+		
+		CREATE LASTCHILD OF OutputRoot DOMAIN ('XMLNSC');
+	    SET  Environment.Variabl.GetDPRs = InputRoot.XMLNSC.sql ; 	
+ 
+--		
+		--DECLARE u INT;
+		--DECLARE  col CHAR; 
+		--DECLARE MLSDrow ROW ;  
+		--DECLARE loopsize INT CARDINALITY (InputRoot.XMLNSC.sql.row[]);
+		--DECLARE o,b INT 1; 
+--		WHILE o <= loopsize DO
+--                
+--                 SET u = 1;
+--                 WHILE u <=7 DO
+--                    
+--                 SET col = loadedPropertiesRef.column.{'column' || CAST(u AS CHAR)};
+--                 SET MLSDrow.{col}[]= (
+--                    SELECT R.value AS {col}  
+--                    FROM InputRoot.XMLNSC.sql.row[o].column[] as R 
+--                    WHERE R.name = loadedPropertiesRef.column.{'column' || CAST(u AS CHAR)}); 
+--                   
+--                    SET Environment.Variabl.GetEstabInfoRs.EstablishmentInfoList.EstablishmentInfoItems[o].{col} =    MLSDrow.{col}.{col};  
+--                    
+--                 SET u = u + 1;
+--                 END WHILE;  
+--                
+--                
+--               		 
+--                SET o = o + 1; 
+--		END WHILE; 
+
+
+
+        
+
+--		WHILE o <= loopsize DO
+--                
+--                
+--                    
+--                SET MLSDrow.EstablishmentId[]= (
+--                SELECT R.value AS EstablishmentId  
+--                FROM Environment.Variabl.GetDPRs.row[o].column[] as R 
+--                WHERE R.name = 'EstablishmentId');   
+--                SET Environment.Variabl.GetEstabInfoRs.EstablishmentInfoList.EstablishmentInfoItems[o].EstablishmentId =    MLSDrow.EstablishmentId.EstablishmentId;  
+--                
+--                SET MLSDrow.Name[]= (
+--                SELECT R.value AS Name  
+--                FROM Environment.Variabl.GetDPRs.row[o].column[] as R 
+--                WHERE R.name = 'Name'); 
+--                SET Environment.Variabl.GetEstabInfoRs.EstablishmentInfoList.EstablishmentInfoItems[o].Name =    MLSDrow.Name.Name;  
+--                
+--                SET MLSDrow.IsMainBranch[]= (
+--                SELECT R.value AS IsMainBranch  
+--                FROM Environment.Variabl.GetDPRs.row[o].column[] as R 
+--                WHERE R.name = 'IsMainBranch'); 
+--                SET Environment.Variabl.GetEstabInfoRs.EstablishmentInfoList.EstablishmentInfoItems[o].IsMainBranch =    MLSDrow.IsMainBranch.IsMainBranch;  
+--                
+--                SET MLSDrow.UnifiedNumberId[]= (
+--                SELECT R.value AS UnifiedNumberId  
+--                FROM Environment.Variabl.GetDPRs.row[o].column[] as R 
+--                WHERE R.name = 'UnifiedNumberId'); 
+--                SET Environment.Variabl.GetEstabInfoRs.EstablishmentInfoList.EstablishmentInfoItems[o].UnifiedNumberId =    MLSDrow.UnifiedNumberId.UnifiedNumberId;  
+--                
+--                SET MLSDrow.LaborOffice[]= (
+--                SELECT R.value AS LaborOffice  
+--                FROM Environment.Variabl.GetDPRs.row[o].column[] as R 
+--                WHERE R.name = 'LaborOffice'); 
+--                SET Environment.Variabl.GetEstabInfoRs.EstablishmentInfoList.EstablishmentInfoItems[o].LaborOffice =    MLSDrow.LaborOffice.LaborOffice;  
+--                
+--                SET MLSDrow.SequenceNumber[]= (
+--                SELECT R.value AS SequenceNumber  
+--                FROM Environment.Variabl.GetDPRs.row[o].column[] as R 
+--                WHERE R.name = 'SequenceNumber'); 
+--                SET Environment.Variabl.GetEstabInfoRs.EstablishmentInfoList.EstablishmentInfoItems[o].SequenceNumber =    MLSDrow.SequenceNumber.SequenceNumber;  
+--                
+--                SET MLSDrow.EstabStatusId[]= (
+--                SELECT R.value AS EstabStatusId  
+--                FROM Environment.Variabl.GetDPRs.row[o].column[] as R 
+--                WHERE R.name = 'EstabStatusId');        
+--                SET Environment.Variabl.GetEstabInfoRs.EstablishmentInfoList.EstablishmentInfoItems[o].EstabStatusId =    MLSDrow.EstabStatusId.EstabStatusId;  
+--              	
+--              	-- check if estab status is 1 else ignore it 
+--              	IF  Environment.Variabl.GetEstabInfoRs.EstablishmentInfoList.EstablishmentInfoItems[o].EstabStatusId = 1 THEN 
+--				  	SET Environment.Variabl.GetEstabInfoRs.EstablishmentInfoList.EstablishmentInfoItem[m] =Environment.Variabl.GetEstabInfoRs.EstablishmentInfoList.EstablishmentInfoItems[o];
+--				  	SET m = m+1; 
+--              	END IF;       
+--                
+--               		  
+--                SET o = o + 1; 
+--		END WHILE; 
+		
+		 
+		
+-- 		DECLARE x,b INT 1;  
+--		FOR Estabs AS Environment.Variabl.GetEstabInfoRs.EstablishmentInfoList.EstablishmentInfoItems[] DO 
+--		
+--		  IF  Environment.Variabl.GetEstabInfoRs.EstablishmentInfoList.EstablishmentInfoItems[x].EstabStatusId = 1 THEN 
+--		  	SET Environment.Variabl.GetEstabInfoRs.EstablishmentInfoList.EstablishmentInfoItem[b] =Environment.Variabl.GetEstabInfoRs.EstablishmentInfoList.EstablishmentInfoItems[x];
+--		  	SET x = x+1;
+--		  	SET b= b+1; 
+--		  ELSE   
+--		  	SET x = x+1 ; 
+--		  END IF;
+--		 
+--		END FOR ;
+--		 
+		 
+--		 
+--         IF EXISTS(Environment.Variables.DB.ResultSet[]) THEN 
+--		 	  DECLARE EstabIds CHAR CAST (Environment.Variables.DB.ResultSet[1].EstablishmentId AS CHAR);  
+--			  DECLARE allData INT CARDINALITY (Environment.Variabl.allDataMlsds.item[]); 
+--			 	
+--				WHILE i<=allData DO
+--				   
+--				   DECLARE dataRef REFERENCE TO Environment.Variables.DB.ResultSet[i]; 
+--			       SET EstabIds =CAST ( EstabIds || ',' || dataRef.EstablishmentId AS CHAR); 
+--			       SET i = i+1;
+--				END WHILE;       
+--			    
+--			    IF  allData > 1  THEN      
+--	          	   SET outRef.EstablishmentIdsList.EstablishmentIds VALUE = EstabIds;      			
+--			    ELSE 
+--			       SET outRef.EstablishmentId = EstabIds; 
+--			    END IF; 
+--				  
+--		 END IF;
+--        
+        
+        
+        
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;

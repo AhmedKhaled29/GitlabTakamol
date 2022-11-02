@@ -1,0 +1,48 @@
+BROKER SCHEMA com.qiwa.esb.checkusereligibility
+
+
+CREATE COMPUTE MODULE CheckUserEligibility
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- coping all headers 
+		SET OutputRoot.Properties = Environment.Variables.Properties;
+		SET OutputRoot.MQMD 	  = Environment.Variables.MQMD;
+		SET OutputRoot.MQRFH2 	  = Environment.Variables.MQRFH2;
+	
+	-- 	DECLARE REFERENCES FOR THE Environment.Properties AND THE CheckUserEligibility REQUEST ;
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.CheckUserEligibility.CheckUserEligibilityFlow;
+		DECLARE rInBodyRef REFERENCE TO Environment.Variables.Request.Body;
+		DECLARE rInHeaderRef REFERENCE TO Environment.Variables.Request.Header;  
+		
+    
+    -- 	PREPARING OUTPUT MSG THAT WILL BE SEND TO GetUserEstablishmentsMLSD   ;
+		CREATE LASTCHILD OF OutputRoot DOMAIN ('XMLNSC');
+		SET OutputRoot.XMLNSC.GetUserEstablishmentsMLSDRq.Header = rInHeaderRef; 
+		DECLARE rOutHeaderRef REFERENCE TO OutputRoot.XMLNSC.GetUserEstablishmentsMLSDRq.Header; 
+		CREATE LASTCHILD OF OutputRoot.XMLNSC.GetUserEstablishmentsMLSDRq NAME 'Body'; 
+		DECLARE rOutBodyRef REFERENCE TO OutputRoot.XMLNSC.GetUserEstablishmentsMLSDRq.Body; 
+		SET rOutHeaderRef.ServiceCode = loadedPropertiesRef.Variables.ServiceCode; 
+		SET rOutHeaderRef.ChannelId = loadedPropertiesRef.Variables.ChannelId;
+		SET rOutBodyRef.IdNo = rInBodyRef.IdNo; 
+		SET rOutBodyRef.ExcludeEconomicActivities  = true; 
+		
+		SET Environment.InternalServiceCaller.callCorrIDOffset = SUBSTRING(rInHeaderRef.TransactionId FROM 1 FOR 2);
+ 
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+

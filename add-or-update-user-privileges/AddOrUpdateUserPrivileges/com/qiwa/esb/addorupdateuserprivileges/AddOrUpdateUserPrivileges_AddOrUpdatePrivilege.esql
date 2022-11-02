@@ -1,0 +1,376 @@
+BROKER SCHEMA com.qiwa.esb.addorupdateuserprivileges
+PATH Qiwa.Framework.Lib;
+
+CREATE COMPUTE MODULE AddOrUpdateUserPrivileges_call_Proc
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		 CALL CopyMessageHeaders();
+		DECLARE EV REFERENCE TO Environment.Variables;
+		SET OutputRoot.Properties = EV.Properties;
+		SET OutputRoot.MQMD 	  = EV.MQMD;
+		SET OutputRoot.MQRFH2 	  = EV.MQRFH2;
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.AddOrUpdateUserPrivileges.AddOrUpdateUserPrivilegesFlow;
+		DECLARE rInHeaderRef REFERENCE TO EV.XMLNSC.AddOrUpdateUserPrivilegesRq.Header;
+		DECLARE rInBodyRef REFERENCE TO EV.XMLNSC.AddOrUpdateUserPrivilegesRq.Body;
+		DECLARE rInBodyRef1 REFERENCE TO EV.GetLaboreInformationMLSDRs.Body;
+	    DECLARE EnDescription CHAR ;
+		DECLARE ArDescription CHAR ; 
+		DECLARE errorStatus CHAR;
+		   
+		
+		 CREATE LASTCHILD OF OutputRoot DOMAIN ('XMLNSC');
+		    SET OutputRoot.XMLNSC.AddOrUpdateUserPrivilegesRs.Header = rInHeaderRef;
+			DECLARE rOutHeaderRef REFERENCE TO OutputRoot.XMLNSC.AddOrUpdateUserPrivilegesRs.Header;
+			CREATE LASTCHILD OF OutputRoot.XMLNSC.AddOrUpdateUserPrivilegesRs NAME 'Body';  
+			DECLARE rOutBodyRef REFERENCE TO OutputRoot.XMLNSC.AddOrUpdateUserPrivilegesRs.Body;
+			
+-- create XML 
+		CREATE FIELD EV.CREATEXML;
+		CREATE FIRSTCHILD OF EV.CREATEXML DOMAIN 'XMLNSC';
+
+-- store the values in xml object
+		DECLARE i INT 1;
+		FOR USER1 AS EV.User.item[] DO  
+			SET EV.CREATEXML.XMLNSC.UsersSubscriptionList.UserSubscription[i].Privileges = USER1.ServiceId;--TRIM( ',' from USER1.ServiceId);
+			SET EV.CREATEXML.XMLNSC.UsersSubscriptionList.UserSubscription[i].LaborOfficeId = USER1.LaborOfficeId;
+			SET EV.CREATEXML.XMLNSC.UsersSubscriptionList.UserSubscription[i].SequenceNumber = USER1.EstablishmentSequence;
+		       SET i = i + 1;	
+		END FOR;
+		
+		DECLARE Result INT;
+		DECLARE IdNo, UserSubScriptions CHAR;
+		DECLARE AddOrUpdate BOOLEAN;
+		-- incase nothing entered the procedure 
+		IF EXISTS (EV.User.item[])THEN 	
+	        --Parse UsersSubsciptionList object to XMl object
+			SET UserSubScriptions = CAST(ASBITSTREAM(EV.CREATEXML.XMLNSC CCSID 1208) AS CHARACTER CCSID 1208);
+		ELSE 
+			SET UserSubScriptions = NULL;
+		END IF; 
+		
+		SET IdNo = rInBodyRef.IdNo; 
+		IF rInBodyRef.AddOrUpdate = '1' THEN
+			SET AddOrUpdate = true; 
+		ELSE 
+			SET AddOrUpdate = false;
+		END IF;		
+--Calling stored procedure		
+		CALL Create_UpdatePrivileges (IdNo,
+		             				  UserSubScriptions,
+                                      AddOrUpdate)
+                                      INTO Result;
+     
+        
+		IF Environment.Variables.allNotMatch =1  THEN 
+			 
+				CALL getEsbChannlsErrorCodeDescriptionFrom(loadedPropertiesRef.Variables.NoMatchLaborerInform,'NULL',NULL,EnDescription,ArDescription,errorStatus); 
+				--CALL Create_esbXML_Response_Header(loadedPropertiesRef.Variables.NoMatchLaborerInform,rInHeader,resHeaderRef);
+			  	DECLARE s INT 1;
+			  	DECLARE r INT ; 
+		  		FOR MATCHSOURCE AS Environment.Variables.NonMatchGetLabrInfoMLSDRs.item[] DO
+			  			SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[s].LaborofficeId			= MATCHSOURCE.LaborOfficeId;
+						SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[s].EstablishmentSequence = MATCHSOURCE.EstablishmentSequence; 
+						SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[s].Status				= errorStatus;
+						SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[s].StatusDescription     = EnDescription;
+				 			SET s = s + 1;
+		  		END FOR; 
+		  		--check if any were inactive in the first step aslan 
+		  		SET EnDescription = NULL ; 
+			    SET ArDescription =NULL ;  
+			    SET errorStatus =NULL; 
+		  		SET  r = s;  
+			    IF EXISTS(Environment.Variables.NoActiveSubscription.item[]) THEN
+		  		    CALL getEsbChannlsErrorCodeDescriptionFrom(loadedPropertiesRef.Variables.InactiveUser,'NULL',NULL,EnDescription,ArDescription,errorStatus); 
+			  		 
+				  		FOR NOMATCHLAB AS Environment.Variables.NoActiveSubscription.item[] DO
+				  			SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].LaborofficeId			= NOMATCHLAB.LaborOfficeId;
+							SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].EstablishmentSequence = NOMATCHLAB.SequenceNumber;
+							SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].Status				= errorStatus;
+							SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].StatusDescription     = EnDescription;
+					 			SET r = r + 1;
+						END FOR;
+						
+			    END IF;
+			    CALL Create_esbXML_Response_Header(loadedPropertiesRef.Variables.procedureNotUpdated,rInHeaderRef,rOutHeaderRef);
+			    
+			    SET  r =r;
+	        	    IF EXISTS(Environment.Variabl.ownedData.item[]) THEN
+		        		SET EnDescription = NULL ; 
+				        SET  ArDescription =NULL ;  
+				        SET errorStatus =NULL; 
+			  		    CALL getEsbChannlsErrorCodeDescriptionFrom(loadedPropertiesRef.Variables.owner,'NULL',NULL,EnDescription,ArDescription,errorStatus); 
+				  		 
+					  		FOR NOMATCHLAB AS Environment.Variabl.ownedData.item[] DO
+					  			SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].LaborofficeId			= NOMATCHLAB.LaborOfficeId;
+								SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].EstablishmentSequence = NOMATCHLAB.EstablishmentSequence;
+								SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].Status				= errorStatus;
+								SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].StatusDescription     = EnDescription;
+						 			SET r = r + 1;
+					  		END FOR; 
+	        	    END IF; 
+					--CALL Create_esbXML_Response_Header(loadedPropertiesRef.Variables.SomeMatchedSubscription,rInHeaderRef,rOutHeaderRef);  
+			    
+			    
+			    
+			    
+			    IF (Result = 0) THEN  
+			    	SET  r =r;
+	        	    IF EXISTS(Environment.Variables.InActiveServicesItem.item[]) THEN
+		        		SET EnDescription = NULL ; 
+				        SET  ArDescription =NULL ;  
+				        SET errorStatus =NULL; 
+			  		    --CALL getEsbChannlsErrorCodeDescriptionFrom(loadedPropertiesRef.Variables.NoMatchLaborerInform,'NULL',NULL,EnDescription,ArDescription,errorStatus); 
+				  		 
+					  		FOR NOMATCHLAB AS Environment.Variables.InActiveServicesItem.item[] DO
+					  			SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].LaborofficeId			= NOMATCHLAB.LaborOfficeId;
+								SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].EstablishmentSequence = NOMATCHLAB.EstablishmentSequence;
+								SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].Status				= 'SUCCESS';
+								SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].StatusDescription     = 'SUCCESS';
+						 			SET r = r + 1;
+					  		END FOR; 
+					CALL Create_esbXML_Response_Header(loadedPropertiesRef.Variables.SomeMatchedSubscription,rInHeaderRef,rOutHeaderRef);   		
+				    END IF; 
+			    ELSE 
+			    	IF EXISTS(Environment.Variables.InActiveServicesItem.item[]) THEN
+			        SET  r =r; 
+	        		SET EnDescription = NULL ; 
+			        SET  ArDescription =NULL ;  
+			        SET errorStatus =NULL; 
+		  		    CALL getEsbChannlsErrorCodeDescriptionFrom(loadedPropertiesRef.Variables.procedureNotUpdated,'NULL',NULL,EnDescription,ArDescription,errorStatus); 
+			  		 
+				  		FOR NOMATCHLAB AS Environment.Variables.InActiveServicesItem.item[] DO
+				  			SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].LaborofficeId			= NOMATCHLAB.LaborOfficeId;
+							SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].EstablishmentSequence = NOMATCHLAB.EstablishmentSequence;
+							SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].Status				= errorStatus;
+							SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].StatusDescription     = EnDescription;
+					 			SET r = r + 1;
+						END FOR;
+				    CALL Create_esbXML_Response_Header(loadedPropertiesRef.Variables.procedureNotUpdated,rInHeaderRef,rOutHeaderRef);  		
+			        END IF; 
+			    END IF;  
+			    RETURN TRUE; 
+			    
+		END IF; 
+		     
+        -- check if returned from db success   
+        IF (Result = 0)  THEN
+        	    -- output the success cases, match and the ones that not conatins 12
+        	    DECLARE r INT 1;
+        	    IF EXISTS(Environment.Variables.InActiveServicesItem.item[]) THEN
+	        		SET EnDescription = NULL ; 
+			        SET  ArDescription =NULL ;  
+			        SET errorStatus =NULL; 
+		  		    --CALL getEsbChannlsErrorCodeDescriptionFrom(loadedPropertiesRef.Variables.NoMatchLaborerInform,'NULL',NULL,EnDescription,ArDescription,errorStatus); 
+			  		 
+				  		FOR NOMATCHLAB AS Environment.Variables.InActiveServicesItem.item[] DO
+				  			SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].LaborofficeId			= NOMATCHLAB.LaborOfficeId;
+							SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].EstablishmentSequence = NOMATCHLAB.EstablishmentSequence;
+							SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].Status				= 'SUCCESS';
+							SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].StatusDescription     = 'SUCCESS';
+					 			SET r = r + 1;
+				  		END FOR; 
+				CALL Create_esbXML_Response_Header(GetESBSuccessCode(),rInHeaderRef,rOutHeaderRef);  		
+			    END IF; 
+			    SET r= r; 
+			    IF EXISTS(Environment.Variables.MatchGetLabrInfoMLSDRs.item[]) THEN
+	        		SET EnDescription = NULL ; 
+			        SET  ArDescription =NULL ;  
+			        SET errorStatus =NULL; 
+		  		    --CALL getEsbChannlsErrorCodeDescriptionFrom(loadedPropertiesRef.Variables.NoMatchLaborerInform,'NULL',NULL,EnDescription,ArDescription,errorStatus); 
+			  		 
+				  		FOR NOMATCHLAB AS Environment.Variables.MatchGetLabrInfoMLSDRs.item[] DO
+				  			SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].LaborofficeId			= NOMATCHLAB.LaborOfficeId;
+							SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].EstablishmentSequence = NOMATCHLAB.EstablishmentSequence;
+							SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].Status				= 'SUCCESS';
+							SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].StatusDescription     = 'SUCCESS';
+					 			SET r = r + 1;
+						END FOR;
+				CALL Create_esbXML_Response_Header(GetESBSuccessCode(),rInHeaderRef,rOutHeaderRef);  		
+			    END IF;
+        	
+        	    SET r= r;
+	        	--check if after db theres any that didnt enter db to be checked aslan which r non match and/or not active   
+	        	IF EXISTS(Environment.Variables.NonMatchGetLabrInfoMLSDRs.item[]) THEN
+	        		SET EnDescription = NULL ; 
+			        SET  ArDescription =NULL ;  
+			        SET errorStatus =NULL; 
+		  		    CALL getEsbChannlsErrorCodeDescriptionFrom(loadedPropertiesRef.Variables.NoMatchLaborerInform,'NULL',NULL,EnDescription,ArDescription,errorStatus); 
+			  		 
+				  		FOR NOMATCHLAB AS Environment.Variables.NonMatchGetLabrInfoMLSDRs.item[] DO
+				  			SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].LaborofficeId			= NOMATCHLAB.LaborOfficeId;
+							SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].EstablishmentSequence = NOMATCHLAB.EstablishmentSequence;
+							SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].Status				= errorStatus;
+							SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].StatusDescription     = EnDescription;
+					 			SET r = r + 1;
+						END FOR;
+				CALL Create_esbXML_Response_Header(loadedPropertiesRef.Variables.SomeMatchedSubscription,rInHeaderRef,rOutHeaderRef);  		
+	        	END IF;  
+			    SET r= r; 
+			    IF EXISTS(Environment.Variables.NoActiveSubscription.item[]) THEN
+		  		    CALL getEsbChannlsErrorCodeDescriptionFrom(loadedPropertiesRef.Variables.InactiveUser,'NULL',NULL,EnDescription,ArDescription,errorStatus); 
+			  		
+				  		FOR NOMATCHLAB AS Environment.Variables.NoActiveSubscription.item[] DO
+				  			SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].LaborofficeId			= NOMATCHLAB.LaborOfficeId;
+							SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].EstablishmentSequence = NOMATCHLAB.SequenceNumber;
+							SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].Status				= errorStatus;
+							SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].StatusDescription     = EnDescription;
+					 			SET r = r + 1;
+						END FOR;
+				CALL Create_esbXML_Response_Header(loadedPropertiesRef.Variables.SomeMatchedSubscription,rInHeaderRef,rOutHeaderRef);  		
+			    END IF;
+			    
+			    SET  r =r;
+	        	    IF EXISTS(Environment.Variabl.ownedData.item[]) THEN
+		        		SET EnDescription = NULL ; 
+				        SET  ArDescription =NULL ;  
+				        SET errorStatus =NULL; 
+			  		    CALL getEsbChannlsErrorCodeDescriptionFrom(loadedPropertiesRef.Variables.owner,'NULL',NULL,EnDescription,ArDescription,errorStatus); 
+				  		 
+					  		FOR NOMATCHLAB AS Environment.Variabl.ownedData.item[] DO
+					  			SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].LaborofficeId			= NOMATCHLAB.LaborOfficeId;
+								SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].EstablishmentSequence = NOMATCHLAB.EstablishmentSequence;
+								SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].Status				= errorStatus;
+								SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].StatusDescription     = EnDescription;
+						 			SET r = r + 1;
+					  		END FOR; 
+					  	IF Environment.Variabl.allOwned = 1 THEN 	
+	        	    	  CALL Create_esbXML_Response_Header(loadedPropertiesRef.Variables.owner,rInHeaderRef,rOutHeaderRef);  		
+					  	ELSE 
+					  	   CALL Create_esbXML_Response_Header(loadedPropertiesRef.Variables.SomeMatchedSubscription,rInHeaderRef,rOutHeaderRef);  		
+					  		
+					  	END IF; 
+					  	
+	        	    END IF; 
+				
+
+				  		
+		    
+		    
+        ELSE 
+			    CALL Create_esbXML_Response_Header(loadedPropertiesRef.Variables.procedureNotUpdated,rInHeaderRef,rOutHeaderRef); 
+			    -- output the ones that didnt enter the db in the first place, not match and the ones werent active 
+			    DECLARE r INT 1 ; 
+	        	IF EXISTS(Environment.Variables.NonMatchGetLabrInfoMLSDRs.item[]) THEN
+	        		SET EnDescription = NULL ; 
+			        SET  ArDescription =NULL ;  
+			        SET errorStatus =NULL; 
+		  		    CALL getEsbChannlsErrorCodeDescriptionFrom(loadedPropertiesRef.Variables.NoMatchLaborerInform,'NULL',NULL,EnDescription,ArDescription,errorStatus); 
+			  		 
+				  		FOR NOMATCHLAB AS Environment.Variables.NonMatchGetLabrInfoMLSDRs.item[] DO
+				  			SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].LaborofficeId			= NOMATCHLAB.LaborOfficeId;
+							SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].EstablishmentSequence = NOMATCHLAB.EstablishmentSequence;
+							SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].Status				= errorStatus;
+							SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].StatusDescription     = EnDescription;
+					 			SET r = r + 1;
+						END FOR;
+				CALL Create_esbXML_Response_Header(loadedPropertiesRef.Variables.procedureNotUpdated,rInHeaderRef,rOutHeaderRef);  		
+			    END IF; 
+			    SET r = r ; 
+			    IF EXISTS(Environment.Variables.NoActiveSubscription.item[]) THEN
+		  		    CALL getEsbChannlsErrorCodeDescriptionFrom(loadedPropertiesRef.Variables.InactiveUser,'NULL',NULL,EnDescription,ArDescription,errorStatus); 
+			  		
+				  		FOR NOMATCHLAB AS Environment.Variables.NoActiveSubscription.item[] DO
+				  			SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].LaborofficeId			= NOMATCHLAB.LaborOfficeId;
+							SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].EstablishmentSequence = NOMATCHLAB.SequenceNumber;
+							SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].Status				= errorStatus;
+							SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].StatusDescription     = EnDescription;
+					 			SET r = r + 1;
+						END FOR;
+				CALL Create_esbXML_Response_Header(loadedPropertiesRef.Variables.procedureNotUpdated,rInHeaderRef,rOutHeaderRef);  		
+			    END IF;    
+        	    SET r = r; 
+        	   --output the ones that entered the procedure but failed 
+        	    IF EXISTS(Environment.Variables.InActiveServicesItem.item[]) THEN
+	        		SET EnDescription = NULL ; 
+			        SET  ArDescription =NULL ;  
+			        SET errorStatus =NULL; 
+		  		    CALL getEsbChannlsErrorCodeDescriptionFrom(loadedPropertiesRef.Variables.procedureNotUpdated,'NULL',NULL,EnDescription,ArDescription,errorStatus); 
+			  		 
+				  		FOR NOMATCHLAB AS Environment.Variables.InActiveServicesItem.item[] DO
+				  			SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].LaborofficeId			= NOMATCHLAB.LaborOfficeId;
+							SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].EstablishmentSequence = NOMATCHLAB.EstablishmentSequence;
+							SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].Status				= errorStatus;
+							SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].StatusDescription     = EnDescription;
+					 			SET r = r + 1;
+						END FOR;
+				CALL Create_esbXML_Response_Header(loadedPropertiesRef.Variables.procedureNotUpdated,rInHeaderRef,rOutHeaderRef);  		
+			    END IF; 
+			    SET r= r; 
+			    IF EXISTS(Environment.Variables.MatchGetLabrInfoMLSDRs.item[]) THEN
+	        		SET EnDescription = NULL ; 
+			        SET  ArDescription =NULL ;  
+			        SET errorStatus =NULL; 
+		  		    CALL getEsbChannlsErrorCodeDescriptionFrom(loadedPropertiesRef.Variables.procedureNotUpdated,'NULL',NULL,EnDescription,ArDescription,errorStatus); 
+			  		 
+				  		FOR NOMATCHLAB AS Environment.Variables.MatchGetLabrInfoMLSDRs.item[] DO
+				  			SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].LaborofficeId			= NOMATCHLAB.LaborOfficeId;
+							SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].EstablishmentSequence = NOMATCHLAB.EstablishmentSequence;
+							SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].Status				= errorStatus;
+							SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].StatusDescription     = EnDescription;
+					 			SET r = r + 1;
+						END FOR;
+				CALL Create_esbXML_Response_Header(loadedPropertiesRef.Variables.procedureNotUpdated,rInHeaderRef,rOutHeaderRef);  		
+			    END IF;
+			    
+			    SET  r =r;
+	        	    IF EXISTS(Environment.Variabl.ownedData.item[]) THEN
+		        		SET EnDescription = NULL ; 
+				        SET  ArDescription =NULL ;  
+				        SET errorStatus =NULL; 
+			  		    CALL getEsbChannlsErrorCodeDescriptionFrom(loadedPropertiesRef.Variables.owner,'NULL',NULL,EnDescription,ArDescription,errorStatus); 
+				  		 
+					  		FOR NOMATCHLAB AS Environment.Variabl.ownedData.item[] DO
+					  			SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].LaborofficeId			= NOMATCHLAB.LaborOfficeId;
+								SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].EstablishmentSequence = NOMATCHLAB.EstablishmentSequence;
+								SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].Status				= errorStatus;
+								SET rOutBodyRef.EstablishmentsInfoList.EstablishmentsInfoItem[r].StatusDescription     = EnDescription;
+						 			SET r = r + 1;
+					  		END FOR; 
+					    IF Environment.Variabl.allOwned = 1 THEN 	
+	        	    	  CALL Create_esbXML_Response_Header(loadedPropertiesRef.Variables.owner,rInHeaderRef,rOutHeaderRef);  		
+					  	ELSE 
+					  	   CALL Create_esbXML_Response_Header(loadedPropertiesRef.Variables.procedureNotUpdated,rInHeaderRef,rOutHeaderRef);  		
+					  		
+					  	END IF; 		
+	        	    END IF; 
+				
+        	
+        	 
+        	
+        	
+        END IF; 
+		    
+                        
+         	
+         
+              	 
+	RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+	
+	
+	
+	
+	
+	CREATE PROCEDURE Create_UpdatePrivileges (IN IdNo  CHARACTER,
+	                         IN UsersSubscriptions CHARACTER,
+				 		  	 IN UpdatingPrivileges  BOOLEAN
+				 		  	 )
+
+															 
+   RETURNS INTEGER LANGUAGE DATABASE EXTERNAL NAME "dbo.Create_UpdatePrivileges";
+
+END MODULE;

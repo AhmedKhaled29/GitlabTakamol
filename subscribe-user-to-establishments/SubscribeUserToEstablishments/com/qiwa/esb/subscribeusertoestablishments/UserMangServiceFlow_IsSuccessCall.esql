@@ -1,0 +1,16 @@
+BROKER SCHEMA com.qiwa.esb.subscribeusertoestablishments
+PATH Qiwa.Framework.Lib;
+
+CREATE FILTER MODULE UserMangServiceFlow_IsSuccessCall
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		IF Root.XMLNSC.GetUserManagementServicesRs.Header.ResponseStatus.Code = GetESBSuccessCode() THEN
+			SET Environment.Variabl.GetUsermangRs = Root.XMLNSC.GetUserManagementServicesRs.Body;
+			RETURN TRUE;
+		ELSE
+			SET Environment.Variables.MWResponse.status = Root.XMLNSC.GetUserManagementServicesRs.Header.ResponseStatus.Code;
+			RETURN FALSE;
+		END IF;
+	END;
+
+END MODULE;

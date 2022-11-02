@@ -1,0 +1,81 @@
+BROKER SCHEMA com.qiwa.esb.checkuserestablishmentseligibility
+PATH Qiwa.Framework.Lib;  
+
+
+CREATE FILTER MODULE CheckUserEstablishmentsEligibilityFlow_check
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+	     DECLARE reqHeaderRef REFERENCE TO Environment.Variables.XMLNSC.CheckUserEstablishmentsEligibilityRq.Header;
+		 DECLARE rOutHeaderRef REFERENCE TO Environment.Variables.ROut;  
+		 DECLARE size INT -1; 
+
+	     DECLARE codeLoop INT CARDINALITY( Environment.Variabl.GetUserRs.UserEstablishmentsList.UserEstablishmentsItem[] );  
+	     DECLARE codeValue INT 0;    
+	     DECLARE eligibleEst INT 0;
+	     DECLARE eligibleEstIndex INT 1;
+	     DECLARE nonEligibleEstIndex INT 1;
+          -- check if the input is from the body (if flag 0) else from mlsd response (if flag 1)
+         IF (Environment.Variables.XMLNSC.CheckUserEstablishmentsEligibilityRq.Body.ListAll =0) THEN
+		     SET Environment.Variabl.ListAll = 0; 
+		     SET size = CARDINALITY(Environment.Variables.XMLNSC.CheckUserEstablishmentsEligibilityRq.Body.EstablishmentsList.EstablishmentsItem[]); 
+			 DECLARE n INT 1;
+			 WHILE n <= size DO 
+			 	DECLARE reqEstItemRef REFERENCE TO Environment.Variables.XMLNSC.CheckUserEstablishmentsEligibilityRq.Body.EstablishmentsList.EstablishmentsItem[n];
+			  	-- store the estab to go to procedure 
+			  	SET Environment.Variabl.NonEligibleEst.UsersSubscriptionList.UserSubscription[nonEligibleEstIndex].LaborOfficeId = reqEstItemRef.LaborOfficeId;
+		     	SET Environment.Variabl.NonEligibleEst.UsersSubscriptionList.UserSubscription[nonEligibleEstIndex].SequenceNumber = reqEstItemRef.EstablishmentSequence;
+		     	
+		     	SET nonEligibleEstIndex = nonEligibleEstIndex + 1;
+		     	SET n= n+1;
+			  	 
+			  	
+			  	
+			 END WHILE ;
+			 
+	 
+         ELSE 
+         	    SET Environment.Variabl.ListAll = 1;
+         	    DECLARE i INT 1;
+			  	WHILE i <= codeLoop DO 
+					DECLARE userEstRef REFERENCE TO Environment.Variabl.GetUserRs.UserEstablishmentsList.UserEstablishmentsItem[i];
+--					--IF  userEstRef.AuthorizationType.Code = 1 THEN   
+--					  		SET Environment.Variabl.EligibleEst.Establishment[eligibleEstIndex].LaborOfficeId = userEstRef.Establishment.LaborOfficeId;
+--						    SET Environment.Variabl.EligibleEst.Establishment[eligibleEstIndex].SequenceNumber = userEstRef.Establishment.SequenceNumber;
+--						    SET eligibleEstIndex = eligibleEstIndex + 1;
+--						      
+--					ELSEIF userEstRef.AuthorizationType.Code = 2 THEN
+						    -- send them to procedure  
+							SET Environment.Variabl.NonEligibleEst.UsersSubscriptionList.UserSubscription[nonEligibleEstIndex].LaborOfficeId = userEstRef.Establishment.LaborOfficeId;
+					     	SET Environment.Variabl.NonEligibleEst.UsersSubscriptionList.UserSubscription[nonEligibleEstIndex].SequenceNumber= userEstRef.Establishment.SequenceNumber;
+					        --SET Environment.Variabl.NonEligibleEstcode.UsersSubscriptionList.UserSubscription[nonEligibleEstIndex].EligibleForSelfSubscripition = 1; 
+					        SET nonEligibleEstIndex = nonEligibleEstIndex + 1;
+--					ELSEIF userEstRef.AuthorizationType.Code = 3 THEN
+--						    SET Environment.Variabl.NonEligibleEst.UsersSubscriptionList.UserSubscription[nonEligibleEstIndex].LaborOfficeId = userEstRef.Establishment.LaborOfficeId;
+--					     	SET Environment.Variabl.NonEligibleEst.UsersSubscriptionList.UserSubscription[nonEligibleEstIndex].SequenceNumber= userEstRef.Establishment.SequenceNumber;
+--					        SET Environment.Variabl.NonEligibleEstFlag.UsersSubscriptionList.UserSubscription[nonEligibleEstIndex].EligibleForSelfSubscripition = 0; 
+--					        SET nonEligibleEstIndex = nonEligibleEstIndex + 1;
+--				   
+--					END IF;
+					SET i = i + 1;
+			  END WHILE;
+--			  IF codeLoop = 0 THEN 
+--			  	SET Environment.Var.errorNoMlsdData = 1;
+--			  	RETURN TRUE;
+--			  END IF; 	
+         END IF; 	  	
+         	 
+         	 
+         	
+	     --IF (size  = codeValue) THEN  
+	     --	SET Environment.var.codeValue = codeValue; 
+	     --   RETURN TRUE ;
+	     --ELSE 
+	     	RETURN FALSE; 
+	     --END IF;	   
+
+	END;
+
+END MODULE;
+
+

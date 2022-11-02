@@ -1,0 +1,240 @@
+BROKER SCHEMA com.qiwa.esb.subscribeusertoestablishments
+PATH Qiwa.Framework.Lib;
+
+
+CREATE COMPUTE MODULE SubscribeUserToEstablishmentsFlow_CallsDb
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage();
+
+		SET OutputRoot.Properties = Environment.Variables.Properties;
+		SET OutputRoot.MQMD = Environment.Variables.MQMD;
+		SET OutputRoot.MQRFH2 = Environment.Variables.MQRFH2;
+		-- build the response structure
+		CREATE FIELD OutputRoot.XMLNSC.SubscribeUserToEstablishmentsRs.Header;
+		DECLARE rOutHeaderRef REFERENCE TO OutputRoot.XMLNSC.SubscribeUserToEstablishmentsRs.Header;
+
+		CREATE FIELD OutputRoot.XMLNSC.SubscribeUserToEstablishmentsRs.Body;
+		DECLARE OutRef REFERENCE TO OutputRoot.XMLNSC.SubscribeUserToEstablishmentsRs.Body;
+
+		DECLARE NoData CHAR Environment.Properties.subscribeUserToEstablishments.subscribeUserToEstablishmentsFlow.Variables.NoData;
+		DECLARE NotValid CHAR Environment.Properties.subscribeUserToEstablishments.subscribeUserToEstablishmentsFlow.Variables.NotValid;
+		DECLARE CrtUserSubError CHAR Environment.Properties.subscribeUserToEstablishments.subscribeUserToEstablishmentsFlow.Variables.CrtUserSub;
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.subscribeUserToEstablishments.subscribeUserToEstablishmentsFlow;
+
+		DECLARE Inbody REFERENCE TO Environment.Variables.XMLNSC.SubscribeUserToEstablishmentsRq.Body;
+		DECLARE reqHeaderRef REFERENCE TO Environment.Variables.XMLNSC.SubscribeUserToEstablishmentsRq.Header;
+
+
+		DECLARE GetSer REFERENCE TO Environment.Variabl.GetUsermangRs;
+
+		IF Environment.Variables.PAY = 1 THEN
+			CALL Create_esbXML_Response_Header(loadedPropertiesRef.Variables.PaymentNeeded,reqHeaderRef,rOutHeaderRef);
+		ELSE
+
+			DECLARE SubscriptionItemRef REFERENCE TO Environment.Variables.XMLNSC.SubscribeUserToEstablishmentsRq.Body.SubscriptionsList.SubscriptionItem[1];
+
+			DECLARE i INT 1;
+
+			DECLARE UserEstablishmentsItemRef REFERENCE TO Environment.Variabl.GetUserRs.UserEstablishmentsList.UserEstablishmentsItem[1];
+			DECLARE codeValue INT 0;
+			DECLARE codeValuetwo INT 0;
+			DECLARE E INT 1;
+			-- check if the user is a unfied owner and if the establishments match the ones requested
+			WHILE LASTMOVE(UserEstablishmentsItemRef) = TRUE DO
+
+				WHILE LASTMOVE(SubscriptionItemRef)= TRUE DO
+					IF (Environment.Variabl.GetUserRs.UserEstablishmentsList.UserEstablishmentsItem[i].Establishment.LaborOfficeId = SubscriptionItemRef.LaborOfficeId AND Environment.Variabl.GetUserRs.UserEstablishmentsList.UserEstablishmentsItem[i].Establishment.SequenceNumber = SubscriptionItemRef.SequenceNumber) THEN
+						IF ( Environment.Variabl.GetUserRs.UserEstablishmentsList.UserEstablishmentsItem[i].AuthorizationType.Code = 2 AND
+							Environment.Variabl.GetUserRs.UserEstablishmentsList.UserEstablishmentsItem[i].UnifiedNumber = Environment.Variabl.GetInfo.UnifiedNumbersList.UnifiedNumbers[i].UnifiedNumberId) OR
+							Environment.Variabl.GetUserRs.UserEstablishmentsList.UserEstablishmentsItem[i].AuthorizationType.Code = 1 THEN
+							SET codeValue = codeValue + 1;
+							SET Environment.Variabl.List.Item[E] = i;
+							SET E = E +1;
+						END IF;
+
+					END IF;
+					MOVE SubscriptionItemRef NEXTSIBLING;
+				END WHILE;
+				MOVE UserEstablishmentsItemRef NEXTSIBLING;
+				SET i = i+1;
+			END WHILE;
+
+
+
+			IF EXISTS(SubscriptionItemRef.[]) THEN
+				-- Declaer Ref to XML object
+				SET Environment.XmlObject VALUE = NULL;
+				DECLARE xmlObj reference to Environment.XmlObject;
+				DECLARE index INT 1;
+				DECLARE c INT 1;
+				-- store the values in xml object
+				WHILE index <= codeValue DO
+					SET xmlObj.UsersSubscriptionList.UserSubscription[index].IdNo = Environment.Variables.XMLNSC.SubscribeUserToEstablishmentsRq.Header.UserInfo.IDNumber ;
+					SET xmlObj.UsersSubscriptionList.UserSubscription[index].LaborOfficeId = Environment.Variables.XMLNSC.SubscribeUserToEstablishmentsRq.Body.SubscriptionsList.SubscriptionItem[index].LaborOfficeId;
+					SET xmlObj.UsersSubscriptionList.UserSubscription[index].SequenceNumber =Environment.Variables.XMLNSC.SubscribeUserToEstablishmentsRq.Body.SubscriptionsList.SubscriptionItem[index].SequenceNumber ;
+					SET xmlObj.UsersSubscriptionList.UserSubscription[index].UnifiedNumber = Environment.Variabl.GetInfo.UnifiedNumbersList.UnifiedNumbers[index].UnifiedNumberId;
+					SET index = index +1;
+				END WHILE;
+				--Create XML object XMLNSC Domain
+				Create FIRSTCHILD of Environment DOMAIN 'XMLNSC' Name 'xml';
+				--SET UsersSubsciptionList value
+				SET Environment.xml.UsersSubscriptionList = xmlObj.UsersSubscriptionList;
+				--Pars UsersSubsciptionList object to XMl object
+				SET Environment.xml.UsersSubscriptionList = CAST(ASBITSTREAM(Environment.xml CCSID 1208 ) AS CHARACTER CCSID 1208);
+				DECLARE userSubscribtion CHAR ;
+				SET userSubscribtion = CAST (Environment.xml.UsersSubscriptionList AS CHARACTER);
+
+				DECLARE ID INT;
+				CALL Check( userSubscribtion) INTO ID;
+
+				IF ID = -1 THEN
+					CALL Create_esbXML_Response_Header(NotValid,reqHeaderRef,rOutHeaderRef);
+				ELSEIF ID='-112' THEN
+					CALL Create_esbXML_Response_Header('DB000112',reqHeaderRef,rOutHeaderRef);
+				ELSEIF ID='-113' THEN
+					CALL Create_esbXML_Response_Header('DB000113',reqHeaderRef,rOutHeaderRef);
+				ELSEIF ID='-114' THEN
+					CALL Create_esbXML_Response_Header('DB000114',reqHeaderRef,rOutHeaderRef);
+				ELSE
+					SET Environment.XmlObjectTwo VALUE = NULL;
+					DECLARE xmlObjtwo reference to Environment.XmlObjectTwo;
+					DECLARE z INT 1;
+					WHILE z <= codeValue DO
+						DECLARE Para1 INT Environment.Variabl.List.Item[z];
+						SET xmlObjtwo.UsersSubscriptionList.UserSubscription[z].IdNo = Environment.Variables.XMLNSC.SubscribeUserToEstablishmentsRq.Header.UserInfo.IDNumber ;
+						SET xmlObjtwo.UsersSubscriptionList.UserSubscription[z].Duration = Environment.Variables.XMLNSC.SubscribeUserToEstablishmentsRq.Body.SubscriptionsList.SubscriptionItem[z].Duration;
+						SET xmlObjtwo.UsersSubscriptionList.UserSubscription[z].LaborOfficeId = Environment.Variables.XMLNSC.SubscribeUserToEstablishmentsRq.Body.SubscriptionsList.SubscriptionItem[z].LaborOfficeId;
+						SET xmlObjtwo.UsersSubscriptionList.UserSubscription[z].UnifiedNumber = Environment.Variabl.GetInfo.UnifiedNumbersList.UnifiedNumbers[z].UnifiedNumberId;
+						SET xmlObjtwo.UsersSubscriptionList.UserSubscription[z].SequenceNumber = Environment.Variables.XMLNSC.SubscribeUserToEstablishmentsRq.Body.SubscriptionsList.SubscriptionItem[z].SequenceNumber;
+						SET xmlObjtwo.UsersSubscriptionList.UserSubscription[z].SubscriptionId = Environment.Variables.XMLNSC.SubscribeUserToEstablishmentsRq.Body.SubscriptionsList.SubscriptionItem[z].SubscriptionId;
+						SET xmlObjtwo.UsersSubscriptionList.UserSubscription[z].EstablishmentId = Environment.Variables.XMLNSC.SubscribeUserToEstablishmentsRq.Body.SubscriptionsList.SubscriptionItem[z].EstablishmentId;
+						SET xmlObjtwo.UsersSubscriptionList.UserSubscription[z].MLSDUserTypeId = Environment.Variabl.GetUserRs.UserEstablishmentsList.UserEstablishmentsItem[Para1].AuthorizationType.Code;
+						SET xmlObjtwo.UsersSubscriptionList.UserSubscription[z].AmountPerUser = Environment.Variables.ESB.CalcUMSubsPrice.SubscriptionDetails.SubscriptionPriceList.Price;
+						SET xmlObjtwo.UsersSubscriptionList.UserSubscription[z].AmountTypeId = Environment.Variables.ESB.CalcUMSubsPrice.SubscriptionDetails.SubscriptionPriceList.AmountType;
+						SET xmlObjtwo.UsersSubscriptionList.UserSubscription[z].TotalRecordsCount = Environment.Variabl.GetNum.TotalRecordCount ;
+
+						SET z =z+1;
+					END WHILE;
+					--Create XML object XMLNSC Domain
+					Create FIRSTCHILD of Environment DOMAIN 'XMLNSC' Name 'xml';
+					--SET UsersSubsciptionList value
+					SET Environment.xml.UsersSubscriptionList = xmlObjtwo.UsersSubscriptionList;
+					--Pars UsersSubsciptionList object to XMl object
+					SET Environment.xml.UsersSubscriptionList = CAST(ASBITSTREAM(Environment.xml CCSID 1208 ) AS CHARACTER CCSID 1208);
+					DECLARE userSubscribtion CHAR ;
+					SET userSubscribtion = CAST (Environment.xml.UsersSubscriptionList AS CHARACTER);
+
+					DECLARE PaymentReference CHARACTER Environment.Variables.XMLNSC.SubscribeUserToEstablishmentsRq.Body.PaymentReference;
+					DECLARE value INT ;
+					CALL callcreate(
+					PaymentReference,
+					CAST(reqHeaderRef.UserInfo.IDNumber as CHARACTER),
+					userSubscribtion ) INTO value;
+					commit;
+					IF value = -1 THEN
+						CALL Create_esbXML_Response_Header(CrtUserSubError,reqHeaderRef,rOutHeaderRef);
+					ELSE
+						DECLARE ServiceItemRef REFERENCE TO GetSer.ServicesList.ServiceItem[1];
+						DECLARE Servicesubsent CHAR ;
+						DECLARE allServicesub CHAR '';
+						DECLARE Servicesub CHAR '';
+						DECLARE j INT 1;
+						DECLARE M INT 1;
+
+						WHILE LASTMOVE(ServiceItemRef)= TRUE DO
+							DECLARE allServicesubnew CHAR GetSer.ServicesList.ServiceItem[j].ServiceId;
+							SET allServicesub = allServicesub || ',' || allServicesubnew;
+							SET j = j + 1;
+							MOVE ServiceItemRef NEXTSIBLING;
+						END WHILE;
+						-- create XML
+						CREATE FIELD Environment.Variables.CREATEXML;
+						CREATE FIRSTCHILD OF Environment.Variables.CREATEXML DOMAIN 'XMLNSC';
+						DECLARE K INT 1;
+						FOR USER1 AS Environment.Variables.Body.SubscriptionsList.SubscriptionItem[] DO
+							DECLARE Para INT Environment.Variabl.List.Item[K];
+							-- IF Environment.Variabl.GetUserRs.UserEstablishmentsList.UserEstablishmentsItem[Para].AuthorizationType.Code = 2 THEN
+							-- SET Environment.Variables.CREATEXML.XMLNSC.UsersSubscriptionList.UserSubscription[K].Privileges = TRIM( ',' from Servicesub);
+							IF
+								Environment.Variabl.GetUserRs.UserEstablishmentsList.UserEstablishmentsItem[Para].AuthorizationType.Code = 1 OR
+								Environment.Variabl.GetUserRs.UserEstablishmentsList.UserEstablishmentsItem[Para].AuthorizationType.Code = 2 THEN
+								SET Environment.Variables.CREATEXML.XMLNSC.UsersSubscriptionList.UserSubscription[K].Privileges = TRIM( ',' from allServicesub);
+							END IF;
+
+							SET Environment.Variables.CREATEXML.XMLNSC.UsersSubscriptionList.UserSubscription[K].LaborOfficeId = USER1.LaborOfficeId;
+							SET Environment.Variables.CREATEXML.XMLNSC.UsersSubscriptionList.UserSubscription[K].SequenceNumber = USER1.SequenceNumber;
+							SET K = K + 1;
+						END FOR;
+
+						DECLARE Result INT;
+						DECLARE UserSubScriptions1 CHAR;
+						DECLARE IdNo CHAR Environment.Variables.Header.UserInfo.IDNumber;
+						DECLARE AddOrUpdate BOOLEAN;
+						--Parse UsersSubsciptionList object to XMl object
+						SET UserSubScriptions1 = CAST(ASBITSTREAM(Environment.Variables.CREATEXML.XMLNSC CCSID 1208) AS CHARACTER CCSID 1208);
+						SET AddOrUpdate = false;
+						--Calling stored procedure
+						CALL Create_UpdatePrivileges (IdNo,
+						UserSubScriptions1,
+						AddOrUpdate)
+						INTO Result;
+						CALL Create_esbXML_Response_Header(GetESBSuccessCode(),reqHeaderRef,rOutHeaderRef);
+					END IF;
+				END IF;
+
+			ELSE
+				CALL Create_esbXML_Response_Header(loadedPropertiesRef.Variables.NOOWNER,reqHeaderRef,rOutHeaderRef);
+
+			END IF;
+
+
+		END IF;
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+
+
+	CREATE PROCEDURE Check(
+	IN UserSubScribtion CHARACTER
+	)
+
+	RETURNS INTEGER LANGUAGE DATABASE
+	EXTERNAL NAME "dbo.Check_UsersSubsriptionsValidity";
+
+
+
+	CREATE PROCEDURE callcreate(
+	IN PaymentReference CHARACTER,
+	IN RequesterIdNo CHARACTER,
+	IN UserSubScriptions CHARACTER
+	)
+
+
+	RETURNS INTEGER LANGUAGE DATABASE
+	EXTERNAL NAME "dbo.Create_UsersSubscriptions";
+
+	CREATE PROCEDURE Create_UpdatePrivileges (IN IdNo CHARACTER,
+	IN UsersSubscriptions CHARACTER,
+	IN UpdatingPrivileges BOOLEAN
+	)
+
+
+	RETURNS INTEGER LANGUAGE DATABASE EXTERNAL NAME "dbo.Create_UpdatePrivileges";
+
+
+END MODULE;

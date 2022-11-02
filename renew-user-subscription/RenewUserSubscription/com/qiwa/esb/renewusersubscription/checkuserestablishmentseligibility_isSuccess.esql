@@ -1,0 +1,20 @@
+BROKER SCHEMA com.qiwa.esb.renewusersubscription
+PATH Qiwa.Framework.Lib;
+
+CREATE FILTER MODULE checkuserestablishmentseligibility_isSuccess
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- if success then the user has the needed privileges(UM)
+		IF Root.XMLNSC.CheckUserEstablishmentsEligibilityRs.Header.ResponseStatus.Code = GetESBSuccessCode() THEN
+			SET Environment.Variables.esb.CheckUserEstablishmentsEligibilityRs.Body=Root.XMLNSC.CheckUserEstablishmentsEligibilityRs.Body;
+
+--			 
+			RETURN TRUE;
+		ELSE
+			SET Environment.Variables.MWResponse.status = Root.XMLNSC.CheckUserEstablishmentsEligibilityRs.Header.ResponseStatus.Code;
+			RETURN FALSE;
+		END IF;
+
+	END;
+
+END MODULE;

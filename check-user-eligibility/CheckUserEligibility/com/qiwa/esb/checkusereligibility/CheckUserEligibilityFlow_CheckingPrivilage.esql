@@ -1,0 +1,68 @@
+BROKER SCHEMA com.qiwa.esb.checkusereligibility
+PATH Qiwa.Framework.Lib;      
+
+CREATE FILTER MODULE CheckUserEligibilityFlow_CheckingPrivilage
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+	-- creating refrences for the header and body of the response  
+		DECLARE rInputHeader REFERENCE TO Root.XMLNSC.CheckUserEligibilityRq.Header;     
+		DECLARE rInputBody REFERENCE TO Root.XMLNSC.CheckUserEligibilityRq.Body;    
+		
+		SET Environment.Variables.Properties = Root.Properties;
+		SET Environment.Variables.MQMD = Root.MQMD;
+		SET Environment.Variables.MQRFH2 = Root.MQRFH2;
+		SET Environment.Variables.XMLNSC = Root.XMLNSC; 
+	    SET Environment.Variables.Request = Root.XMLNSC.CheckUserEligibilityRq;   
+	
+		-- declaring all variables sent in the request    
+		DECLARE UserID INT rInputBody.UserId;
+		DECLARE IdNo CHAR rInputBody.IdNo;   
+		DECLARE LaborOfficeId  INT rInputBody.LaborOfficeId;      
+		DECLARE SequenceNumber  INT rInputBody.EstablishmentSequence;  
+		DECLARE ServiceId INT rInputBody.ServiceId ;  
+		DECLARE Result INT; 
+		-- Saving all variables in environmnt to keep it 
+		SET Environment.Variables.Missing= 0; 
+		SET Environment.Variables.SequenceNumber = SequenceNumber;  
+		SET Environment.Variables.LaborOfficeId = LaborOfficeId;    
+		
+		-- both are conditional parameters check if any one exsists 
+		IF  IdNo is NOT NULL OR UserID is NOT NULL THEN   
+			
+	
+			-- calling the CHECK procedure    
+			SET Environment.Variables.Result = UserSubscriptionOrPrivilege (IdNo, 
+			                                                                UserID,  
+													 	    				LaborOfficeId,
+															    			SequenceNumber,
+																    		ServiceId); 
+													 
+		ELSE 
+			SET Environment.Variables.Missing= 1;  
+		END IF;
+																		 
+		    -- if the user has a privilege on a subscription or there is a missing parameter 
+ 		IF Environment.Variables.Result = 0 OR Environment.Variables.Result = -2 OR Environment.Variables.Missing = 1 THEN     
+		
+	  		RETURN TRUE;
+		    -- if the user has no privilage 
+ 		ELSEIF Environment.Variables.Result = -1 THEN   
+		    	
+			RETURN FALSE;
+		
+  		END IF;  
+	END;
+
+ 
+	
+	 -- the procedure that is called to Create the requested user  
+	CREATE PROCEDURE UserSubscriptionOrPrivilege (IN IdNo CHARACTER,
+	                                              IN UserID INTEGER,
+												  IN LaborOfficeId INTEGER, 
+												  IN SequenceNumber INTEGER,
+												  IN ServiceId INTEGER)  
+							 					 
+												 
+	RETURNS INTEGER LANGUAGE DATABASE EXTERNAL NAME "dbo.Check_UserSubscriptionOrPrivilege";    
+
+END MODULE;

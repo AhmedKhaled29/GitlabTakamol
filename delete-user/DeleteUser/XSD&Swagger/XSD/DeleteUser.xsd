@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?><xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://Qiwa/UserManagement/DeleteUser/v1.0" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:bons0="http://Qiwa/UserManagement/DeleteUser/v1.0" xmlns:bons1="http://Qiwa/Common/Types" xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions">
+
+	<xsd:import namespace="http://Qiwa/Common/Types"
+		schemaLocation="../common/types/ESB_common_types_v1.0.xsd"/>
+
+ 
+	<xsd:element name="DeleteUserRq" type="bons0:DeleteUserRq_Type"/>
+	<xsd:element name="DeleteUserRs" type="bons0:DeleteUserRs_Type"/>
+	
+	<complexType ibmSchExtn:docRoot="true" name="DeleteUserRq_Type">
+		<sequence>
+			<xsd:element name="Header" type="bons1:ESBXMLRequestHeader_Type"/>
+			<xsd:element name="Body" type="bons0:DeleteUserRq_BodyType"/>
+		</sequence>
+	</complexType>
+	
+	<complexType ibmSchExtn:docRoot="true" name="DeleteUserRs_Type">
+		<sequence>
+			<xsd:element name="Header" type="bons1:ESBXMLResponseHeader_Type"/>
+			<xsd:element name="Body" type="bons0:DeleteUserRs_BodyType"/>
+		</sequence>
+	</complexType>
+
+	<complexType name="DeleteUserRq_BodyType">
+		<all>
+			<element minOccurs="1" name="IdNo" type="string"/>
+		</all>  
+	</complexType>
+	
+    
+
+	<complexType name="DeleteUserRs_BodyType">
+		<all>
+		</all>
+	</complexType>
+	
+</xsd:schema>

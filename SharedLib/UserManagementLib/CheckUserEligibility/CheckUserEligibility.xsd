@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?><xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://Qiwa/UserManagement/CheckUserEligibility/v1.0" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:bons0="http://Qiwa/UserManagement/CheckUserEligibility/v1.0" xmlns:bons1="http://Qiwa/Common/Types" xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions">
+
+	<xsd:import namespace="http://Qiwa/Common/Types" schemaLocation="../common/types/ESB_common_types_v1.0.xsd"/>
+
+ 
+	<xsd:element name="CheckUserEligibilityRq" type="bons0:CheckUserEligibilityRq_Type"/> 
+	<xsd:element name="CheckUserEligibilityRs" type="bons0:CheckUserEligibilityRs_Type"/>
+	
+	<complexType name="CheckUserEligibilityRq_Type">
+		<sequence>
+			<xsd:element name="Header" type="bons1:ESBXMLRequestHeader_Type"/> 
+			<xsd:element name="Body" type="bons0:CheckUserEligibilityRq_BodyType"/> 
+		</sequence>
+	</complexType>
+	
+	<complexType name="CheckUserEligibilityRs_Type">
+		<sequence>
+			<xsd:element name="Header" type="bons1:ESBXMLResponseHeader_Type"/>
+			<xsd:element name="Body" type="bons0:CheckUserEligibilityRs_BodyType"/>
+		</sequence>
+	</complexType>
+
+	<complexType name="CheckUserEligibilityRq_BodyType">
+		<all>
+			<element minOccurs="0" name="UserId" type="integer"/>
+			<element minOccurs="0" name="IdNo" type="string"/>
+		    <element minOccurs="1" name="LaborOfficeId" type="integer"/>
+			<element minOccurs="1" name="EstablishmentSequence" type="integer"/>
+			<element minOccurs="0" name="ServiceId" type="integer"/>
+			
+		</all>  
+	</complexType>
+	        
+
+	<complexType name="CheckUserEligibilityRs_BodyType">
+		
+	</complexType>
+	
+	
+	
+</xsd:schema>

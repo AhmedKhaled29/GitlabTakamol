@@ -1,0 +1,58 @@
+BROKER SCHEMA com.qiwa.esb.renewusersubscription
+PATH Qiwa.Framework.Lib;
+
+
+CREATE COMPUTE MODULE GetUserInformationMlsdCall
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		
+		CALL CopyMessageHeaders();    
+		-- CALL CopyEntireMessage();
+		IF FIELDNAME(Environment.Variables) IS NULL THEN
+			CREATE FIELD Environment.Variables;
+		END IF;
+		DECLARE EV REFERENCE TO Environment.Variables;
+		SET OutputRoot.Properties = EV.Properties;
+		SET OutputRoot.MQMD = EV.MQMD;
+		SET OutputRoot.MQRFH2 = EV.MQRFH2;
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.RenewUserSubscription.RenewUserSubscriptionFlow;
+		 
+	    DECLARE rInBodyRef REFERENCE TO EV.XMLNSC.RenewUserSubscriptionRq.Body;
+	    DECLARE rInHeaderRef REFERENCE TO EV.XMLNSC.RenewUserSubscriptionRq.Header; 
+	    DECLARE rInRef REFERENCE TO EV.esb.CheckUserEstablishmentsEligibilityRs.Body;
+		
+		CREATE LASTCHILD OF OutputRoot DOMAIN ('XMLNSC');
+		SET OutputRoot.XMLNSC.GetUserInformationRq.Header = rInHeaderRef;    
+		DECLARE rOutHeaderRef REFERENCE TO OutputRoot.XMLNSC.GetUserInformationRq.Header;      
+		CREATE LASTCHILD OF OutputRoot.XMLNSC.GetUserInformationRq NAME 'Body';
+		DECLARE rOutBodyRef REFERENCE TO OutputRoot.XMLNSC.GetUserInformationRq.Body;
+		
+
+		SET rOutHeaderRef.ServiceCode = loadedPropertiesRef.Variables.ServiceCodeGUI;   
+		SET rOutHeaderRef.ChannelId   = loadedPropertiesRef.Variables.ChannelId;
+		SET rOutBodyRef.IdNo	=	COALESCE(rInBodyRef.IdNo,NULL);
+		SET rOutBodyRef.MobileNumber = NULL;
+		SET rOutBodyRef.UserId		= COALESCE(rInBodyRef.UserId,NULL);
+		SET rOutBodyRef.UserName 	= NULL;
+			
+		SET Environment.InternalServiceCaller.callCorrIDOffset = '15';
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+
+
+ 

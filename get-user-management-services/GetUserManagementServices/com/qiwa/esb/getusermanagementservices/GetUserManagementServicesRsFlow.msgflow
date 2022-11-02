@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmCompute.msgnode="ComIbmCompute.msgnode" xmlns:Qiwa_Framework_Lib_MQ_Input_Node.subflow="Qiwa/Framework/Lib/MQ_Input_Node.subflow" xmlns:Qiwa_Framework_Lib_MQ_Output_Node.subflow="Qiwa/Framework/Lib/MQ_Output_Node.subflow" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="com/qiwa/esb/getusermanagementservices/GetUserManagementServicesRsFlow.msgflow" nsPrefix="com_qiwa_esb_getusermanagementservices_GetUserManagementServicesRsFlow.msgflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <translation xmi:type="utility:TranslatableString" key="GetUserManagementServicesRsFlow" bundleName="com/qiwa/esb/getusermanagementservices/GetUserManagementServicesRsFlow" pluginId="GetUserManagementServices"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/GetUserManagementServices/icons/full/obj16/GetUserManagementServicesRsFlow.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/GetUserManagementServices/icons/full/obj30/GetUserManagementServicesRsFlow.gif"/>
+    <composition>
+      <nodes xmi:type="Qiwa_Framework_Lib_MQ_Input_Node.subflow:FCMComposite_1" xmi:id="FCMComposite_1_1" location="213,129" LOG_ENABLED="true" queueName="ESB.GETUSERMANAGEMENTSERVICES.ODMRS" messageDomainProperty="XMLNSC" transactionMode="no">
+        <translation xmi:type="utility:ConstantString" string="MQ_Input_Node"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_2" location="385,130" computeExpression="esql://routine/com.qiwa.esb.getusermanagementservices#GetUserManagementServicesRsFlow_GetUserManagementServicesODMRs.Main">
+        <translation xmi:type="utility:ConstantString" string="GetUserManagementServicesODMRs"/>
+      </nodes>
+      <nodes xmi:type="Qiwa_Framework_Lib_MQ_Output_Node.subflow:FCMComposite_1" xmi:id="FCMComposite_1_3" location="774,112" LOG_ENABLED="true" queueName="ESB.GETUSERMANAGEMENTSERVICES.RS">
+        <translation xmi:type="utility:ConstantString" string="MQ_Output_Node"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+    </composition>
+    <propertyOrganizer/>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

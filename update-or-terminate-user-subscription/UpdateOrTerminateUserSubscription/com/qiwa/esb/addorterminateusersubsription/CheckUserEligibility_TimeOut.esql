@@ -1,0 +1,13 @@
+BROKER SCHEMA com.qiwa.esb.addorterminateusersubsription
+
+
+CREATE FILTER MODULE CheckUserEligibility_TimeOut
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- DECLARE loadProperties CHAR Environment.Properties.SubscribeUserToEstablishments.SubscribeUserToEstablishmentsFlow.Variables.MW;
+		
+		SET Environment.Variables.MWResponse.status = 'E9999998';	
+		RETURN TRUE;
+	END;
+
+END MODULE;

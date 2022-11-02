@@ -1,0 +1,292 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "title" : "CalculateUserManagementSubscriptionPrice",
+    "version" : "1.0.0",
+    "description" : "CalculateUserManagementSubscriptionPrice"
+  },
+  "paths" : {
+    "/CalculateUserManagementSubscriptionPrice" : {
+      "post" : {
+        "operationId" : "CalculateUserManagementSubscriptionPrice",
+        "responses" : {
+          "200" : {
+            "description" : "The operation was successful.",
+            "schema" : {
+              "$ref" : "#/definitions/CalculateUserManagementSubscriptionPriceRs_MessageType"
+            }
+          }
+        },
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "description" : "Update Refunded",
+        "parameters" : [ {
+          "name" : "body",
+          "in" : "body",
+          "schema" : {
+            "$ref" : "#/definitions/CalculateUserManagementSubscriptionPriceRq_MessageType"
+          },
+          "description" : "CalculateUserManagementSubscriptionPriceRq",
+          "required" : true
+        } ]
+      }
+    }
+  },
+  "basePath" : "/common",
+  "definitions" : {
+    "CalculateUserManagementSubscriptionPriceRq_MessageType" : {
+      "type" : "object",
+      "properties" : {
+        "CalculateUserManagementSubscriptionPriceRq" : {
+          "$ref" : "#/definitions/CalculateUserManagementSubscriptionPriceRq_Type"
+        }
+      }
+    },
+    "CalculateUserManagementSubscriptionPriceRs_MessageType" : {
+      "type" : "object",
+      "properties" : {
+        "CalculateUserManagementSubscriptionPriceRs" : {
+          "$ref" : "#/definitions/CalculateUserManagementSubscriptionPriceRs_Type"
+        }
+      }
+    },
+    "CalculateUserManagementSubscriptionPriceRq_Type" : {
+      "type" : "object",
+      "properties" : {
+        "Header" : {
+          "$ref" : "#/definitions/ESBXMLRequestHeader_Type"
+        },
+        "Body" : {
+          "$ref" : "#/definitions/CalculateUserManagementSubscriptionPriceRq_BodyType"
+        }
+      }
+    },
+    "CalculateUserManagementSubscriptionPriceRq_BodyType" : {
+      "type" : "object",
+      "properties" : {
+       
+        "LaborOfficeId" : {
+          "type" : "integer"
+        }, 
+     "EstablishmentSequence" : {
+          "type" : "integer"
+        },
+        "LaborersList" : {
+           "$ref" : "#/definitions/LaborersList_Type"
+        },
+        
+        "NbUsers" : {
+          "type" : "integer"
+        }
+     }
+    },
+  
+   
+   
+    "CalculateUserManagementSubscriptionPriceRs_Type" : {
+      "type" : "object",
+      "properties" : {
+        "Header" : {
+          "$ref" : "#/definitions/ESBXMLResponseHeader_Type"
+        },
+        "Body" : {
+          "$ref" : "#/definitions/CalculateUserManagementSubscriptionPriceRs_BodyType"
+        }
+      }
+    },
+    "CalculateUserManagementSubscriptionPriceRs_BodyType" : {
+  "type" : "object",
+      "properties" : {
+       "SubscriptionDetails" : {
+          "$ref" : "#/definitions/SubscriptionDetails_Type"
+        }
+     }
+    },
+    "SubscriptionDetails_Type" : { 
+   "type" : "object",
+      "properties" : {
+  "SubscriptionId" : {
+          "type" : "integer"
+        },
+    "SubscriptionPeriodInMonth" : {
+          "type" : "integer"
+        },
+    "SubscriptionPriceList" : {
+           "$ref" : "#/definitions/SubscriptionPriceList_Type"
+        },
+    "VAT" : {
+          "type" : "integer"
+        },
+    "EstablishmentSize" : {
+           "type" : "integer"
+        }
+      }
+    },
+  
+ 
+     "LaborersList_Type" : {
+      "type" : "object",
+      "properties" : {
+        "LaborerIdNo" : {
+         "type" : "array",
+            "items" : {
+				"type" : "string"
+            }
+        }
+      }
+    },
+ 
+   "SubscriptionPriceList_Type" : {
+      "type" : "object",
+      "properties" : {
+        "Price" : {
+          "type" : "integer"
+        },
+        "AmountType" : {
+          "type" : "integer"
+        }
+      }
+    },
+  
+    "ESBXMLRequestHeader_Type" : {
+      "type" : "object",
+      "properties" : {
+        "TransactionId" : {
+          "type" : "string"
+        },
+        "ChannelId" : {
+          "type" : "string"
+        },
+        "SessionId" : {
+          "type" : "string"
+        },
+        "RequestTime" : {
+          "type" : "string"
+        },
+        "MWRequestTime" : {
+          "type" : "string"
+        },
+        "ServiceCode" : {
+          "type" : "string"
+        },
+        "DebugFlag" : {
+          "type" : "integer"
+        },
+        "UserInfo" : {
+          "$ref" : "#/definitions/UserInfo_Type"
+        },
+        "UDF" : {
+          "$ref" : "#/definitions/UDF_Type"
+        }
+      },
+      "required" : [ "ServiceCode", "ChannelId", "TransactionId", "RequestTime" ]
+    },
+    "ESBXMLResponseHeader_Type" : {
+      "type" : "object",
+      "properties" : {
+        "TransactionId" : {
+          "type" : "string"
+        },
+        "ChannelId" : {
+          "type" : "string"
+        },
+        "SessionId" : {
+          "type" : "string"
+        },
+        "RequestTime" : {
+          "type" : "string"
+        },
+        "MWRequestTime" : {
+          "type" : "string"
+        },
+        "MWResponseime" : {
+          "type" : "string"
+        },
+        "ServiceCode" : {
+          "type" : "string"
+        },
+        "DebugFlag" : {
+          "type" : "integer"
+        },
+        "UserInfo" : {
+          "$ref" : "#/definitions/UserInfo_Type"
+        },
+        "UDF" : {
+          "$ref" : "#/definitions/UDF_Type"
+        },
+        "ResponseStatus" : {
+          "$ref" : "#/definitions/MWResponseStatus_Type"
+        },
+        "BackendError" : {
+          "$ref" : "#/definitions/BackendError_Type"
+        }
+      },
+      "required" : [ "TransactionId", "ChannelId", "RequestTime", "ServiceCode" ]
+    },
+    "UDF_Type" : {
+      "type" : "object",
+      "properties" : {
+        "KeyValueArr" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/KeyValueArr_Type"
+          }
+        }
+      }
+    },
+    "KeyValueArr_Type" : {
+      "type" : "object",
+      "properties" : {
+        "key" : {
+          "type" : "string"
+        },
+        "value" : {
+          "type" : "string"
+        }
+      }
+    },
+    "Tmstmp_Type" : {
+      "type" : "object"
+    },
+    "UserInfo_Type" : {
+      "type" : "object",
+      "properties" : {
+        "UserId" : {
+          "type" : "integer"
+        },
+        "IDNumber" : {
+          "type" : "integer"
+        }
+      }
+    },
+    "MWResponseStatus_Type" : {
+      "type" : "object",
+      "properties" : {
+        "Status" : {
+          "type" : "string"
+        },
+        "Code" : {
+          "type" : "string"
+        },
+        "ArabicMsg" : {
+          "type" : "string"
+        },
+        "EnglishMsg" : {
+          "type" : "string"
+        }
+      },
+      "required" : [ "Code", "Status", "ArabicMsg", "EnglishMsg" ]
+    },
+    "BackendError_Type" : {
+      "type" : "object",
+      "properties" : {
+        "ErrorCode" : {
+          "type" : "string"
+        },
+        "ErrorDescription" : {
+          "type" : "string"
+        }
+      }
+    }
+  }
+}

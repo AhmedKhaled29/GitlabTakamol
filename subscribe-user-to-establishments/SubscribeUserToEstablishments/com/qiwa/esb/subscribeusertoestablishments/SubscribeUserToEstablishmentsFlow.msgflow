@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmCompute.msgnode="ComIbmCompute.msgnode" xmlns:ComIbmFilter.msgnode="ComIbmFilter.msgnode" xmlns:Qiwa_Framework_Lib_MQ_Input_Node.subflow="Qiwa/Framework/Lib/MQ_Input_Node.subflow" xmlns:Qiwa_Framework_Lib_MQ_Output_Node.subflow="Qiwa/Framework/Lib/MQ_Output_Node.subflow" xmlns:Qiwa_Framework_Lib_MWBusinessErrorResponse.subflow="Qiwa/Framework/Lib/MWBusinessErrorResponse.subflow" xmlns:com_qiwa_esb_subscribeusertoestablishments_CalcUMSubsPrice.subflow="com/qiwa/esb/subscribeusertoestablishments/CalcUMSubsPrice.subflow"
+    xmlns:com_qiwa_esb_subscribeusertoestablishments_CallingGetUserServices.subflow="com/qiwa/esb/subscribeusertoestablishments/CallingGetUserServices.subflow" xmlns:com_qiwa_esb_subscribeusertoestablishments_CallingMLSD_GetUserEstablishments.subflow="com/qiwa/esb/subscribeusertoestablishments/CallingMLSD_GetUserEstablishments.subflow" xmlns:com_qiwa_esb_subscribeusertoestablishments_GetLaborersCount.subflow="com/qiwa/esb/subscribeusertoestablishments/GetLaborersCount.subflow" xmlns:com_qiwa_esb_subscribeusertoestablishments_GetUnifiedInfo.subflow="com/qiwa/esb/subscribeusertoestablishments/GetUnifiedInfo.subflow"
+    xmlns:com_qiwa_esb_subscribeusertoestablishments_SearchPaymentTransactions.subflow="com/qiwa/esb/subscribeusertoestablishments/SearchPaymentTransactions.subflow" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="com/qiwa/esb/subscribeusertoestablishments/SubscribeUserToEstablishmentsFlow.msgflow" nsPrefix="com_qiwa_esb_subscribeusertoestablishments_SubscribeUserToEstablishmentsFlow.msgflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <translation xmi:type="utility:TranslatableString" key="SubscribeUserToEstablishmentsFlow" bundleName="com/qiwa/esb/subscribeusertoestablishments/SubscribeUserToEstablishmentsFlow" pluginId="SubscribeUserToEstablishments"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/SubscribeUserToEstablishments/icons/full/obj16/SubscribeUserToEstablishmentsFlow.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/SubscribeUserToEstablishments/icons/full/obj30/SubscribeUserToEstablishmentsFlow.gif"/>
+    <composition>
+      <nodes xmi:type="Qiwa_Framework_Lib_MQ_Input_Node.subflow:FCMComposite_1" xmi:id="FCMComposite_1_5" location="-28,201" LOG_ENABLED="true" PROPERTIES_ENABLED="true" queueName="ESB.SUBSCRIBEUSERTOESTABLISHMENTS.RQ" messageDomainProperty="XMLNSC" transactionMode="no" PropertiesGroup="subscribeUserToEstablishments.subscribeUserToEstablishmentsFlow" PropertyFilename="${broker.name}/USER-SERVICES-MANAGEMENT.xml">
+        <translation xmi:type="utility:ConstantString" string="MQ_Input_Node"/>
+      </nodes>
+      <nodes xmi:type="Qiwa_Framework_Lib_MQ_Output_Node.subflow:FCMComposite_1" xmi:id="FCMComposite_1_6" location="941,165" queueName="ESB.SUBSCRIBEUSERTOESTABLISHMENTS.RS">
+        <translation xmi:type="utility:ConstantString" string="MQ_Output_Node"/>
+      </nodes>
+      <nodes xmi:type="com_qiwa_esb_subscribeusertoestablishments_CallingMLSD_GetUserEstablishments.subflow:FCMComposite_1" xmi:id="FCMComposite_1_1" location="394,350">
+        <translation xmi:type="utility:ConstantString" string="MLSDGetUserEstablishments"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_2" location="691,300" computeExpression="esql://routine/com.qiwa.esb.subscribeusertoestablishments#SubscribeUserToEstablishmentsFlow_Headers.Main">
+        <translation xmi:type="utility:ConstantString" string="Headers"/>
+      </nodes>
+      <nodes xmi:type="Qiwa_Framework_Lib_MWBusinessErrorResponse.subflow:FCMComposite_1" xmi:id="FCMComposite_1_3" location="919,301" OUT_QUEUE="ESB.SUBSCRIBEUSERTOESTABLISHMENTS.RS">
+        <translation xmi:type="utility:ConstantString" string="MWBusinessErrorResponse"/>
+      </nodes>
+      <nodes xmi:type="ComIbmFilter.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_8" location="526,180" filterExpression="esql://routine/com.qiwa.esb.subscribeusertoestablishments#SubscribeUserToEstablishmentsFlow_checkUser.Main">
+        <translation xmi:type="utility:ConstantString" string="checkUser"/>
+      </nodes>
+      <nodes xmi:type="com_qiwa_esb_subscribeusertoestablishments_SearchPaymentTransactions.subflow:FCMComposite_1" xmi:id="FCMComposite_1_4" location="341,169">
+        <translation xmi:type="utility:ConstantString" string="SearchPayTrans"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_10" location="254,282" dataSource="MWQIWA_DS" computeExpression="esql://routine/com.qiwa.esb.subscribeusertoestablishments#SubscribeUserToEstablishmentsFlow_CheckPayment.Main">
+        <translation xmi:type="utility:ConstantString" string="CheckPayment"/>
+      </nodes>
+      <nodes xmi:type="com_qiwa_esb_subscribeusertoestablishments_CallingGetUserServices.subflow:FCMComposite_1" xmi:id="FCMComposite_1_11" location="569,74">
+        <translation xmi:type="utility:ConstantString" string="CallingGetUserServices"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_13" location="795,161" dataSource="MWQIWA_DS" computeExpression="esql://routine/com.qiwa.esb.subscribeusertoestablishments#SubscribeUserToEstablishmentsFlow_CallsDb.Main">
+        <translation xmi:type="utility:ConstantString" string="CallsDb"/>
+      </nodes>
+      <nodes xmi:type="com_qiwa_esb_subscribeusertoestablishments_GetUnifiedInfo.subflow:FCMComposite_1" xmi:id="FCMComposite_1_7" location="160,346">
+        <translation xmi:type="utility:ConstantString" string="GetUnifiedInfo"/>
+      </nodes>
+      <nodes xmi:type="com_qiwa_esb_subscribeusertoestablishments_GetLaborersCount.subflow:FCMComposite_1" xmi:id="FCMComposite_1_12" location="70,200">
+        <translation xmi:type="utility:ConstantString" string="GetLaborersCount"/>
+      </nodes>
+      <nodes xmi:type="com_qiwa_esb_subscribeusertoestablishments_CalcUMSubsPrice.subflow:FCMComposite_1" xmi:id="FCMComposite_1_9" location="689,37">
+        <translation xmi:type="utility:ConstantString" string="CalcUMSubsPrice"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_8" sourceTerminalName="OutTerminal.false" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.Error" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_5" targetNode="FCMComposite_1_8" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.Output1" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_8" targetNode="FCMComposite_1_1" sourceNode="FCMComposite_1_4" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.Input1"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_9" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_4" sourceTerminalName="OutTerminal.Output1" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_14" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_10" sourceTerminalName="OutTerminal.out1" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_16" targetNode="FCMComposite_1_11" sourceNode="FCMComposite_1_8" sourceTerminalName="OutTerminal.true" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_18" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_11" sourceTerminalName="OutTerminal.Error" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_20" targetNode="FCMComposite_1_6" sourceNode="FCMComposite_1_13" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_7" targetNode="FCMComposite_1_13" sourceNode="FCMComposite_1_10" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_12" targetNode="FCMComposite_1_1" sourceNode="FCMComposite_1_10" sourceTerminalName="OutTerminal.out2" targetTerminalName="InTerminal.Input1"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_10" targetNode="FCMComposite_1_10" sourceNode="FCMComposite_1_7" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_11" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_7" sourceTerminalName="OutTerminal.Error" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_12" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_13" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_12" sourceTerminalName="OutTerminal.Error" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_15" targetNode="FCMComposite_1_7" sourceNode="FCMComposite_1_12" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_6" targetNode="FCMComposite_1_9" sourceNode="FCMComposite_1_11" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_17" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_9" sourceTerminalName="OutTerminal.Output1" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_19" targetNode="FCMComposite_1_13" sourceNode="FCMComposite_1_9" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+    </composition>
+    <propertyOrganizer/>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

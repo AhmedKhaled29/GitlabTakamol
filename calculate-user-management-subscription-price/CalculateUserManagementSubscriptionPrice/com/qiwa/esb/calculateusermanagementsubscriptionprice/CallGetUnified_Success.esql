@@ -1,0 +1,33 @@
+BROKER SCHEMA com.qiwa.esb.calculateusermanagementsubscriptionprice
+PATH Qiwa.Framework.Lib;
+
+
+CREATE FILTER MODULE CallGetUnified_Success
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE loadproperties REFERENCE TO Environment.Properties.CalculateUserManagementSubscriptionPrice.CalculateUserManagementSubscriptionPriceFlow.Variables;
+		
+		-- reference to GetUniNoTotLabCount response
+		DECLARE GetUniNoTotLabCountBodyRs REFERENCE TO Root.XMLNSC.GetUnifiedNumbertTotalLaborersCountMLSDRs.Body;
+		DECLARE GetUniNoTotLabCountHeaderRs REFERENCE TO Root.XMLNSC.GetUnifiedNumbertTotalLaborersCountMLSDRs.Header;
+		-- reference to GetUniNoTotLabCount request
+		DECLARE GetUniNoTotLabCountBodyRq REFERENCE TO Root.XMLNSC.GetUnifiedNumbertTotalLaborersCountMLSDRq.Body;
+		DECLARE GetUniNoTotLabCountHeaderRq REFERENCE TO Root.XMLNSC.GetUnifiedNumbertTotalLaborersCountMLSDRq.Header;
+
+		IF Root.XMLNSC.GetUnifiedNumbertTotalLaborersCountMLSDRs.Header.ResponseStatus.Code = GetESBSuccessCode() THEN
+			-- save GetUniNoTotLabCount response body in variable GetUniNoTotLabCountBody
+			SET Environment.Variables.ESB.GetUniNoTotLabCountBody = GetUniNoTotLabCountBodyRs;
+			-- save GetUniNoTotLabCount response header in variable GetUniNoTotLabCountHeader
+			SET Environment.Variables.ESB.GetUniNoTotLabCountHeader = GetUniNoTotLabCountHeaderRs;
+			RETURN TRUE;
+		ELSEIF GetUniNoTotLabCountHeaderRs.ResponseStatus.Code = loadproperties.NoLabFound THEN
+				SET Environment.Variables.ESB.GetUniNoTotLabCountBody.TotalRecordCount = 0;
+				RETURN TRUE;				
+		ELSE
+			SET Environment.Variables.MWResponse.status = GetUniNoTotLabCountHeaderRs.ResponseStatus.Code;
+			RETURN FALSE;
+		END IF; 
+		
+	END;
+
+END MODULE;

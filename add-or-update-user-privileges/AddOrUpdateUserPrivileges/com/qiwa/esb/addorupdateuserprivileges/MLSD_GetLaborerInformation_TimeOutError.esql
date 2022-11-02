@@ -1,0 +1,14 @@
+BROKER SCHEMA com.qiwa.esb.addorupdateuserprivileges
+
+
+CREATE FILTER MODULE MLSD_GetLaborerInformation_TimeOutError
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.AddOrUpdateUserPrivileges.AddOrUpdateUserPrivilegesFlow;
+		SET Environment.Variables.MWResponse.status = loadedPropertiesRef.Variables.TimeOutError;--'E9999998
+		 	
+		RETURN TRUE;
+	END;
+
+END MODULE;

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema targetNamespace="http://Qiwa/ChangeOccupation/CancelChangeOccupationRequest/v1.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:bons0="http://Qiwa/ChangeOccupation/CancelChangeOccupationRequest/v1.0" xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions" xmlns:Q1="http://Qiwa/Common/Types">
+
+	<xsd:import namespace="http://Qiwa/Common/Types" schemaLocation="../common/types/ESB_common_types_v1.0.xsd"/>
+
+
+	<xsd:element name="CancelChangeOccupationRequestRq" type="bons0:CancelChangeOccupationRequestRq_Type"/>
+	<xsd:element name="CancelChangeOccupationRequestRs" type="bons0:CancelChangeOccupationRequestRs_Type"/>
+
+	<complexType ibmSchExtn:docRoot="true" name="CancelChangeOccupationRequestRq_Type">
+			<sequence>
+				<xsd:element name="Header" type="Q1:ESBXMLRequestHeader_Type"/>
+				<xsd:element name="Body" type="bons0:CancelChangeOccupationRequestRq_BodyType"/>
+			</sequence>
+	</complexType>
+	
+	<complexType ibmSchExtn:docRoot="true" name="CancelChangeOccupationRequestRs_Type">
+			<sequence>
+				<xsd:element name="Header" type="Q1:ESBXMLResponseHeader_Type"/>
+				<xsd:element minOccurs="1" name="Body" type="bons0:CancelChangeOccupationRequestRs_BodyType"/>
+			</sequence>
+	</complexType>
+	
+	
+	<complexType name="CancelChangeOccupationRequestRq_BodyType">
+		<all>
+			<element minOccurs="1" name="RequestNumber" type="string"/>
+			
+		</all>
+	</complexType>
+	
+	
+	<complexType name="CancelChangeOccupationRequestRs_BodyType">
+		<all>
+			
+		</all>
+	</complexType>
+	
+	
+
+
+</xsd:schema>

@@ -1,0 +1,92 @@
+BROKER SCHEMA com.qiwa.esb.renewusersubscription
+
+
+CREATE COMPUTE MODULE RenewUserSubscriptionFlow_SearchPayment
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage();
+		
+		--DECLARE Environment.Variables REFERENCE TO Environment.Variables;
+		DECLARE bodyRef REFERENCE TO InputRoot.XMLNSC.RenewUserSubscriptionRq.Body; 
+		DECLARE rInputHeader REFERENCE TO InputRoot.XMLNSC.RenewUserSubscriptionRq.Header;
+		  
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.RenewUserSubscription.RenewUserSubscriptionFlow.Variables; 
+		SET Environment.Variables.Properties = InputRoot.Properties;
+		SET Environment.Variables.MQMD = InputRoot.MQMD;
+		SET Environment.Variables.MQRFH2 = InputRoot.MQRFH2;
+		SET Environment.Variables.XMLNSC = InputRoot.XMLNSC; 
+		
+		DECLARE TotalRecordsCount,Result INT; 
+		
+		IF bodyRef.IdNo <> rInputHeader.UserInfo.IDNumber THEN 
+			--call check user esta elig
+			RETURN TRUE;
+		ELSE
+			
+			-- skip user estab
+			
+		END IF;
+		
+--		IF (bodyRef.PaymentReference IS NULL) OR (bodyRef.PaymentReference='')THEN 
+--			--free payment subscription( estab belongs to a unified number thats payed )
+--			RETURN TRUE;
+--		ELSE 
+--			 
+--			CALL Search_Payment (CAST(bodyRef.PaymentReference AS CHARACTER),
+--								 NULL,
+--								 CAST(loadedPropertiesRef.ProductId AS INT),
+--								 NULL,
+--								 NULL,
+--								 NULL,
+--								 CAST(loadedPropertiesRef.StatusId AS INT),
+--								 CAST(loadedPropertiesRef.Pagination AS INT),
+--								 CAST(loadedPropertiesRef.Pagination AS INT), 
+--								 TotalRecordsCount,
+--								 Environment.Variables.DB.Resultset[])INTO Result;
+--								 
+--	       DECLARE SIZE INT CARDINALITY (Environment.Variables.DB.Resultset[]);  
+--		   IF (Result =-1) OR ( SIZE=0) THEN 
+--		   	   SET Environment.Variables.MWResponse.status =loadedPropertiesRef.NotPayed;
+--		   	   PROPAGATE TO TERMINAL 'out1'; 
+--		   	   RETURN FALSE; 
+--		   END IF;  						 
+--							 
+--		END IF;
+--		
+		
+		
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+	
+	
+	CREATE PROCEDURE Search_Payment (IN PaymentReference CHARACTER,
+									 IN ApplicationId INT,
+									 IN ProductId INT,
+									 IN ProviderId INT,
+									 IN IdNo CHAR,
+									 IN UserId INT,
+									 IN StatusId INT,
+									 IN PageSize INT,
+									 IN PageIndex INT,
+									 INOUT TotalRecordsCount INT)
+	RETURNS INTEGER 
+	LANGUAGE DATABASE  
+	DYNAMIC RESULT SETS 1
+	EXTERNAL NAME "dbo.Search_Payment";
+	
+END MODULE;

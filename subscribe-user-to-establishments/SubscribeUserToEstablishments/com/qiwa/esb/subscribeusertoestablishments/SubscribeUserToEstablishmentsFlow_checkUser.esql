@@ -1,0 +1,39 @@
+BROKER SCHEMA com.qiwa.esb.subscribeusertoestablishments
+
+CREATE FILTER MODULE SubscribeUserToEstablishmentsFlow_checkUser
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE Unfied CHAR Environment.Properties.subscribeUserToEstablishments.subscribeUserToEstablishmentsFlow.Variables.Unfied;
+		DECLARE EstabUser CHAR Environment.Properties.subscribeUserToEstablishments.subscribeUserToEstablishmentsFlow.Variables.EstabUser;
+		DECLARE i INT 1;
+		DECLARE codeValue INT 0;
+		DECLARE codeValuetwo INT 0;
+		DECLARE UserEstablishmentsItemRef REFERENCE TO Environment.Variabl.GetUserRs.UserEstablishmentsList.UserEstablishmentsItem[1];
+		DECLARE SubscriptionItemRef REFERENCE TO Environment.Variables.XMLNSC.SubscribeUserToEstablishmentsRq.Body.SubscriptionsList.SubscriptionItem[1];
+		-- check if the user is a unfied owner and if the establishments match the ones requested
+		WHILE LASTMOVE(UserEstablishmentsItemRef)= TRUE DO
+			DECLARE n INT 1;
+			WHILE LASTMOVE(SubscriptionItemRef) = TRUE DO
+				IF (Environment.Variabl.GetUserRs.UserEstablishmentsList.UserEstablishmentsItem[i].Establishment.LaborOfficeId = Environment.Variables.XMLNSC.SubscribeUserToEstablishmentsRq.Body.SubscriptionsList.SubscriptionItem[n].LaborOfficeId AND Environment.Variabl.GetUserRs.UserEstablishmentsList.UserEstablishmentsItem[i].Establishment.SequenceNumber = Environment.Variables.XMLNSC.SubscribeUserToEstablishmentsRq.Body.SubscriptionsList.SubscriptionItem[n].SequenceNumber) THEN
+					IF Environment.Variabl.GetUserRs.UserEstablishmentsList.UserEstablishmentsItem[i].AuthorizationType.Code = 1 OR
+						Environment.Variabl.GetUserRs.UserEstablishmentsList.UserEstablishmentsItem[i].AuthorizationType.Code = 2 THEN
+						SET codeValue = codeValue + 1;
+					ELSE
+						SET codeValuetwo = codeValuetwo + 1;
+					END IF;
+
+				END IF;
+				MOVE SubscriptionItemRef NEXTSIBLING;
+				SET n = n+1;
+			END WHILE;
+			MOVE UserEstablishmentsItemRef NEXTSIBLING;
+			SET i = i+1;
+		END WHILE;
+		IF (codeValuetwo >=1 ) THEN
+			SET Environment.Variables.MWResponse.status = Unfied ;
+			RETURN FALSE;
+		ELSE
+			RETURN TRUE;
+		END IF;
+	END;
+END MODULE;

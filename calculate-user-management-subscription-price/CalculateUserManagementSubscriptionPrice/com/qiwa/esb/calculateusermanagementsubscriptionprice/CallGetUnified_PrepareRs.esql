@@ -1,0 +1,41 @@
+BROKER SCHEMA com.qiwa.esb.calculateusermanagementsubscriptionprice
+
+
+CREATE COMPUTE MODULE CallGetUnified_PrepareRs
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		
+		SET OutputRoot.Properties = Environment.Variables.Properties;
+		SET OutputRoot.MQMD 	  = Environment.Variables.MQMD;
+		SET OutputRoot.MQRFH2 	  = Environment.Variables.MQRFH2;
+		
+		
+		
+		
+		
+		DECLARE rInHeaderRef REFERENCE TO Environment.Variables.Header;
+		DECLARE rInBodyRef REFERENCE TO Environment.Variables.Body;
+		
+		
+		  SET Environment.Variabl.GetInfo.TotalRecordCount = InputRoot.XMLNSC.sql.row[1].column[1].value;
+		
+		
+		
+		
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;

@@ -1,0 +1,12 @@
+BROKER SCHEMA com.qiwa.esb.checkuserestablishmentseligibility
+
+
+CREATE FILTER MODULE MLSD_GetUserEstablishments_Timeout
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+	    DECLARE loadProperties CHAR Environment.Properties.CheckUserEstablishmentsEligibility.CheckUserEstablishmentsEligibilityFlow.Variables.MW;
+		
+		 	SET Environment.Variables.MWResponse.status = loadProperties;	
+	END;
+
+END MODULE;

@@ -1,0 +1,11 @@
+BROKER SCHEMA com.qiwa.esb.addestablishmentusersubscription
+
+
+CREATE FILTER MODULE AddEstablishmentUserSubscriptionFlow_CallCheckPayment
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		
+		RETURN TRUE;
+	END;
+
+END MODULE;

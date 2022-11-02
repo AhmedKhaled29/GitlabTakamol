@@ -1,0 +1,49 @@
+BROKER SCHEMA com.qiwa.esb.subscribeusertoestablishments
+
+
+CREATE COMPUTE MODULE CalcUMSubsPrice_Req
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage(); 
+		DECLARE InHeaderRef REFERENCE TO Environment.Variables.Header;
+		DECLARE InBodyRef REFERENCE TO Environment.Variables.Body; 
+		DECLARE loadproperties REFERENCE TO Environment.Properties.subscribeUserToEstablishments.subscribeUserToEstablishmentsFlow.Variables;
+		
+		SET OutputRoot.Properties = Environment.Variables.Properties;
+		SET OutputRoot.MQMD = Environment.Variables.MQMD;
+		SET OutputRoot.MQRFH2 = Environment.Variables.MQRFH2;	
+
+		CREATE FIELD OutputRoot.XMLNSC.CalculateUserManagementSubscriptionPriceRq.Header;
+		DECLARE OutHeaderRef REFERENCE TO OutputRoot.XMLNSC.CalculateUserManagementSubscriptionPriceRq.Header;
+		SET OutHeaderRef = InHeaderRef;
+		
+		CREATE FIELD OutputRoot.XMLNSC.CalculateUserManagementSubscriptionPriceRq.Body;
+		DECLARE OutBodyRef REFERENCE TO OutputRoot.XMLNSC.CalculateUserManagementSubscriptionPriceRq.Body;
+		SET OutHeaderRef.ServiceCode = loadproperties.CUMSP;
+		SET OutHeaderRef.ChannelId = loadproperties.ChannelId;
+
+		SET OutBodyRef.LaborOfficeId = InBodyRef.SubscriptionsList.SubscriptionItem.LaborOfficeId;
+		SET OutBodyRef.EstablishmentSequence = InBodyRef.SubscriptionsList.SubscriptionItem.SequenceNumber;
+		SET OutBodyRef.NbUsers = loadproperties.NbUsers;
+		SET OutBodyRef.LaborersList.LaborerIdNo = InHeaderRef.UserInfo.IDNumber;
+
+		SET Environment.InternalServiceCaller.callCorrIDOffset = '12';	
+		
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;

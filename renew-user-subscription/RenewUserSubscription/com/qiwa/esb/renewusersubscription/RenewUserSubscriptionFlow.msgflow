@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmCompute.msgnode="ComIbmCompute.msgnode" xmlns:ComIbmFilter.msgnode="ComIbmFilter.msgnode" xmlns:ComIbmWSRequest.msgnode="ComIbmWSRequest.msgnode" xmlns:Qiwa_Framework_Lib_MQ_Input_Node.subflow="Qiwa/Framework/Lib/MQ_Input_Node.subflow" xmlns:Qiwa_Framework_Lib_MQ_Output_Node.subflow="Qiwa/Framework/Lib/MQ_Output_Node.subflow" xmlns:Qiwa_Framework_Lib_MWBusinessErrorResponse.subflow="Qiwa/Framework/Lib/MWBusinessErrorResponse.subflow"
+    xmlns:com_qiwa_esb_renewusersubscription_CheckUserEstablishmentsEligibility.subflow="com/qiwa/esb/renewusersubscription/CheckUserEstablishmentsEligibility.subflow" xmlns:com_qiwa_esb_renewusersubscription_GetUnifiedTotLabCount.subflow="com/qiwa/esb/renewusersubscription/GetUnifiedTotLabCount.subflow" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="com/qiwa/esb/renewusersubscription/RenewUserSubscriptionFlow.msgflow" nsPrefix="com_qiwa_esb_renewusersubscription_RenewUserSubscriptionFlow.msgflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <translation xmi:type="utility:TranslatableString" key="RenewUserSubscriptionFlow" bundleName="com/qiwa/esb/renewusersubscription/RenewUserSubscriptionFlow" pluginId="RenewUserSubscription"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/RenewUserSubscription/icons/full/obj16/RenewUserSubscriptionFlow.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/RenewUserSubscription/icons/full/obj30/RenewUserSubscriptionFlow.gif"/>
+    <composition>
+      <nodes xmi:type="Qiwa_Framework_Lib_MQ_Input_Node.subflow:FCMComposite_1" xmi:id="FCMComposite_1_1" location="39,127" LOG_ENABLED="true" PROPERTIES_ENABLED="true" queueName="ESB.RENEWUSERSUBSCRIPTION.RQ" messageDomainProperty="XMLNSC" transactionMode="no" PropertiesGroup="RenewUserSubscription.RenewUserSubscriptionFlow" PropertyFilename="${broker.name}/USER-SERVICES-MANAGEMENT.xml">
+        <translation xmi:type="utility:ConstantString" string="MQ_Input_Node"/>
+      </nodes>
+      <nodes xmi:type="Qiwa_Framework_Lib_MQ_Output_Node.subflow:FCMComposite_1" xmi:id="FCMComposite_1_2" location="946,137" queueName="ESB.RENEWUSERSUBSCRIPTION.RS">
+        <translation xmi:type="utility:ConstantString" string="MQ_Output_Node"/>
+      </nodes>
+      <nodes xmi:type="com_qiwa_esb_renewusersubscription_CheckUserEstablishmentsEligibility.subflow:FCMComposite_1" xmi:id="FCMComposite_1_4" location="270,179">
+        <translation xmi:type="utility:ConstantString" string="CheckUserEstabElig"/>
+      </nodes>
+      <nodes xmi:type="Qiwa_Framework_Lib_MWBusinessErrorResponse.subflow:FCMComposite_1" xmi:id="FCMComposite_1_11" location="895,334" OUT_QUEUE="ESB.RENEWUSERSUBSCRIPTION.RS">
+        <translation xmi:type="utility:ConstantString" string="MWBusinessErrorResponse"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_12" location="780,333" computeExpression="esql://routine/com.qiwa.esb.renewusersubscription#RenewUserSubscriptionFlow_SetHeader.Main">
+        <translation xmi:type="utility:ConstantString" string="SetHeader"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_9" location="397,139" dataSource="MWQIWA_DS" computeExpression="esql://routine/com.qiwa.esb.renewusersubscription#RenewUserSubscriptionFlow_CheckRenewSub.Main" computeMode="all">
+        <translation xmi:type="utility:ConstantString" string="CheckRenewSub"/>
+      </nodes>
+      <nodes xmi:type="ComIbmWSRequest.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_13" location="518,73" URLSpecifier="http://server/path" httpVersion="1.1" protocol="TLS" messageDomainProperty="XMLNSC">
+        <translation xmi:type="utility:ConstantString" string="HTTP Request"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_14" location="652,140" dataSource="MWQIWA_DS" computeExpression="esql://routine/com.qiwa.esb.renewusersubscription#RenewUserSubscriptionFlow_Renew.Main">
+        <translation xmi:type="utility:ConstantString" string="Renew"/>
+      </nodes>
+      <nodes xmi:type="ComIbmFilter.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_3" location="167,127" filterExpression="esql://routine/com.qiwa.esb.renewusersubscription#RenewUserSubscriptionFlow_ServiceCallCheck.Main">
+        <translation xmi:type="utility:ConstantString" string="ServiceCallCheck"/>
+      </nodes>
+      <nodes xmi:type="com_qiwa_esb_renewusersubscription_GetUnifiedTotLabCount.subflow:FCMComposite_1" xmi:id="FCMComposite_1_5" location="759,79">
+        <translation xmi:type="utility:ConstantString" string="GetUnifiedTotLabCount"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_12" sourceNode="FCMComposite_1_4" sourceTerminalName="OutTerminal.Error" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_13" targetNode="FCMComposite_1_11" sourceNode="FCMComposite_1_12" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_15" targetNode="FCMComposite_1_9" sourceNode="FCMComposite_1_4" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_16" targetNode="FCMComposite_1_12" sourceNode="FCMComposite_1_9" sourceTerminalName="OutTerminal.out1" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_19" targetNode="FCMComposite_1_14" sourceNode="FCMComposite_1_9" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_20" targetNode="FCMComposite_1_13" sourceNode="FCMComposite_1_9" sourceTerminalName="OutTerminal.out2" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_22" targetNode="FCMComposite_1_14" sourceNode="FCMComposite_1_13" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_23" targetNode="FCMComposite_1_12" sourceNode="FCMComposite_1_14" sourceTerminalName="OutTerminal.out1" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.true" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="FCMComposite_1_9" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.false" targetTerminalName="InTerminal.in">
+        <bendPoints>113,-67,-116,-79</bendPoints>
+      </connections>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_5" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_14" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_6" targetNode="FCMComposite_1_12" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.Output1" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_7" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.Input"/>
+    </composition>
+    <propertyOrganizer/>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

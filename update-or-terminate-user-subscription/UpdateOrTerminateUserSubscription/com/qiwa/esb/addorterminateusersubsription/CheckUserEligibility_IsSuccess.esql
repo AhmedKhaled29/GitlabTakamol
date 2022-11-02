@@ -1,0 +1,24 @@
+BROKER SCHEMA com.qiwa.esb.addorterminateusersubsription
+PATH Qiwa.Framework.Lib; 
+
+
+CREATE FILTER MODULE CheckUserEligibility_IsSuccess
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.UpdateOrTerminateUserSubscription.UpdateOrTerminateUserSubscriptionFlow.Variables;
+		
+       IF Root.XMLNSC.CheckUserEstablishmentsEligibilityRs.Header.ResponseStatus.Code  = GetESBSuccessCode() THEN 
+			  SET Environment.Variabl.CheckUserEstab = Root.XMLNSC.CheckUserEstablishmentsEligibilityRs.Body;  
+		
+			  RETURN TRUE; 
+	
+		ELSE 
+			
+			SET Environment.Variables.MWResponse.status = Root.XMLNSC.CheckUserEstablishmentsEligibilityRs.Header.ResponseStatus.Code;
+			 
+			RETURN FALSE; 
+		 
+		END IF;	
+	END; 
+
+END MODULE;

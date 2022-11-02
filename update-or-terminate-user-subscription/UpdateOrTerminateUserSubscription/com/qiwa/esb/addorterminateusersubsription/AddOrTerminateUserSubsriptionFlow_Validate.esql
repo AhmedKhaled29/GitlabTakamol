@@ -1,0 +1,56 @@
+BROKER SCHEMA com.qiwa.esb.addorterminateusersubsription
+
+
+CREATE FILTER MODULE AddOrTerminateUserSubsriptionFlow_Validate
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		
+		SET Environment.Variables.Properties = Root.Properties;
+		SET Environment.Variables.MQMD = Root.MQMD;
+		SET Environment.Variables.MQRFH2 = Root.MQRFH2;
+		SET Environment.Variables.XMLNSC = Root.XMLNSC; 
+	    DECLARE MissingParams CHAR Environment.Properties.UpdateOrTerminateUserSubscription.UpdateOrTerminateUserSubscriptionFlow.Variables.MissingParams; 
+	    DECLARE ListError CHAR Environment.Properties.UpdateOrTerminateUserSubscription.UpdateOrTerminateUserSubscriptionFlow.Variables.ListError; 
+		
+		DECLARE size INT CARDINALITY (Environment.Variables.XMLNSC.UpdateOrTerminateUserSubscriptionRq.Body.EstablishmentsList.Establishments[]);  
+		-- if the IDNo doesnt exist exit the flow
+		IF Environment.Variables.XMLNSC.UpdateOrTerminateUserSubscriptionRq.Header.UserInfo.IDNumber IS NULL THEN 
+			SET Environment.Variables.MWResponse.status= MissingParams;
+			RETURN FALSE; 
+		END IF;
+			
+		
+		
+		
+		IF  Environment.Variables.XMLNSC.UpdateOrTerminateUserSubscriptionRq.Body.IdNo <> '' OR Environment.Variables.XMLNSC.UpdateOrTerminateUserSubscriptionRq.Body.UserId <> '' THEN 
+			IF Environment.Variables.XMLNSC.UpdateOrTerminateUserSubscriptionRq.Body.ActionType = 2  THEN  
+				  -- if type =2 then the size of in list must be one item 
+				  IF Environment.Variables.XMLNSC.UpdateOrTerminateUserSubscriptionRq.Body.SubscriptionExpiryDate <> '' THEN
+					  	IF  size =1 THEN 
+					      RETURN TRUE;
+					  	ELSE 
+					  	  SET Environment.Variables.MWResponse.status = ListError;  
+					  	  RETURN FALSE;
+					  	END IF;
+				  ELSE 
+				    SET Environment.Variables.MWResponse.status= MissingParams;
+				    RETURN FALSE; 
+				  END IF;   	
+			ELSE  
+			      RETURN TRUE;
+		    END IF;
+		
+	
+		
+		ELSE 
+			SET Environment.Variables.MWResponse.status= MissingParams;
+			RETURN FALSE;
+		END IF; 
+		
+		 
+			 
+		
+		
+	END;
+
+END MODULE;

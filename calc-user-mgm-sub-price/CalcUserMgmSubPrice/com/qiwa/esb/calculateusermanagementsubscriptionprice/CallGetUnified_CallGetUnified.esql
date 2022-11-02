@@ -1,0 +1,62 @@
+BROKER SCHEMA com.qiwa.esb.calculateusermanagementsubscriptionprice
+
+
+CREATE COMPUTE MODULE CallGetUnified_CallGetUnified
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+	CALL CopyMessageHeaders();    
+		-- CALL CopyEntireMessage(); 
+		--DECLARE Environment.Variables REFERENCE TO Environment.Variables;
+	
+	DECLARE bodyRef REFERENCE TO InputRoot.XMLNSC.CalculateUserManagementSubscriptionPriceRq.Body;  
+    DECLARE rInputHeader REFERENCE TO InputRoot.XMLNSC.CalculateUserManagementSubscriptionPriceRq.Header;
+    DECLARE code CHAR Environment.Properties.CalculateUserManagementSubscriptionPrice.CalculateUserManagementSubscriptionPriceFlow.Variables.CodegetUni;
+    DECLARE channel CHAR Environment.Properties.CalculateUserManagementSubscriptionPrice.CalculateUserManagementSubscriptionPriceFlow.Variables.ChannelId;
+ 
+		      
+ 
+		SET Environment.Variables.Properties = InputRoot.Properties;
+	SET Environment.Variables.MQMD = InputRoot.MQMD; 
+	SET Environment.Variables.MQRFH2 = InputRoot.MQRFH2;
+	SET Environment.Variables.XMLNSC = InputRoot.XMLNSC;  
+	SET Environment.Variables.Header = InputRoot.XMLNSC.CalculateUserManagementSubscriptionPriceRq.Header; 
+	SET Environment.Variables.Body = InputRoot.XMLNSC.CalculateUserManagementSubscriptionPriceRq.Body;  
+	
+	
+	CREATE LASTCHILD OF OutputRoot DOMAIN ('XMLNSC');
+	
+	SET OutputRoot.XMLNSC.GetUnifiedNumbertTotalLaborersCountMLSDRq.Header = rInputHeader;     
+	 
+	DECLARE rOutputHeader REFERENCE TO OutputRoot.XMLNSC.GetUnifiedNumbertTotalLaborersCountMLSDRq.Header;      
+	 
+	CREATE LASTCHILD OF OutputRoot.XMLNSC.GetUnifiedNumbertTotalLaborersCountMLSDRq NAME 'Body';  
+	DECLARE outRef REFERENCE TO OutputRoot.XMLNSC.GetUnifiedNumbertTotalLaborersCountMLSDRq.Body;       
+  
+		SET rOutputHeader.ServiceCode = code  ;   
+	SET rOutputHeader.ChannelId = channel ;
+	
+	
+	SET outRef.LaborOfficeId VALUE = bodyRef.LaborOfficeId;
+	SET outRef.SequenceNumber VALUE = bodyRef.EstablishmentSequence;        
+	SET outRef.PageIndex VALUE = 1;      
+	SET outRef.PageSize VALUE = 1;
+	
+	SET Environment.InternalServiceCaller.callCorrIDOffset = SUBSTRING(rInputHeader.TransactionId FROM 1 FOR 1) || '1'; 
+	
+	RETURN TRUE; 
+END;
+
+CREATE PROCEDURE CopyMessageHeaders() BEGIN
+	DECLARE I INTEGER 1;
+	DECLARE J INTEGER;
+	SET J = CARDINALITY(InputRoot.*[]);
+	WHILE I < J DO
+		SET OutputRoot.*[I] = InputRoot.*[I];
+		SET I = I + 1;
+	END WHILE;
+END;
+
+CREATE PROCEDURE CopyEntireMessage() BEGIN
+	SET OutputRoot = InputRoot;
+END;
+END MODULE;

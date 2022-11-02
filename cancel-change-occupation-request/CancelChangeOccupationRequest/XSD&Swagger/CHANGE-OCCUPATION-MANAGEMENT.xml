@@ -1,0 +1,42 @@
+<group name="CancelChangeOccupationRequest.CancelChangeOccupationRequestFlow"> 
+		<group name="Logging">
+			<property name="LogEnabled" value="TRUE" /> 
+			<property name="AuditEnabled" value="FALSE" />
+			<property name="key1" value="" />
+			<property name="value1" value="" />
+			<property name="key2" value="" />
+			<property name="value2" value="" />
+			<property name="key3" value="" />
+			<property name="value3" value="" />
+			<property name="key4" value="" />
+			<property name="value4" value="" /> 
+		</group>
+		<group name="Variables">		
+			<property name="NoIdNumber" value="E0000168" />
+			<property name="SearchCode" value="SCO00001" />
+			<property name="ChannelId" value="ESB" />
+			<property name="invalidStatus" value="E0000183" />
+			<property name="CheckUserCode" value="CUE00001" />
+			<property name="TimeOutError" value="E9999998" />
+			<property name="LaborerIdError" value="E0000184" />
+			<property name="Invalid" value="E0000442" />
+			<property name="New_ERROR" value="E0000356" />
+			<property name="NotEligible" value="E0000356" />
+			<property name="Ask_Owner" value="E0000048" />
+			<property name="NO_Privilege_Error" value="E0000046" />
+			<property name="No_Subscribtions" value="E0000047" />
+			
+			
+			
+		</group>
+		
+		<group name="SchemaValidation">
+            <property name="ValidationEnabled" value="TRUE" />
+        </group>
+        
+		<group name="Retry">
+				<property name="RetryEnabled" value="FALSE" />
+			<property name="minWaitDurationSec" value="60" />
+			<property name="maxRetryCount" value="5" />
+		</group>
+	</group>

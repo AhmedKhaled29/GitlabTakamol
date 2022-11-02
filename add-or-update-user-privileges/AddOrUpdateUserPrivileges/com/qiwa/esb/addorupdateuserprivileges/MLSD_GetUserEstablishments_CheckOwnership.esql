@@ -1,0 +1,117 @@
+BROKER SCHEMA com.qiwa.esb.addorupdateuserprivileges
+
+
+CREATE FILTER MODULE MLSD_GetUserEstablishments_CheckOwnership
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE size  INT CARDINALITY (Environment.Variabl.GetUserRs.UserEstablishmentsList.UserEstablishmentsItem[]);
+		DECLARE inSize INT CARDINALITY (Environment.Variables.XMLNSC.AddOrUpdateUserPrivilegesRq.Body.EstablishmentsList.EstablishmentsItem[]);
+		DECLARE z INT 1;
+		DECLARE codeValue INT 0; 
+		DECLARE ownIndex INT 1;
+		DECLARE noOwn INT 1; 
+		DECLARE own INT 0; 
+		-- we are only passing the establishments that r not owned by the user for the rest of the logic of the flow(service) to be applied on 
+		IF Environment.Variables.XMLNSC.AddOrUpdateUserPrivilegesRq.Body.AddOrUpdate = '1' THEN 
+		 
+			WHILE z <= inSize DO    
+				  DECLARE RqRef REFERENCE TO Environment.Variables.XMLNSC.AddOrUpdateUserPrivilegesRq.Body.EstablishmentsList.EstablishmentsItem[z]; 
+				  DECLARE i INT 1; 
+				  WHILE i <= size DO 	
+				  	DECLARE userRef REFERENCE TO Environment.Variabl.GetUserRs.UserEstablishmentsList.UserEstablishmentsItem[i];
+		              
+		              IF (RqRef.LaborOfficeId = userRef.Establishment.LaborOfficeId
+					  		AND RqRef.EstablishmentSequence = userRef.Establishment.SequenceNumber) THEN
+						 
+						     IF userRef.AuthorizationType.Code = 1 THEN 
+						  
+						        SET Environment.Variabl.ownedData.item[ownIndex].LaborOfficeId = RqRef.LaborOfficeId;
+						        SET Environment.Variabl.ownedData.item[ownIndex].EstablishmentSequence = RqRef.EstablishmentSequence;
+						        SET ownIndex = ownIndex +1; 
+						        SET own = 1;   
+						        SET i = size;  	
+						     ELSE 
+						     	SET own = 0;
+--						     	SET Environment.Variabl.NotownedData.item[noOwn].LaborOfficeId = RqRef.LaborOfficeId;
+--						        SET Environment.Variabl.NotownedData.item[noOwn].EstablishmentSequence = RqRef.EstablishmentSequence;
+--						        SET Environment.Variabl.NotownedData.item[noOwn].EstablishmentId = RqRef.EstablishmentId;
+--						        DECLARE j INT 1; 
+--						        DECLARE servcount INT CARDINALITY(RqRef.ServicesList.ServicesItem[]);
+--								WHILE j<=servcount DO 
+--									
+--									 SET Environment.Variabl.NotownedData.item[noOwn].ServicesList.ServicesItem[j].ServiceId= RqRef.ServicesList.ServicesItem[j].ServiceId;
+--
+--								     SET j = j+1;  
+--					    		END WHILE ;
+--						        
+--						        SET noOwn = noOwn +1; 
+                              
+						     	 
+						     END IF;
+		              ELSE 
+		                    SET own = 0;	    
+		              END IF;  
+					     
+				     SET i = i+1; 
+				  END WHILE ; 
+				  
+			  	  IF own = 0 THEN 
+	              	    SET Environment.Variabl.NotownedData.item[noOwn].LaborOfficeId = RqRef.LaborOfficeId;
+				        SET Environment.Variabl.NotownedData.item[noOwn].EstablishmentSequence = RqRef.EstablishmentSequence;
+				        SET Environment.Variabl.NotownedData.item[noOwn].EstablishmentId = RqRef.EstablishmentId;
+				        DECLARE j INT 1; 
+					    DECLARE servcount INT CARDINALITY(RqRef.ServicesList.ServicesItem[]);
+						WHILE j<=servcount DO 
+								
+							 SET Environment.Variabl.NotownedData.item[noOwn].ServicesList.ServicesItem[j].ServiceId= RqRef.ServicesList.ServicesItem[j].ServiceId;
+
+						     SET j = j+1; 
+						END WHILE ; 
+				        
+				        SET noOwn = noOwn +1;   
+	               END IF ;	 
+				  
+				  
+			SET z = z+1;
+			END WHILE; 
+			
+		ELSE 
+			
+		  
+			WHILE z <= inSize DO     
+				  DECLARE RqRef REFERENCE TO Environment.Variables.XMLNSC.AddOrUpdateUserPrivilegesRq.Body.EstablishmentsList.EstablishmentsItem[z]; 
+				  DECLARE i INT 1; 
+		   	
+						     	SET Environment.Variabl.NotownedData.item[noOwn].LaborOfficeId = RqRef.LaborOfficeId;
+						        SET Environment.Variabl.NotownedData.item[noOwn].EstablishmentSequence = RqRef.EstablishmentSequence;
+						        SET Environment.Variabl.NotownedData.item[noOwn].EstablishmentId = RqRef.EstablishmentId;
+						        DECLARE j INT 1; 
+						        DECLARE servcount INT CARDINALITY(RqRef.ServicesList.ServicesItem[]);
+								WHILE j<=servcount DO 
+									
+									 SET Environment.Variabl.NotownedData.item[noOwn].ServicesList.ServicesItem[j].ServiceId= RqRef.ServicesList.ServicesItem[j].ServiceId;
+
+								     SET j = j+1; 
+					    		END WHILE ;
+						         
+						        SET noOwn = noOwn +1;  
+						     	 
+						      
+
+			SET z = z+1;
+			END WHILE;   
+			 
+		END IF;  
+		
+		DECLARE ownsize INT CARDINALITY (Environment.Variabl.ownedData.item[]);
+		IF inSize = ownsize THEN 
+			SET Environment.Variabl.allOwned =1;
+			RETURN FALSE;
+			 
+		END IF; 
+		
+		 
+		RETURN TRUE;
+	END;
+
+END MODULE;

@@ -1,0 +1,21 @@
+BROKER SCHEMA com.qiwa.esb.addorupdateuserprivileges
+PATH Qiwa.Framework.Lib;
+
+CREATE FILTER MODULE CheckUserEstablishmentsEligibility_isSuccess
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+	 IF Root.XMLNSC.CheckUserEstablishmentsEligibilityRs.Header.ResponseStatus.Code  = GetESBSuccessCode()   THEN 
+			  SET Environment.Variables.ChkUserEstbElibltyRs = Root.XMLNSC.CheckUserEstablishmentsEligibilityRs.Body;         
+		
+			  RETURN TRUE;
+	
+		ELSE 
+			
+			SET Environment.Variables.MWResponse.status = Root.XMLNSC.CheckUserEstablishmentsEligibilityRs.Header.ResponseStatus.Code;
+			 
+			RETURN FALSE;
+		 
+		END IF;	
+	END;
+
+END MODULE;

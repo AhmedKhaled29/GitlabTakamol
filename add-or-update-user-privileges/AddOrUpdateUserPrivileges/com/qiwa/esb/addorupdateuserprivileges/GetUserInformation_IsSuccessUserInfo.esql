@@ -1,0 +1,34 @@
+BROKER SCHEMA com.qiwa.esb.addorupdateuserprivileges
+PATH Qiwa.Framework.Lib;
+
+
+CREATE FILTER MODULE GetUserInformation_IsSuccessUserInfo
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE error CHAR Environment.Properties.AddOrUpdateUserPrivileges.AddOrUpdateUserPrivilegesFlow.Variables.noUserInfo;
+		DECLARE noData CHAR Environment.Properties.AddOrUpdateUserPrivileges.AddOrUpdateUserPrivilegesFlow.Variables.NoDataFound;
+		
+       IF Root.XMLNSC.GetUserInformationRs.Header.ResponseStatus.Code  = GetESBSuccessCode()   THEN 
+		 SET Environment.Variables.GetUsrInfo = Root.XMLNSC.GetUserInformationRs.Body;         
+		
+		IF(Environment.Variables.GetUsrInfo.Status.StatusId = 1)THEN 
+	         RETURN TRUE ;
+		ELSE
+		   SET Environment.Variables.MWResponse.status = Environment.Properties.AddOrUpdateUserPrivileges.AddOrUpdateUserPrivilegesFlow.Variables.InactiveUser;
+		     RETURN FALSE;
+		END IF;
+	
+			  
+		ELSE 
+			
+			IF Root.XMLNSC.GetUserInformationRs.Header.ResponseStatus.Code = noData THEN 
+				SET Environment.Variables.MWResponse.status=  error;
+			ELSE 
+			   SET Environment.Variables.MWResponse.status = Root.XMLNSC.GetUserInformationRs.Header.ResponseStatus.Code;
+			END IF;
+			RETURN FALSE;
+		 
+		END IF;	
+		END;
+
+END MODULE;

@@ -1,0 +1,11 @@
+BROKER SCHEMA com.qiwa.esb.subscribeusertoestablishments
+
+
+
+CREATE FILTER MODULE CheckUserEligibilityFlow_IsSuccessCall
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		RETURN TRUE;
+	END;
+
+END MODULE;

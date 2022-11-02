@@ -1,0 +1,59 @@
+BROKER SCHEMA com.qiwa.esb.getpaymentswithoutusersubscriptions
+PATH Qiwa.Framework.Lib;
+
+CREATE COMPUTE MODULE HTTP_GetPaymentswithoutUserSubscriptions_CallPUS
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage();
+		
+		DECLARE rInHeaderRef REFERENCE TO Environment.Variables.Request.Header;
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.GetPaymentswithoutUserSubscriptions.HTTP_GetPaymentswithoutUserSubscriptions.Variables;
+		CREATE FIRSTCHILD OF OutputRoot.XMLNSC.GetPaymentswithoutUserSubscriptionsRs NAME 'Header';
+		DECLARE rOutHeaderRef REFERENCE TO OutputRoot.XMLNSC.GetPaymentswithoutUserSubscriptionsRs.Header;
+
+		CALL Get_PaidUserSubscriptions(Environment.Variables.Payment.PaymentReferences,
+		Environment.Variables.DB.PaidUserSubsc[]);
+			
+			IF EXISTS(Environment.Variables.DB.PaidUserSubsc[]) THEN
+				DECLARE PaymentReferences CHARACTER '';
+				DECLARE i INTEGER 2;
+				DECLARE ListCount INTEGER CARDINALITY(Environment.Variables.DB.PaidUserSubsc[]);
+				SET PaymentReferences = CAST(Environment.Variables.DB.PaidUserSubsc[1].PaymentReference AS CHARACTER);
+				WHILE i <= ListCount DO
+					SET PaymentReferences = PaymentReferences || ',' || CAST(Environment.Variables.DB.PaidUserSubsc[i].PaymentReference AS CHARACTER);
+					SET i = i + 1;
+				END WHILE;
+				SET Environment.Variables.UserSubsc.PaymentReferences = PaymentReferences;
+				RETURN TRUE;
+			ELSE
+				-- All Payment References retrieved from Payment for this period have Subscriptions
+				CALL Create_esbXML_Response_Header(GetESBSuccessCode(), rInHeaderRef, rOutHeaderRef);
+				CREATE LASTCHILD OF OutputRoot.XMLNSC.GetPaymentswithoutUserSubscriptionsRs NAME 'Body';
+				DECLARE rOutBodyRef REFERENCE TO OutputRoot.XMLNSC.GetPaymentswithoutUserSubscriptionsRs.Body;
+				SET rOutBodyRef.List.ListItem[1] = NULL;
+				SET rOutBodyRef.TotalRecordsCount = Environment.Variables.TotalRecordsCount;
+				PROPAGATE TO TERMINAL 'out1' DELETE NONE;
+				RETURN FALSE;
+			END IF;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+	
+	CREATE PROCEDURE Get_PaidUserSubscriptions( IN PaymentReferences CHARACTER)
+	LANGUAGE DATABASE
+	DYNAMIC RESULT SETS 1
+	EXTERNAL NAME "dbo.Get_PaidUserSubscriptions";
+END MODULE;

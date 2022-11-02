@@ -1,0 +1,19 @@
+BROKER SCHEMA com.qiwa.esb.subscribeusertoestablishments
+PATH Qiwa.Framework.Lib;
+
+
+CREATE FILTER MODULE CalcUMSubsPrice_IsSuccess
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE loadproperties REFERENCE TO Environment.Properties.subscribeUserToEstablishments.subscribeUserToEstablishmentsFlow.Variables;
+		IF Root.XMLNSC.CalculateUserManagementSubscriptionPriceRs.Header.ResponseStatus.Code = GetESBSuccessCode() THEN
+			SET Environment.Variables.ESB.CalcUMSubsPrice = Root.XMLNSC.CalculateUserManagementSubscriptionPriceRs.Body;
+			RETURN TRUE;
+		ELSE
+			SET Environment.Variables.MWResponse.status = Root.XMLNSC.CalculateUserManagementSubscriptionPriceRs.Header.ResponseStatus.Code;
+			RETURN FALSE;
+		END IF;	
+		
+		END;
+
+END MODULE;

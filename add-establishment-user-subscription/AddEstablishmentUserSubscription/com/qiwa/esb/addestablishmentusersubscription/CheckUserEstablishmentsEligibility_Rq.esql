@@ -1,0 +1,107 @@
+BROKER SCHEMA com.qiwa.esb.addestablishmentusersubscription
+PATH Qiwa.Framework.Lib;
+DECLARE ns NAMESPACE 'http://Qiwa/UserManagement/AddEstablishmentUserSubscription/v1.0';
+
+CREATE COMPUTE MODULE CheckUserEstablishmentsEligibility_Rq
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage();
+		
+--		IF FIELDVALUE(Environment.Variables) IS NULL THEN
+--			CREATE FIELD Environment.Variables;
+--		END IF;
+		--DECLARE Environment.Variables REFERENCE TO Environment.Variables;
+		DECLARE i,j INTEGER 1; 
+		DECLARE Result INTEGER;
+		DECLARE UserSubScriptions CHARACTER;
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.AddEstablishmentUserSubscription.AddEstablishmentUserSubscriptionFlow;
+		DECLARE rInBodyRef REFERENCE TO Environment.Variables.XMLNSC.AddEstablishmentUserSubscriptionRq.Body;
+		DECLARE rInHeaderRef REFERENCE TO Environment.Variables.XMLNSC.AddEstablishmentUserSubscriptionRq.Header;
+		 
+
+		SET OutputRoot.Properties = Environment.Variables.Properties; 
+		SET OutputRoot.MQMD = Environment.Variables.MQMD;
+		SET OutputRoot.MQRFH2 = Environment.Variables.MQRFH2;
+		
+		CREATE FIELD Environment.Variables.SPXML;
+		CREATE FIRSTCHILD OF Environment.Variables.SPXML DOMAIN 'XMLNSC';
+		CREATE FIELD Environment.Variables.SPXML1;
+		CREATE FIRSTCHILD OF Environment.Variables.SPXML1 DOMAIN 'XMLNSC';
+		FOR SOURCE AS rInBodyRef.SubscriptionsList.SubscriptionItem[] DO 
+			IF rInBodyRef.SubscriptionsList.SubscriptionItem[i].IdNo <> rInHeaderRef.UserInfo.IDNumber THEN
+				SET Environment.Variables.SPXML.XMLNSC.UsersSubscriptionList.UserSubscription[i].IdNo	=	rInBodyRef.SubscriptionsList.SubscriptionItem[i].IdNo;
+				SET Environment.Variables.SPXML.XMLNSC.UsersSubscriptionList.UserSubscription[i].LaborOfficeId	=	rInBodyRef.SubscriptionsList.SubscriptionItem[i].LaborOfficeId;
+				SET Environment.Variables.SPXML.XMLNSC.UsersSubscriptionList.UserSubscription[i].SequenceNumber	=	rInBodyRef.SubscriptionsList.SubscriptionItem[i].SequenceNumber;
+				SET Environment.Variables.SPXML1.XMLNSC.UsersSubscriptionList.UserSubscription[i].SequenceNumber	=	rInBodyRef.SubscriptionsList.SubscriptionItem[i].SequenceNumber;
+				SET Environment.Variables.SPXML1.XMLNSC.UsersSubscriptionList.UserSubscription[i].SubscriptionId	=	rInBodyRef.SubscriptionsList.SubscriptionItem[i].SubscriptionId;
+				SET Environment.Variables.SPXML1.XMLNSC.UsersSubscriptionList.UserSubscription[i].Duration	=	rInBodyRef.SubscriptionsList.SubscriptionItem[i].Duration;
+				SET Environment.Variables.SPXML1.XMLNSC.UsersSubscriptionList.UserSubscription[i].UnifiedNumber	=	Environment.Variabl.GetInfo.UnifiedNumbersList.UnifiedNumbers[i].UnifiedNumberId;   
+				SET Environment.Variables.SPXML1.XMLNSC.UsersSubscriptionList.UserSubscription[i].IdNo	=	rInBodyRef.SubscriptionsList.SubscriptionItem[i].IdNo;
+				SET Environment.Variables.SPXML1.XMLNSC.UsersSubscriptionList.UserSubscription[i].LaborOfficeId	=	rInBodyRef.SubscriptionsList.SubscriptionItem[i].LaborOfficeId;
+				SET Environment.Variables.SPXML1.XMLNSC.UsersSubscriptionList.UserSubscription[i].EstablishmentId	=	rInBodyRef.SubscriptionsList.SubscriptionItem[i].EstablishmentId;  
+				SET Environment.Variables.SPXML1.XMLNSC.UsersSubscriptionList.UserSubscription[i].TotalRecordsCount = Environment.Variabl.GetNum.TotalRecordCount ; 
+				SET i	=	i	+ 1;
+			ELSE 
+				SET OutputRoot.XMLNSC.AddEstablishmentUserSubscriptionRs.Header = rInHeaderRef; 
+				SET Environment.Variables.MWResponse.status = loadedPropertiesRef.Variables.IdNoIdenticalError;
+				PROPAGATE TO TERMINAL 'out1';
+				RETURN FALSE;
+			END IF;
+		END FOR;
+		
+			SET UserSubScriptions = CAST(ASBITSTREAM(Environment.Variables.SPXML.XMLNSC CCSID 1208) AS CHARACTER CCSID 1208);
+			CALL UsersSubsriptionsValidity (UserSubScriptions) INTO Result;
+		
+			IF Result='0' THEN
+				CREATE LASTCHILD OF OutputRoot DOMAIN ('XMLNSC');
+				SET OutputRoot.XMLNSC.CheckUserEstablishmentsEligibilityRq.Header = rInHeaderRef;
+				DECLARE rOutHeaderRef REFERENCE TO OutputRoot.XMLNSC.CheckUserEstablishmentsEligibilityRq.Header;
+				CREATE LASTCHILD OF OutputRoot.XMLNSC.CheckUserEstablishmentsEligibilityRq NAME 'Body';
+				DECLARE rOutBodyRef REFERENCE TO OutputRoot.XMLNSC.CheckUserEstablishmentsEligibilityRq.Body;
+				SET rOutHeaderRef.ServiceCode = loadedPropertiesRef.Variables.ServiceCode;
+				SET rOutHeaderRef.ChannelId = loadedPropertiesRef.Variables.ChannelId;
+				
+				SET rOutBodyRef.IdNo = rInHeaderRef.UserInfo.IDNumber;
+				FOR SOURCE AS Environment.Variables.SPXML.XMLNSC.UsersSubscriptionList.UserSubscription[] DO
+					SET rOutBodyRef.EstablishmentsList.EstablishmentsItem[j].LaborOfficeId = SOURCE.LaborOfficeId;
+					SET rOutBodyRef.EstablishmentsList.EstablishmentsItem[j].EstablishmentSequence  = SOURCE.SequenceNumber;
+				SET j	=	j	+	1;
+				END FOR;
+				SET rOutBodyRef.ServiceId = loadedPropertiesRef.Variables.ServiceId;
+				SET rOutBodyRef.ListAll = 0;	
+				SET Environment.InternalServiceCaller.callCorrIDOffset = '13';
+			ELSE
+				SET OutputRoot.XMLNSC.AddEstablishmentUserSubscriptionRs.Header = rInHeaderRef;
+				IF Result='-112' THEN 
+				  SET Environment.Variables.MWResponse.status = 'DB000112';
+				ELSEIF  Result='-113' THEN 
+				  SET Environment.Variables.MWResponse.status = 'DB000113';
+				ELSEIF  Result='-114' THEN 
+				  SET Environment.Variables.MWResponse.status = 'DB000114';
+				ELSEIF	Result='-1' THEN					
+				  SET Environment.Variables.MWResponse.status = loadedPropertiesRef.Variables.UserSubValError;					
+				END IF; 
+				 
+				PROPAGATE TO TERMINAL 'out1';
+				RETURN FALSE;
+			END IF;
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+CREATE PROCEDURE UsersSubsriptionsValidity (IN UserSubScriptions CHARACTER) RETURNS INTEGER
+LANGUAGE DATABASE EXTERNAL NAME "dbo.Check_UsersSubsriptionsValidity";
+END MODULE;

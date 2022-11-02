@@ -1,0 +1,50 @@
+BROKER SCHEMA com.qiwa.esb.getestablishmentauthorizeduser
+PATH Qiwa.Framework.Lib;
+
+CREATE COMPUTE MODULE GetEstablishmentAuthorizedUserFlow_Rq
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- CALL CopyMessageHeaders();    
+		-- CALL CopyEntireMessage(); 
+		
+		DECLARE rInBodyRef REFERENCE TO InputRoot.XMLNSC.GetEstablishmentAuthorizedUserRq.Body; 
+		DECLARE rInHeaderRef REFERENCE TO InputRoot.XMLNSC.GetEstablishmentAuthorizedUserRq.Header;
+		CREATE LASTCHILD OF Environment NAME 'Variables';
+		DECLARE EV REFERENCE TO Environment.Variables;
+		SET EV.Properties = InputRoot.Properties;
+		SET EV.MQMD 	  = InputRoot.MQMD;
+		SET EV.MQRFH2 	  = InputRoot.MQRFH2;
+		SET EV.XMLNSC     = InputRoot.XMLNSC;
+		SET Environment.Variables.Header = rInHeaderRef;
+		SET Environment.Variables.Body = rInBodyRef;
+		
+		
+		SET OutputRoot.Properties = InputRoot.Properties;
+		
+		  
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.GetEstablishmentAuthorizedUser.GetEstablishmentAuthorizedUserFlow;
+		
+		-- Prepare Request for DP Call
+		SET OutputRoot.XMLNSC.data.idNumber VALUE = 'NULL';
+		SET OutputRoot.XMLNSC.data.excludedSubEconomicActivities VALUE = 'NULL';
+		SET OutputRoot.XMLNSC.data.laborerOfficeId VALUE = CAST(rInBodyRef.LaborOfficeId AS INTEGER);
+		SET OutputRoot.XMLNSC.data.sequenceNumber VALUE = CAST(rInBodyRef.SequenceNumber AS INTEGER);
+		
+		SET OutputLocalEnvironment.Destination.HTTP.RequestURL = loadedPropertiesRef.Variables.DPUrl;
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;

@@ -1,0 +1,30 @@
+BROKER SCHEMA com.qiwa.esb.cancelchangeoccupationrequest
+
+
+CREATE FILTER MODULE CancelChangeOccupationRequestFlow_Filter
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE EV REFERENCE TO Environment.Variables;
+		DECLARE status INT Environment.Variabl.SearchChangeOccupationRs.ChangeOccupationList.ChangeOccupationItem[1].RequestDetailsList.RequestDetailsItem[1].StatusDetails.StatusId;
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.CancelChangeOccupationRequest.CancelChangeOccupationRequestFlow.Variables;
+		
+		-- Validating the Status returned from search change occupation, differrent flows will follow
+		IF status <> '' THEN
+ 			IF status = '2' THEN 
+				RETURN TRUE;
+ 			ELSEIF  status = '3' THEN 
+				RETURN FALSE;
+ 			ELSE 
+ 			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.invalidStatus;
+			RETURN unknown;
+			END IF;
+		ELSE 
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.invalidStatus;
+			RETURN unknown;
+		END IF;
+		
+		
+		RETURN TRUE;
+	END;
+
+END MODULE;

@@ -1,0 +1,221 @@
+BROKER SCHEMA com.qiwa.esb.calculateusermanagementsubscriptionprice
+PATH Qiwa.Framework.Lib;
+
+
+CREATE COMPUTE MODULE CalculateUserManagementSubscriptionPrice_Rs
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- CALL CopyMessageHeaders();
+		
+		SET OutputRoot.Properties = Environment.Variables.Properties;
+		SET OutputRoot.MQMD = Environment.Variables.MQMD;
+		SET OutputRoot.MQRFH2 = Environment.Variables.MQRFH2; 
+		
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.CalculateUserManagementSubscriptionPrice.CalculateUserManagementSubscriptionPriceFlow;
+		DECLARE rInHeaderRef REFERENCE TO  Environment.Variables.Request.Header;  
+		CREATE FIRSTCHILD OF OutputRoot.XMLNSC.CalculateUserManagementSubscriptionPriceRs NAME 'Header';
+		DECLARE rOutFinalHeaderRef REFERENCE TO OutputRoot.XMLNSC.CalculateUserManagementSubscriptionPriceRs.Header;
+		CREATE LASTCHILD OF OutputRoot.XMLNSC.CalculateUserManagementSubscriptionPriceRs NAME 'Body';  
+		DECLARE rOutFinalBodyRef REFERENCE TO OutputRoot.XMLNSC.CalculateUserManagementSubscriptionPriceRs.Body;  
+		
+		CALL Get_QiwaUnifiedCount(NULL, COALESCE(CAST(Environment.Variables.ESB.GetUniNoTotLabCountBody.LaborersList.LaborerInformation.EstablishmentInfo.UnifiedNumber AS INTEGER ),NULL), 
+		Environment.variables.resultDB[]) ; 
+		
+		 
+		
+		DECLARE i INT 1; 
+		DECLARE loopsize INT Environment.Variables.Request.Body.NbUsers; 
+		DECLARE TotalAmount INT 0 ;
+		IF Environment.Variables.ESB.GetUniNoTotLabCountBody.TotalRecordCount >= 0 AND Environment.Variables.ESB.GetUniNoTotLabCountBody.TotalRecordCount <= 5 THEN 
+			 SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionId = 1; 
+			 SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPeriodInMonth = 12;
+			 --SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPrice =1100;
+			 WHILE i<= loopsize DO 
+			 	IF Environment.variables.resultDB.OriginalCount = 0  THEN --original price
+			 		
+			 		SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPriceList[i].Price =1100;
+			 		SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPriceList[i].AmountType =1;
+			 		
+			 		SET Environment.variables.resultDB.OriginalCount=Environment.variables.resultDB.OriginalCount+1 ; 
+			 		
+			 	ELSEIF Environment.variables.resultDB.SecondCount =0  THEN  --75%  discount 
+			 		
+			 		SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPriceList[i].Price =(1100*0.25);
+			 		SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPriceList[i].AmountType =2;
+
+			 		SET Environment.variables.resultDB.SecondCount=Environment.variables.resultDB.SecondCount+1 ; 
+			 					 		 
+			 	ELSE 
+			 		SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPriceList[i].Price =(1100*0.1);
+			 		SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPriceList[i].AmountType =3; 
+
+			 		SET Environment.variables.resultDB.Count=Environment.variables.resultDB.Count+1 ; 
+			 				 	 	 				 		
+			 	END IF;
+			 	SET TotalAmount= TotalAmount+CAST(rOutFinalBodyRef.SubscriptionDetails.SubscriptionPriceList[i].Price  AS INT);	
+			 	SET i=i+1; 
+			 END WHILE; 
+			 	
+			 SET rOutFinalBodyRef.SubscriptionDetails.VAT= 15;
+			 SET rOutFinalBodyRef.SubscriptionDetails.EstablishmentSize= 1;	
+		ELSEIF Environment.Variables.ESB.GetUniNoTotLabCountBody.TotalRecordCount >= 6 AND Environment.Variables.ESB.GetUniNoTotLabCountBody.TotalRecordCount <= 49 THEN
+			 SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionId = 1; 
+			 SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPeriodInMonth = 12;
+			 --SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPrice =2300; 
+			 WHILE i<= loopsize DO 
+			 	IF Environment.variables.resultDB.OriginalCount = 0  THEN --original price
+			 		
+			 		SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPriceList[i].Price =2300;
+			 		SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPriceList[i].AmountType =1;
+			 		SET Environment.variables.resultDB.OriginalCount=Environment.variables.resultDB.OriginalCount+1 ; 
+			 		
+			 	ELSEIF Environment.variables.resultDB.SecondCount =0  THEN  --75%  discount 
+			 		
+			 		SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPriceList[i].Price =(2300*0.25);
+			 		SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPriceList[i].AmountType =2;
+			 		SET Environment.variables.resultDB.SecondCount=Environment.variables.resultDB.SecondCount+1 ; 
+			 					 		
+			 	ELSE 
+			 		SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPriceList[i].Price =(2300*0.1);
+			 		SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPriceList[i].AmountType =3;
+			 		SET Environment.variables.resultDB.Count=Environment.variables.resultDB.Count+1 ; 
+			 				 	 	 				 		
+			 	END IF;
+			 	SET TotalAmount= TotalAmount+CAST(rOutFinalBodyRef.SubscriptionDetails.SubscriptionPriceList[i].Price  AS INT);
+			 	SET i=i+1; 
+			 END WHILE; 
+			 SET rOutFinalBodyRef.SubscriptionDetails.VAT= 15;
+			 SET rOutFinalBodyRef.SubscriptionDetails.EstablishmentSize= 2;	
+		ELSEIF Environment.Variables.ESB.GetUniNoTotLabCountBody.TotalRecordCount >= 50 AND Environment.Variables.ESB.GetUniNoTotLabCountBody.TotalRecordCount <= 499 THEN 
+			 SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionId = 1; 
+			 SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPeriodInMonth = 12;
+			 --SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPrice =7000;
+			 WHILE i<= loopsize DO 
+			 	IF Environment.variables.resultDB.OriginalCount = 0  THEN --original price
+			 		
+			 		SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPriceList[i].Price =7000;
+			 		SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPriceList[i].AmountType =1;
+			 		SET Environment.variables.resultDB.OriginalCount=Environment.variables.resultDB.OriginalCount+1 ; 
+			 		
+			 	ELSEIF Environment.variables.resultDB.SecondCount =0  THEN  --75%  discount 
+			 		
+			 		SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPriceList[i].Price =(7000*0.25);
+			 		SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPriceList[i].AmountType =2;
+			 		SET Environment.variables.resultDB.SecondCount=Environment.variables.resultDB.SecondCount+1 ; 
+			 					 		
+			 	ELSE 
+			 		SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPriceList[i].Price =(7000*0.1); 
+			 		SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPriceList[i].AmountType =3;
+			 		SET Environment.variables.resultDB.Count=Environment.variables.resultDB.Count+1 ; 
+			 				 	 	 				 		
+			 	END IF;
+			 	SET TotalAmount= TotalAmount+CAST(rOutFinalBodyRef.SubscriptionDetails.SubscriptionPriceList[i].Price  AS INT);
+			 	SET i=i+1; 
+			 END WHILE; 
+			 SET rOutFinalBodyRef.SubscriptionDetails.VAT= 15;
+			 SET rOutFinalBodyRef.SubscriptionDetails.EstablishmentSize= 3;
+--		ELSEIF 	Environment.Variables.ESB.GetUniNoTotLabCountBody.TotalRecordCount >= 100 AND Environment.Variables.ESB.GetUniNoTotLabCountBody.TotalRecordCount <= 199 THEN 
+--			 SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionId = 1; 
+--			 SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPeriodInMonth = 12;
+--			 SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPrice =7000;
+--			 SET rOutFinalBodyRef.SubscriptionDetails.VAT= 15;
+--			 SET rOutFinalBodyRef.SubscriptionDetails.EstablishmentSize= 4;
+--		ELSEIF Environment.Variables.ESB.GetUniNoTotLabCountBody.TotalRecordCount >= 200 AND Environment.Variables.ESB.GetUniNoTotLabCountBody.TotalRecordCount <= 499 THEN 
+--			 SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionId = 1; 
+--			 SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPeriodInMonth = 12;
+--			 SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPrice =7000;
+--			 SET rOutFinalBodyRef.SubscriptionDetails.VAT= 15;
+--			 SET rOutFinalBodyRef.SubscriptionDetails.EstablishmentSize= 5;
+		ELSEIF Environment.Variables.ESB.GetUniNoTotLabCountBody.TotalRecordCount >= 500 AND Environment.Variables.ESB.GetUniNoTotLabCountBody.TotalRecordCount <= 2999 THEN
+			 SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionId = 1; 
+			 SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPeriodInMonth = 12;
+			 --SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPrice =10000;
+			 WHILE i<= loopsize DO 
+			 	IF Environment.variables.resultDB.OriginalCount = 0  THEN --original price
+			 		
+			 		SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPriceList[i].Price =10000;
+			 		SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPriceList[i].AmountType =1;
+			 		SET Environment.variables.resultDB.OriginalCount=Environment.variables.resultDB.OriginalCount+1 ; 
+			 		
+			 	ELSEIF Environment.variables.resultDB.SecondCount =0  THEN  --75%  discount 
+			 		
+			 		SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPriceList[i].Price =(10000*0.25);
+			 		SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPriceList[i].AmountType =2;
+			 		SET Environment.variables.resultDB.SecondCount=Environment.variables.resultDB.SecondCount+1 ; 
+			 					 		
+			 	ELSE 
+			 		SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPriceList[i].Price =(10000*0.1);  
+			 		SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPriceList[i].AmountType =3; 
+			 		SET Environment.variables.resultDB.Count=Environment.variables.resultDB.Count+1 ; 
+			 				 	 	 				 		
+			 	END IF;
+			 	SET TotalAmount= TotalAmount+CAST(rOutFinalBodyRef.SubscriptionDetails.SubscriptionPriceList[i].Price  AS INT);
+			 	SET i=i+1; 
+			 END WHILE;  
+			 SET rOutFinalBodyRef.SubscriptionDetails.VAT= 15;
+			 SET rOutFinalBodyRef.SubscriptionDetails.EstablishmentSize= 6;
+		ELSEIF Environment.Variables.ESB.GetUniNoTotLabCountBody.TotalRecordCount >= 3000 THEN 
+			 SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionId = 1; 
+			 SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPeriodInMonth = 12;
+			 --SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPrice =12000;
+			 WHILE i<= loopsize DO 
+			 	IF Environment.variables.resultDB.OriginalCount = 0  THEN --original price
+			 		
+			 		SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPriceList[i].Price =12000;
+			 		SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPriceList[i].AmountType =1;
+			 		SET Environment.variables.resultDB.OriginalCount=Environment.variables.resultDB.OriginalCount+1 ; 
+			 		
+			 	ELSEIF Environment.variables.resultDB.SecondCount =0  THEN  --75%  discount 
+			 		
+			 		SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPriceList[i].Price =(12000*0.25);
+			 		SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPriceList[i].AmountType =2;
+			 		SET Environment.variables.resultDB.SecondCount=Environment.variables.resultDB.SecondCount+1 ; 
+			 					 		
+			 	ELSE 
+			 		SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPriceList[i].Price =(12000*0.1);  
+			 		SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPriceList[i].AmountType =3;
+			 		SET Environment.variables.resultDB.Count=Environment.variables.resultDB.Count+1 ;   
+			 				 	 	 				 		
+			 	END IF;
+			 	SET TotalAmount= TotalAmount+CAST(rOutFinalBodyRef.SubscriptionDetails.SubscriptionPriceList[i].Price  AS INT);
+			 	SET i=i+1; 
+			 END WHILE;
+			 SET rOutFinalBodyRef.SubscriptionDetails.VAT= 15;
+			 SET rOutFinalBodyRef.SubscriptionDetails.EstablishmentSize= 7;
+		ELSE 
+			 CALL Create_esbXML_Response_Header('E0000024',rInHeaderRef,rOutFinalHeaderRef);
+			 RETURN TRUE;
+		END IF; 
+		SET rOutFinalBodyRef.SubscriptionDetails.TotalAmount= TotalAmount; 
+--		 SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionId = Environment.Variabl.GetSus.SubscrptionsList.SubscrptionsItem[1].SubscriptionId; 
+--		 SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPeriodInMonth = Environment.Variabl.GetSus.SubscrptionsList.SubscrptionsItem[1].SubscriptionPeriodInMonth;
+--		 SET rOutFinalBodyRef.SubscriptionDetails.SubscriptionPrice =Environment.Variabl.GetSus.SubscrptionsList.SubscrptionsItem[1].SubscriptionPrice;
+--		 SET rOutFinalBodyRef.SubscriptionDetails.VAT=Environment.Variabl.GetSus.SubscrptionsList.SubscrptionsItem[1].VAT;
+--		 SET rOutFinalBodyRef.SubscriptionDetails.EstablishmentSize= Environment.Variabl.GetSus.SubscrptionsList.SubscrptionsItem[1].EstablishmentSize;
+		 
+			CALL Create_esbXML_Response_Header(GetESBSuccessCode(),rInHeaderRef,rOutFinalHeaderRef);
+			
+		RETURN TRUE; 
+		END;
+	
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]); 
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+	
+	CREATE PROCEDURE Get_QiwaUnifiedCount (IN IdNo CHAR ,IN UnifiedNumber INTEGER) 
+	LANGUAGE DATABASE  
+	DYNAMIC RESULT SETS 1
+	EXTERNAL NAME "dbo.Get_QiwaUnifiedCount";
+	
+END MODULE;

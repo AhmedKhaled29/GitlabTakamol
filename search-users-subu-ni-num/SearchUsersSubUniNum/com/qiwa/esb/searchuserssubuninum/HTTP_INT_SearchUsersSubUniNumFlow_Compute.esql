@@ -1,0 +1,150 @@
+BROKER SCHEMA com.qiwa.esb.searchuserssubuninum
+PATH Qiwa.Framework.Lib;  
+
+
+CREATE COMPUTE MODULE HTTP_INT_SearchUsersSubUniNumFlow_Compute
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage();
+		SET OutputRoot.Properties = Environment.Variables.Properties;
+		SET OutputRoot.MQMD  = Environment.Variables.MQMD;
+		SET OutputRoot.MQRFH2  = Environment.Variables.MQRFH2;
+		
+		
+		CREATE LASTCHILD OF OutputRoot DOMAIN 'XMLNSC';
+		CREATE FIRSTCHILD OF OutputRoot.XMLNSC.SearchUsersSubUniNumRs NAME 'Header';
+		CREATE LASTCHILD OF OutputRoot.XMLNSC.SearchUsersSubUniNumRs NAME 'Body';
+		-- creating refrences for the header and body of the response
+		DECLARE OutHeaderRef REFERENCE TO OutputRoot.XMLNSC.SearchUsersSubUniNumRs.Header;
+		DECLARE InHeaderRef REFERENCE TO Environment.Variabl.XMLNSC.SearchUsersSubUniNumRq.Header;
+		DECLARE InbodyRef REFERENCE TO Environment.Variabl.XMLNSC.SearchUsersSubUniNumRq.Body;
+		DECLARE OutBodyRef REFERENCE TO OutputRoot.XMLNSC.SearchUsersSubUniNumRs.Body;
+		 
+		DECLARE loadproperties REFERENCE TO Environment.Properties.SearchUsersSubUniNum.HTTP_SearchUsersSubUniNumFlow.Variables;
+		
+		DECLARE resultSetCount INT CARDINALITY(InputRoot.XMLNSC.sql.row[]); 
+		-- checking if there is any records for the sent organization information 
+		DECLARE MLSDrow ROW ;  
+			-- get the number of records with the sent information in request  
+		DECLARE i INT 1; 
+		
+		
+		X : LOOP    
+			--WHILE o <= loopsize DO 
+	                IF i > resultSetCount THEN 
+					   LEAVE X;  
+	               	END IF;    
+	               	
+	               	
+	               	SET MLSDrow.EstabStatusId[]= (
+	                SELECT R.value AS EstabStatusId  
+	                FROM InputRoot.XMLNSC.sql.row[i].column[] as R  
+	                WHERE R.name = 'EstabStatusId');   
+	                
+	                SET Environment.var.itemEstab[i].estabIdStatus = MLSDrow.EstabStatusId.EstabStatusId ;
+	                   
+	                SET MLSDrow.EstablishmentId[]= ( 
+	                SELECT R.value AS EstablishmentId  
+	                FROM InputRoot.XMLNSC.sql.row[i].column[] as R 
+	                WHERE R.name = 'EstablishmentId');  
+	                
+	                 SET Environment.var.itemEstab[i].estabId = MLSDrow.EstablishmentId.EstablishmentId ; 
+	                 
+					SET i = i+1; 
+		END LOOP X;
+		 
+		
+		IF EXISTS (Environment.Variables.DB.ResultSet[]) THEN
+			DECLARE x INTEGER 1 ;
+			DECLARE ListCount INT CARDINALITY(Environment.Variables.DB.ResultSet[]);
+			WHILE x <= ListCount DO
+				
+				-- mapping subscription list from string xml to json array
+				IF (Environment.Variables.DB.ResultSet[x].UserSubscriptions IS NOT NULL) THEN
+					-- CREATE LASTCHILD OF Environment.Variables DOMAIN('XMLNSC') PARSE (CAST(Environment.Variables.DB.ResultSet[x].UserSubscriptions as character ),InputRoot.Properties.Encoding,InputRoot.Properties.CodedCharSetId);
+					CREATE LASTCHILD OF Environment.Variables DOMAIN('XMLNSC') PARSE (CAST(Environment.Variables.DB.ResultSet[x].UserSubscriptions as character ),546,1208);
+					DECLARE SubscriptionsList INTEGER CARDINALITY(Environment.Variables.XMLNSC.UserSubscriptions.row[]);
+					
+					
+					
+					DECLARE z,p INTEGER 1;
+					WHILE z <= SubscriptionsList DO
+						
+						SET Environment.var.id[]= ( 
+		                SELECT R.estabIdStatus    
+		                FROM Environment.var.itemEstab[] as R 
+		                WHERE R.estabId = Environment.Variables.XMLNSC.UserSubscriptions.row[z].EstablishmentId);   
+		                
+		                IF Environment.var.id.estabIdStatus <>1 THEN 
+		                	SET  z =z +1;
+		                ELSE 
+						
+							SET OutBodyRef.UsersList.UserItem[x].SubscriptionsList.SubscriptionsItem[p].LaborOfficeId = Environment.Variables.XMLNSC.UserSubscriptions.row[z].LaborOfficeId;
+							SET OutBodyRef.UsersList.UserItem[x].SubscriptionsList.SubscriptionsItem[p].SequenceNumber = Environment.Variables.XMLNSC.UserSubscriptions.row[z].SequenceNumber;
+							SET OutBodyRef.UsersList.UserItem[x].SubscriptionsList.SubscriptionsItem[p].Status.StatusId = Environment.Variables.XMLNSC.UserSubscriptions.row[z].StatusId;
+							SET OutBodyRef.UsersList.UserItem[x].SubscriptionsList.SubscriptionsItem[p].Status.StatusEn = Environment.Variables.XMLNSC.UserSubscriptions.row[z].StatusEn;
+							SET OutBodyRef.UsersList.UserItem[x].SubscriptionsList.SubscriptionsItem[p].Status.StatusAr = Environment.Variables.XMLNSC.UserSubscriptions.row[z].StatusAr;
+							SET OutBodyRef.UsersList.UserItem[x].SubscriptionsList.SubscriptionsItem[p].StartDate = Environment.Variables.XMLNSC.UserSubscriptions.row[z].StartDate;
+							SET OutBodyRef.UsersList.UserItem[x].SubscriptionsList.SubscriptionsItem[p].ExpiredDate = Environment.Variables.XMLNSC.UserSubscriptions.row[z].ExpiredDate;
+							SET OutBodyRef.UsersList.UserItem[x].SubscriptionsList.SubscriptionsItem[p].Subscription.Subscription = Environment.Variables.XMLNSC.UserSubscriptions.row[z].SubscriptionId;
+							SET OutBodyRef.UsersList.UserItem[x].SubscriptionsList.SubscriptionsItem[p].Subscription.SubscriptionTypeEn = Environment.Variables.XMLNSC.UserSubscriptions.row[z].SubscriptionTypeEn;
+							SET OutBodyRef.UsersList.UserItem[x].SubscriptionsList.SubscriptionsItem[p].Subscription.SubscriptionTypeAr = Environment.Variables.XMLNSC.UserSubscriptions.row[z].SubscriptionTypeAr;
+							set z =z +1;
+							SET p=p+1; 
+		                END IF; 
+					END WHILE;
+				END IF;
+				DELETE FIELD Environment.Variables.XMLNSC;
+				SET OutBodyRef.UsersList.UserItem[x].IdNo = Environment.Variables.DB.ResultSet[x].IDNO;
+				SET OutBodyRef.UsersList.UserItem[x].UserId = Environment.Variables.DB.ResultSet[x].UserID;
+				SET OutBodyRef.UsersList.UserItem[x].Name = Environment.Variables.DB.ResultSet[x].Name;
+				SET OutBodyRef.UsersList.UserItem[x].UnifiedNumberStatus = Environment.Variables.DB.ResultSet[x].UnifiedNumberStatus;
+				SET OutBodyRef.UsersList.UserItem[x].StartDate = Environment.Variables.DB.ResultSet[x].StartDate;
+				SET OutBodyRef.UsersList.UserItem[x].ExpiryDate = Environment.Variables.DB.ResultSet[x].ExpiryDate;
+				
+				-- DECLARE y INTEGER 1;
+				-- DECLARE ListCount2 INT CARDINALITY (Environment.Variables.DB.ResultSet[]);
+				-- WHILE y <= ListCount DO
+				-- SET OutBodyRef.UsersList.UserItem[x].SubscriptionsList.SubscriptionsItem[y].LaborOfficeId = Environment.Variables.DB.ResultSet[y].LaborOfficeId;
+				-- SET OutBodyRef.UsersList.UserItem[x].SubscriptionsList.SubscriptionsItem[y].SequenceNumber = Environment.Variables.DB.ResultSet[y].SequenceNumber;
+				-- SET OutBodyRef.UsersList.UserItem[x].SubscriptionsList.SubscriptionsItem[y].Status.StatusId = Environment.Variables.DB.ResultSet[y].StatusId;
+				-- SET OutBodyRef.UsersList.UserItem[x].SubscriptionsList.SubscriptionsItem[y].Status.StatusEn = Environment.Variables.DB.ResultSet[y].StatusEn;
+				-- SET OutBodyRef.UsersList.UserItem[x].SubscriptionsList.SubscriptionsItem[y].Status.StatusAr = Environment.Variables.DB.ResultSet[y].StatusAr;
+				-- SET OutBodyRef.UsersList.UserItem[x].SubscriptionsList.SubscriptionsItem[y].StartDate = Environment.Variables.DB.ResultSet[y].StartDate;
+				-- SET OutBodyRef.UsersList.UserItem[x].SubscriptionsList.SubscriptionsItem[y].ExpiredDate = Environment.Variables.DB.ResultSet[y].ExpiredDate;
+				-- SET OutBodyRef.UsersList.UserItem[x].SubscriptionsList.SubscriptionsItem[y].Subscription.Subscription = Environment.Variables.DB.ResultSet[y].SubscriptionId;
+				-- SET OutBodyRef.UsersList.UserItem[x].SubscriptionsList.SubscriptionsItem[y].Subscription.SubscriptionTypeEn = Environment.Variables.DB.ResultSet[y].SubscriptionTypeEn;
+				-- SET OutBodyRef.UsersList.UserItem[x].SubscriptionsList.SubscriptionsItem[y].Subscription.SubscriptionTypeAr = Environment.Variables.DB.ResultSet[y].SubscriptionTypeAr;
+				-- SET y = y + 1;
+				-- END WHILE;
+				SET x = x + 1;
+			END WHILE;
+			SET OutBodyRef.TotalRecordsCount = Environment.var.TotalRecordsCount; 
+			CALL Create_esbXML_Response_Header(GetESBSuccessCode(),InHeaderRef,OutHeaderRef);
+		ELSE
+			CALL Create_esbXML_Response_Header(loadproperties.UserSubNotFound,InHeaderRef,OutHeaderRef);
+		END IF;
+		
+					
+		
+		
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+
+

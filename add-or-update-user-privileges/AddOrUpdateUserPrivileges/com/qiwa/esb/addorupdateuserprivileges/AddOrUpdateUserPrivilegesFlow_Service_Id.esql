@@ -1,0 +1,146 @@
+BROKER SCHEMA com.qiwa.esb.addorupdateuserprivileges
+
+
+CREATE FILTER MODULE AddOrUpdateUserPrivilegesFlow_Service_Id
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		
+
+		DECLARE itemloop INT CARDINALITY(Environment.Variabl.NotownedData.item[]);
+		--DECLARE itemloop INT EV.Active.size ;  
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.AddOrUpdateUserPrivileges.AddOrUpdateUserPrivilegesFlow; 
+		DECLARE f,b,a,d,i,j,k,l INT 1; 
+		
+--			
+--    	WHILE b <= itemloop DO
+--		 	DECLARE servcount INT CARDINALITY(Environment.Variabl.NotownedData.item[b].ServicesList.ServicesItem[]);
+--		
+--
+--			WHILE j<=servcount DO
+--				IF(Environment.Variabl.NotownedData.item[b].ServicesList.ServicesItem[j].ServiceId = Environment.Properties.AddOrUpdateUserPrivileges.AddOrUpdateUserPrivilegesFlow.Variables.ServiceId) THEN
+--					SET Environment.Variables.ActiveServicesIte m[d].ServicesItem[f].ServiceId= Environment.Variabl.NotownedData.item[b].ServicesList.ServicesItem[j].ServiceId;
+--					SET Environment.Variables.ActiveServicesItem[d].LaborOfficeId= Environment.Variabl.NotownedData.item[b].LaborOfficeId;
+--				    SET Environment.Variables.ActiveServicesItem[d].EstablishmentSequence= Environment.Variabl.NotownedData.item[b].EstablishmentSequence;
+--				    
+--				    SET d = d + 1;
+--				ELSE
+--					SET Environment.Variables.InActiveServicesItem[a].ServicesItem[f].ServiceId= Environment.Variabl.NotownedData.item[b].ServicesList.ServicesItem[j].ServiceId;
+--					SET Environment.Variables.InActiveServicesItem[a].LaborOfficeId= Environment.Variabl.NotownedData.item[b].LaborOfficeId;
+--					SET Environment.Variables.InActiveServicesItem[a].EstablishmentSequence= Environment.Variabl.NotownedData.item[b].EstablishmentSequence;
+--					SET a = a + 1;
+--				END IF;
+--				SET j = j + 1;
+--			END WHILE;	      
+--  				SET j = 1;
+--	     SET  b = b + 1;
+--	END WHILE;	
+ 
+
+
+         	DECLARE x INT 0; 
+	    	WHILE b <= itemloop DO
+	    		IF Environment.Variables.ActiveSubscription.item[b].LaborOfficeId= Environment.Variabl.NotownedData.item[b].LaborOfficeId AND Environment.Variables.ActiveSubscription.item[b].SequenceNumber = Environment.Variabl.NotownedData.item[b].EstablishmentSequence  THEN 
+	    			 
+				   DECLARE servcount INT CARDINALITY(Environment.Variabl.NotownedData.item[b].ServicesList.ServicesItem[]);
+				   WHILE j<=servcount DO 
+				   	 IF(Environment.Variabl.NotownedData.item[b].ServicesList.ServicesItem[j].ServiceId = Environment.Properties.AddOrUpdateUserPrivileges.AddOrUpdateUserPrivilegesFlow.Variables.ServiceId) THEN
+				   	   SET  x =  1;
+				     END IF;
+				     SET j = j+1; 
+	    		   END WHILE ;
+		           --WHY AM I LOOPING ON LAB AND SEQ AGAIN ? DONT I JUST NEED TO LOOP  
+		           IF x = 1 THEN  
+				   --WHILE j<=servcount DO  
+						--IF(Environment.Variabl.NotownedData.item[b].ServicesList.ServicesItem[j].ServiceId = Environment.Properties.AddOrUpdateUserPrivileges.AddOrUpdateUserPrivilegesFlow.Variables.ServiceId) THEN
+							SET Environment.Variables.ActiveServicesItem.item[d].ServicesItem.id[]= Environment.Variabl.NotownedData.item[b].ServicesList.ServicesItem[]; 
+							SET Environment.Variables.ActiveServicesItem.item[d].EstabId= Environment.Variabl.NotownedData.item[b].EstablishmentId; 
+							
+							SET Environment.Variables.ActiveServicesItem.item[d].LaborOfficeId= Environment.Variables.ActiveSubscription.item[b].LaborOfficeId;
+						    SET Environment.Variables.ActiveServicesItem.item[d].EstablishmentSequence= Environment.Variables.ActiveSubscription.item[b].SequenceNumber; 
+						    --SET f = f+1; 
+						    SET d = d + 1;
+						ELSE
+							SET Environment.Variables.InActiveServicesItem.item[a].ServicesItem.id[]= Environment.Variabl.NotownedData.item[b].ServicesList.ServicesItem[];
+							SET Environment.Variables.InActiveServicesItem.item[a].EstabId= Environment.Variabl.NotownedData.item[b].EstablishmentId; 
+							
+							SET Environment.Variables.InActiveServicesItem.item[a].LaborOfficeId= Environment.Variables.ActiveSubscription.item[b].LaborOfficeId;
+							SET Environment.Variables.InActiveServicesItem.item[a].EstablishmentSequence= Environment.Variables.ActiveSubscription.item[b].SequenceNumber; 
+						    --SET l = l+1; 							
+							SET a = a + 1;
+		           END IF; 
+				   --SET j = j + 1;
+	    		   --END WHILE;	 
+	    	           
+	  			 SET j = 1; 
+	  			 END IF;
+	  		  SET x = 0;	 
+		      SET  b = b + 1;
+	      END WHILE;	  
+
+
+
+			
+--  				DECLARE Active INT CARDINALITY(Environment.Variables.ActiveSubscription[]);
+--				DECLARE ActCount INT CARDINALITY(Environment.Variables.ActiveServicesItem[]); 
+--				DECLARE InactCount INT CARDINALITY(Environment.Variables.InActiveServicesItem[]); 
+----		    IF NOT EXISTS(Environment.Variables.ActiveServicesItem[]) THEN 
+-- 	    	    DECLARE serviceIds CHAR '';
+-- 				DECLARE e INT CARDINALITY(Environment.Variabl.NotownedData.item[k].ServicesList.ServicesItem[]);	 
+--			      FOR ITEMTEMP AS  Environment.Variables.InActiveServicesItem[] DO
+----		    		SET Environment.Variables.NoActiveServicesItem[k].LaborOfficeId = ITEMTEMP.LaborOfficeId;	
+----		    		SET Environment.Variables.NoActiveServicesItem[k].EstablishmentSequence = ITEMTEMP.EstablishmentSequence;	
+----		    		    	
+----concatenate multiple serviceid's into one string delimited by comma
+--				      WHILE i<=e DO
+--			       	   	DECLARE  newServiceId CHAR Environment.Variables.InActiveServicesItem[i].ServicesItem[f].ServiceId;
+--				       	   SET serviceIds = serviceIds || ',' || newServiceId;
+--				             SET i = i + 1;
+--				      END WHILE;  
+--			          	   SET Environment.Variables.User[k].ServiceId  =  serviceIds;	  
+--						   SET Environment.Variables.User[k].LaborOfficeId        = ITEMTEMP.LaborOfficeId;	  
+--						   SET Environment.Variables.User[k].EstablishmentSequence= ITEMTEMP.EstablishmentSequence;	  
+--		          		      SET k = k + 1;
+--		          --END FOR; 
+--		   		--RETURN FALSE;	 
+--		   -- END IF; 
+		 DECLARE u INT 1; 
+		 DECLARE serviceIds CHAR '';
+		 -- active service but with serviceId not 12 , to send to procedure, if none of its serviceId is 12
+ 		  	  
+		 IF EXISTS(Environment.Variables.InActiveServicesItem[]) THEN 
+			  DECLARE InactiveSize INT CARDINALITY (Environment.Variables.InActiveServicesItem.item[]);
+			 	
+				 WHILE i<=InactiveSize DO
+				 	DECLARE inact REFERENCE TO  Environment.Variables.InActiveServicesItem.item[i]; 
+				 	DECLARE inactID INT CARDINALITY ( inact.ServicesItem.id[]);   
+				 	DECLARE v INT 1; 
+				 	WHILE v <= inactID DO  
+				 	 	
+		       	   	   DECLARE  newServiceId REFERENCE TO inact.ServicesItem.id[v]; 
+			       	   SET serviceIds =CAST ( serviceIds || ',' || newServiceId.ServiceId AS CHAR); 
+			       	   SET v = v+1; 
+				 	END WHILE;      
+			         
+	          	    SET Environment.Variables.User.item[k].ServiceId  =  serviceIds;	   
+				    SET Environment.Variables.User.item[k].LaborOfficeId  = inact.LaborOfficeId;	  
+				    SET Environment.Variables.User.item[k].EstablishmentSequence= inact.EstablishmentSequence;	  
+	      		    SET k = k + 1; 
+	      		    SET i = i + 1;   
+				 END WHILE;  
+				  
+		 END IF;
+		 SET Environment.Variables.Size = k;
+			   -- RETURN FALSE; 
+		 IF EXISTS(Environment.Variables.ActiveServicesItem[]) THEN 
+		    RETURN TRUE;
+		 ELSE 
+		 	RETURN FALSE;
+		 END IF;   
+	    
+    RETURN TRUE;
+
+	END;
+
+END MODULE;
+
+

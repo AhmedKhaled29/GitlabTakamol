@@ -1,0 +1,58 @@
+BROKER SCHEMA com.qiwa.esb.renewusersubscription
+PATH Qiwa.Framework.Lib;
+DECLARE ns NAMESPACE 'http://Qiwa/UserManagement/RenewUserSubscription/v1.0';
+
+CREATE COMPUTE MODULE SearchPaymentTransactions_Req
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyMessageHeaders();    
+		-- CALL CopyEntireMessage(); 
+		IF FIELDNAME(Environment.Variables) IS NULL THEN
+			CREATE FIELD Environment.Variables;
+		END IF;
+		DECLARE EV REFERENCE TO Environment.Variables;
+		DECLARE bodyRef REFERENCE TO InputRoot.XMLNSC.RenewUserSubscriptionRq.Body; 
+		DECLARE rInputHeader REFERENCE TO InputRoot.XMLNSC.RenewUserSubscriptionRq.Header;
+	    DECLARE i INTEGER 1;
+		  
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.RenewUserSubscription.RenewUserSubscriptionFlow;
+		SET EV.Properties = InputRoot.Properties;
+		SET EV.MQMD = InputRoot.MQMD;
+		SET EV.MQRFH2 = InputRoot.MQRFH2;
+		SET EV.XMLNSC = InputRoot.XMLNSC; 
+		 
+		
+		CREATE LASTCHILD OF OutputRoot DOMAIN ('XMLNSC');
+		
+		SET OutputRoot.XMLNSC.SearchPaymentTransactionsRq.Header = rInputHeader;    
+		 
+		DECLARE rOutputHeader REFERENCE TO OutputRoot.XMLNSC.SearchPaymentTransactionsRq.Header;      
+		 
+		CREATE LASTCHILD OF OutputRoot.XMLNSC.SearchPaymentTransactionsRq NAME 'Body';  
+		DECLARE outRef REFERENCE TO OutputRoot.XMLNSC.SearchPaymentTransactionsRq.Body;      
+  
+		SET rOutputHeader.ServiceCode = loadedPropertiesRef.Variables.ServiceCodeSPT;   
+		SET rOutputHeader.ChannelId   = loadedPropertiesRef.Variables.ChannelId;
+		SET outRef.PaymentReference  			  = bodyRef.PaymentReference;  
+		SET outRef.ProductId  			  = COALESCE(loadedPropertiesRef.Variables.ProductId,NULL);  
+		SET outRef.StatusId  			  = COALESCE(loadedPropertiesRef.Variables.StatusId,NULL);  
+		SET outRef.PageSize		  = loadedPropertiesRef.Variables.PageSize;    
+		SET outRef.PageIndex		  = loadedPropertiesRef.Variables.PageIndex;
+ 		SET Environment.InternalServiceCaller.callCorrIDOffset = '14';
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;

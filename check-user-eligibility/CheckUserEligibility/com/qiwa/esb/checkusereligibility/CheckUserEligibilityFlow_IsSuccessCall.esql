@@ -1,0 +1,21 @@
+BROKER SCHEMA com.qiwa.esb.checkusereligibility
+PATH Qiwa.Framework.Lib; 
+
+CREATE FILTER MODULE CheckUserEligibilityFlow_IsSuccessCall
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		
+		    DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.CheckUserEligibility.CheckUserEligibilityFlow.Variables;  
+		    --	CHECK THE RESPONSE FROM GetUserEstablishmentsMLSD RESPONSE HEADER ;
+			IF Root.XMLNSC.GetUserEstablishmentsMLSDRs.Header.ResponseStatus.Code = GetESBSuccessCode() OR 
+			Root.XMLNSC.GetUserEstablishmentsMLSDRs.Header.ResponseStatus.Code = loadedPropertiesRef.NoDataFound THEN   
+		    	SET Environment.Variables.Response = Root.XMLNSC.GetUserEstablishmentsMLSDRs;
+			    RETURN TRUE;
+	
+			ELSE
+				SET Environment.Variables.MWResponse.status = Root.XMLNSC.GetUserEstablishmentsMLSDRs.Header.ResponseStatus.Code; 
+				RETURN FALSE;
+			END IF;
+	END;
+
+END MODULE;

@@ -1,0 +1,61 @@
+BROKER SCHEMA com.qiwa.esb.addorupdateuserprivileges
+
+CREATE COMPUTE MODULE GetUserInformation_serviceCallUserInfo
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		
+		DECLARE bodyRef REFERENCE TO Environment.Variables.XMLNSC.AddOrUpdateUserPrivilegesRq.Body; 
+		DECLARE rInputHeader REFERENCE TO Environment.Variables.XMLNSC.AddOrUpdateUserPrivilegesRq.Header; 
+		DECLARE channel CHAR Environment.Properties.AddOrUpdateUserPrivileges.AddOrUpdateUserPrivilegesFlow.Variables.ChannelID; 
+		DECLARE code CHAR Environment.Properties.AddOrUpdateUserPrivileges.AddOrUpdateUserPrivilegesFlow.Variables.UserInfoCode;
+		  
+
+		SET OutputRoot.Properties = Environment.Variables.Properties ;
+		SET OutputRoot.MQMD =  Environment.Variables.MQMD  ;
+		SET OutputRoot.MQRFH2 = Environment.Variables.MQRFH2;  
+		
+		CREATE LASTCHILD OF OutputRoot DOMAIN ('XMLNSC');
+		
+		SET OutputRoot.XMLNSC.GetUserInformationRq.Header = rInputHeader;   
+		 
+		DECLARE rOutputHeader REFERENCE TO OutputRoot.XMLNSC.GetUserInformationRq.Header;      
+		 
+		CREATE LASTCHILD OF OutputRoot.XMLNSC.GetUserInformationRq NAME 'Body';  
+		DECLARE outRef REFERENCE TO OutputRoot.XMLNSC.GetUserInformationRq.Body;
+		DECLARE MobileNumber,UserName CHARACTER;
+		SET UserName=NULL;  
+		SET MobileNumber=NULL; 
+   
+		SET rOutputHeader.ServiceCode = code ;   
+		SET rOutputHeader.ChannelId = channel;
+		
+--		IF (bodyRef.IdNo IS NULL ) THEN
+--			SET outRef.UserId VALUE = bodyRef.UserId; 
+--		ELSE
+--			SET outRef.IdNo VALUE = bodyRef.IdNo;
+--		END IF;
+		SET outRef.IdNo VALUE = bodyRef.IdNo;
+		SET outRef.MobileNumber = MobileNumber; 
+		SET outRef.UserId VALUE = bodyRef.UserId;    			
+ 		SET outRef.UserName=UserName;  
+ 		     
+ 		SET Environment.InternalServiceCaller.callCorrIDOffset = SUBSTRING(rInputHeader.TransactionId FROM 1 FOR 1) || '3';
+ 		
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+

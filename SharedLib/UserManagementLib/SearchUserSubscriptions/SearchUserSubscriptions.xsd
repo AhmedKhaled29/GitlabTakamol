@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?><xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://Qiwa/UserManagement/SearchUserSubscriptions/v1.0" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:bons0="http://Qiwa/UserManagement/SearchUserSubscriptions/v1.0" xmlns:bons1="http://Qiwa/Common/Types" xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions">
+
+	<xsd:import namespace="http://Qiwa/Common/Types" schemaLocation="../common/types/ESB_common_types_v1.0.xsd"/>
+
+ 
+	<xsd:element name="SearchUserSubscriptionsRq" type="bons0:SearchUserSubscriptionsRq_Type"/> 
+	<xsd:element name="SearchUserSubscriptionsRs" type="bons0:SearchUserSubscriptionsRs_Type"/>
+	
+	<complexType name="SearchUserSubscriptionsRq_Type">
+		<sequence>
+			<xsd:element name="Header" type="bons1:ESBXMLRequestHeader_Type"/>  
+			<xsd:element name="Body" type="bons0:SearchUserSubscriptionsRq_BodyType"/>
+		</sequence>
+	</complexType>
+	
+	<complexType name="SearchUserSubscriptionsRs_Type">
+		<sequence>
+			<xsd:element name="Header" type="bons1:ESBXMLResponseHeader_Type"/>
+			<xsd:element name="Body" type="bons0:SearchUserSubscriptionsRs_BodyType"/>
+		</sequence>
+	</complexType>
+
+	<complexType name="SearchUserSubscriptionsRq_BodyType">
+		<all>
+			<element minOccurs="0" name="IdNo" type="string"/> 
+			<element minOccurs="0" name="UserId" type="integer"/>
+			<element minOccurs="0" name="LaborOfficeId" type="integer"/>
+			<element minOccurs="0" name="EstablishmentSequence" type="integer"/>
+			<element minOccurs="0" name="StatusId" type="integer"/>
+			<element minOccurs="0" name="SubscriptionId" type="integer"/>
+			<element minOccurs="0" name="UnifiedNumberId" type="integer"/>
+			<element minOccurs="1" name="PageSize" type="integer"/>
+			<element minOccurs="1" name="PageIndex" type="integer"/>
+
+		</all>  
+	</complexType>
+	        
+
+	<complexType name="SearchUserSubscriptionsRs_BodyType">
+		<sequence>
+		    <element minOccurs="0" name="SubscriptionsList" type="bons0:SubscriptionsList_Type"/>
+		    <element minOccurs="1" name="TotalRecordsCount " type="integer"/>
+      </sequence>
+	</complexType>
+	
+	<complexType name="SubscriptionsList_Type">
+		<sequence>
+			<element maxOccurs="unbounded" minOccurs="1" name="SubscriptionsItem" type="bons0:SubscriptionsItem_Type"/>
+		</sequence>
+	</complexType>
+		
+	<complexType name="SubscriptionsItem_Type">
+		<sequence>
+	        <element minOccurs="1" name="IdNo" type="string"/>
+		    <element minOccurs="1" name="UserId" type="integer"/>
+			<element minOccurs="1" name="Name" type="string"/>
+			<element minOccurs="1" name="LaborOfficeId" type="integer"/>
+		    <element minOccurs="1" name="SequenceNumber" type="integer"/>
+			<element minOccurs="1" name="Status" type="bons0:Status_Type"/>
+			<element minOccurs="1" name="StartDate" type="bons1:Dt_Type"/>
+			<element minOccurs="1" name="ExpiredDate" type="bons1:Dt_Type"/>
+			<element minOccurs="1" name="Subscription" type="bons0:Subscription_Type"/>
+			
+
+		</sequence>
+	</complexType>
+	
+	
+	<complexType name="Subscription_Type">
+		<sequence>
+	        <element minOccurs="1" name="Subscription" type="integer"/>
+		    <element minOccurs="1" name="SubscriptionTypeEn" type="string"/>
+			<element minOccurs="1" name="SubscriptionTypeAr" type="string"/>
+		</sequence>
+	</complexType>
+	
+	<complexType name="Product_Type">
+		<sequence>
+	        <element minOccurs="1" name="ProductId" type="integer"/>
+		    <element minOccurs="1" name="ProductEn" type="string"/>
+			<element minOccurs="1" name="ProductAr" type="string"/>
+		</sequence>
+	</complexType>
+	
+	<complexType name="Provider_Type">
+		<sequence>
+	        <element minOccurs="1" name="ProviderId" type="integer"/>
+	    	<element minOccurs="1" name="ProviderEn" type="string"/>
+			<element minOccurs="1" name="ProviderAr" type="string"/>
+		</sequence>
+	</complexType>
+	
+	<complexType name="Status_Type">
+		<sequence>
+	        <element minOccurs="1" name="StatusId" type="integer"/>
+		 	<element minOccurs="1" name="StatusEn" type="string"/>
+			<element minOccurs="1" name="StatusAr" type="string"/>
+		</sequence>
+	</complexType>
+	
+	
+</xsd:schema>

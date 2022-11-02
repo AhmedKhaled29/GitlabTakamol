@@ -1,0 +1,35 @@
+BROKER SCHEMA com.qiwa.esb.cancelchangeoccupationrequest
+
+
+CREATE FILTER MODULE CancelChangeOccupationRequestFlow_RequestValidate
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		IF FIELDNAME(Environment.Variables) IS NULL THEN
+			CREATE FIELD Environment.Variables;
+		END IF;
+		
+		DECLARE rInHeaderRef REFERENCE TO Root.XMLNSC.CancelChangeOccupationRequestRq.Header;
+		DECLARE rInBodyRef REFERENCE TO Root.XMLNSC.CancelChangeOccupationRequestRq.Body;  
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.CancelChangeOccupationRequest.CancelChangeOccupationRequestFlow.Variables;
+
+		
+		DECLARE EV REFERENCE TO Environment.Variables;
+		SET Environment.Variables.Properties = Root.Properties; 
+		SET Environment.Variables.MQMD = Root.MQMD;
+		SET Environment.Variables.MQRFH2 = Root.MQRFH2;
+		SET Environment.Variables.XMLNSC = Root.XMLNSC;
+		SET Environment.Variables.Header = rInHeaderRef;
+		SET Environment.Variables.Body = rInBodyRef;
+		
+		IF EXISTS(rInHeaderRef.UserInfo.IDNumber[]) THEN 
+			RETURN TRUE;
+		ELSE
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.NoIdNumber;
+			RETURN FALSE; 
+		END IF;
+		
+		
+		RETURN TRUE;
+	END;
+
+END MODULE;

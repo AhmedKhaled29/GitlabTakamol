@@ -1,0 +1,94 @@
+BROKER SCHEMA com.qiwa.esb.addestablishmentusersubscription
+PATH Qiwa.Framework.Lib;
+
+CREATE COMPUTE MODULE AddEstablishmentUserSubscription_Rs
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage();
+		-- IF FIELDVALUE(Environment.Variables) IS NULL THEN
+		-- CREATE FIELD Environment.Variables;
+		-- END IF;
+		--DECLARE Environment.Variables REFERENCE TO Environment.Variables;
+		SET OutputRoot.Properties = Environment.Variables.Properties;
+		SET OutputRoot.MQMD = Environment.Variables.MQMD;
+		SET OutputRoot.MQRFH2 = Environment.Variables.MQRFH2;
+		DECLARE Result INTEGER;
+		DECLARE j INTEGER 1;
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.AddEstablishmentUserSubscription.AddEstablishmentUserSubscriptionFlow;
+		DECLARE rInHeaderRef REFERENCE TO Environment.Variables.XMLNSC.AddEstablishmentUserSubscriptionRq.Header;
+		CREATE FIRSTCHILD OF OutputRoot.XMLNSC.AddEstablishmentUserSubscriptionRs NAME 'Header';
+		DECLARE rOutFinalHeaderRef REFERENCE TO OutputRoot.XMLNSC.AddEstablishmentUserSubscriptionRs.Header;
+		DECLARE UserSubScriptions CHARACTER;
+		IF Environment.Variables.PAY = 1 THEN
+			CALL Create_esbXML_Response_Header(loadedPropertiesRef.Variables.PaymentNeeded,rInHeaderRef,rOutFinalHeaderRef);
+		ELSE
+			DECLARE BodyRefSize INT CARDINALITY(Environment.Variables.Body.SubscriptionsList.SubscriptionItem[]);
+			DECLARE priceListCount INT CARDINALITY(Environment.Variables.PriceList.SubscriptionDetails.SubscriptionPriceList[]);
+			SET Environment.XmlObject VALUE = NULL;
+			DECLARE xmlObj REFERENCE TO Environment.XmlObject;
+			DECLARE z INT 1; 
+			DECLARE T INT 0;
+			WHILE z <= BodyRefSize DO
+				SET xmlObj.UsersSubscriptionList.UserSubscription[z].IdNo =  Environment.Variables.Body.SubscriptionsList.SubscriptionItem[z].IdNo;	      		 	
+				SET xmlObj.UsersSubscriptionList.UserSubscription[z].Duration = Environment.Variables.Body.SubscriptionsList.SubscriptionItem[z].Duration;
+				SET xmlObj.UsersSubscriptionList.UserSubscription[z].LaborOfficeId = Environment.Variables.Body.SubscriptionsList.SubscriptionItem[z].LaborOfficeId;
+				SET xmlObj.UsersSubscriptionList.UserSubscription[z].UnifiedNumber = Environment.Variabl.GetInfo.UnifiedNumbersList.UnifiedNumbers[z].UnifiedNumberId;   
+				SET xmlObj.UsersSubscriptionList.UserSubscription[z].SequenceNumber = Environment.Variables.Body.SubscriptionsList.SubscriptionItem[z].SequenceNumber;
+				SET xmlObj.UsersSubscriptionList.UserSubscription[z].SubscriptionId = Environment.Variables.Body.SubscriptionsList.SubscriptionItem[z].SubscriptionId; 
+				SET xmlObj.UsersSubscriptionList.UserSubscription[z].EstablishmentId = Environment.Variables.Body.SubscriptionsList.SubscriptionItem[z].EstablishmentId; 	    
+				SET xmlObj.UsersSubscriptionList.UserSubscription[z].MLSDUserTypeId = NULL ; 
+				--heba 20-3
+				IF (priceListCount>=1) AND (T <priceListCount)THEN    
+					SET T=T+1;--only add to the counter of the prices used in the two below items refernce, if counter is less than the size of the prices list
+				END IF;	
+				IF T= 0 THEN 
+					SET xmlObj.UsersSubscriptionList.UserSubscription[z].AmountPerUser = NULL;
+					SET xmlObj.UsersSubscriptionList.UserSubscription[z].AmountTypeId = NULL; 
+				ELSE 
+					SET xmlObj.UsersSubscriptionList.UserSubscription[z].AmountPerUser = Environment.Variables.PriceList.SubscriptionDetails.SubscriptionPriceList[T].Price;
+					SET xmlObj.UsersSubscriptionList.UserSubscription[z].AmountTypeId = Environment.Variables.PriceList.SubscriptionDetails.SubscriptionPriceList[T].AmountType; 
+				END IF;
+				SET xmlObj.UsersSubscriptionList.UserSubscription[z].TotalRecordsCount = Environment.Variabl.GetNum.TotalRecordCount ;
+				SET z =z+1;
+			END WHILE;
+			--Create XML object XMLNSC Domain
+			Create FIRSTCHILD of Environment DOMAIN 'XMLNSC' Name 'xml';
+			--SET UsersSubsciptionList value
+			SET Environment.xml.UsersSubscriptionList = xmlObj.UsersSubscriptionList;
+			--Pars UsersSubsciptionList object to XMl object
+			SET Environment.xml.UsersSubscriptionList = CAST(ASBITSTREAM(Environment.xml CCSID 1208 ) AS CHARACTER CCSID 1208);
+			DECLARE userSubscribtion CHAR;
+			SET userSubscribtion = CAST(Environment.xml.UsersSubscriptionList AS CHARACTER);
+
+			SET UserSubScriptions = CAST(ASBITSTREAM(Environment.Variables.SPXML1.XMLNSC CCSID 1208) AS CHARACTER CCSID 1208);
+			DECLARE paymentreference CHARACTER Environment.Variables.XMLNSC.AddEstablishmentUserSubscriptionRq.Body.PaymentReference;
+			CALL Create_UsersSubscriptions (paymentreference,CAST(rInHeaderRef.UserInfo.IDNumber as CHARACTER), userSubscribtion) INTO Result;
+			IF Result = '0' THEN
+				CALL Create_esbXML_Response_Header(GetESBSuccessCode(),rInHeaderRef,rOutFinalHeaderRef);
+			ELSE
+				CALL Create_esbXML_Response_Header(loadedPropertiesRef.Variables.CrtUserSubError,rInHeaderRef,rOutFinalHeaderRef);
+			END IF;
+			RETURN TRUE;
+		END IF;
+	END;
+
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+	CREATE PROCEDURE Create_UsersSubscriptions (IN PaymentReference CHARACTER,
+	IN RequesterIdNo CHARACTER,
+	IN UserSubScriptions CHARACTER) RETURNS INTEGER
+	LANGUAGE DATABASE EXTERNAL NAME "dbo.Create_UsersSubscriptions";
+END MODULE;

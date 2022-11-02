@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?><xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://Qiwa/UserManagement/SubscribeUserToEstablishments/v1.0" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:bons0="http://Qiwa/UserManagement/SubscribeUserToEstablishments/v1.0" xmlns:bons1="http://Qiwa/Common/Types" xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions">
+
+	<xsd:import namespace="http://Qiwa/Common/Types" schemaLocation="../common/types/ESB_common_types_v1.0.xsd"/>
+
+	
+	<xsd:element name="SubscribeUserToEstablishmentsRq" type="bons0:SubscribeUserToEstablishmentsRq_Type"/>
+	<xsd:element name="SubscribeUserToEstablishmentsRs" type="bons0:SubscribeUserToEstablishmentsRs_Type"/>
+	
+	<complexType name="SubscribeUserToEstablishmentsRq_Type">
+		<sequence>
+			<xsd:element name="Header" type="bons1:ESBXMLRequestHeader_Type"/>
+			<xsd:element name="Body" type="bons0:SubscribeUserToEstablishmentsRq_BodyType"/>
+		</sequence>
+	</complexType>
+	
+	<complexType name="SubscribeUserToEstablishmentsRs_Type">
+		<sequence>
+			<xsd:element name="Header" type="bons1:ESBXMLResponseHeader_Type"/>
+			<xsd:element minOccurs="0" name="Body" type="bons0:SubscribeUserToEstablishmentsRs_BodyType"/>
+		</sequence>
+	</complexType>
+
+	<complexType name="SubscribeUserToEstablishmentsRq_BodyType">
+	<all>
+	 <element minOccurs="1" name="SubscriptionsList" type="bons0:SubscriptionsList_Type"/>
+	 <element minOccurs="0" name="PaymentReference" type="string"/>
+	 
+    </all>
+	</complexType>	
+	
+	<complexType name="SubscriptionsList_Type">
+	<sequence>
+     <element minOccurs="1" maxOccurs='unbounded' name="SubscriptionItem" type="bons0:SubscriptionItem_Type"/>
+
+    </sequence>
+	</complexType>	
+	
+	<complexType name="SubscriptionItem_Type">
+	<all>
+
+     <element minOccurs="1" name="SubscriptionId" type="integer"/>
+	 <element minOccurs="1" name="Duration" type="integer"/>
+	 <element minOccurs="1" name="LaborOfficeId" type="integer"/>
+	 <element minOccurs="1" name="SequenceNumber" type="integer"/>
+	 <element minOccurs="1" name="EstablishmentId" type="integer"/> 
+    </all>
+	</complexType>	
+	
+	
+	
+	<complexType name="SubscribeUserToEstablishmentsRs_BodyType">
+    <sequence>
+     <element minOccurs="1" maxOccurs='unbounded' name="ErrorItem" type="bons0:ErrorItem_Type"/>
+    </sequence> 
+	</complexType>
+	
+	<complexType name="ErrorItem_Type">
+		<sequence>
+		   <element minOccurs="1" name="ErrorCode" type="string"/> 
+	       <element minOccurs="1" name="ArDescription " type="string"/>
+		   <element minOccurs="1" name="EnDescription " type="string"/>
+		</sequence>
+	</complexType>
+	
+	
+</xsd:schema>

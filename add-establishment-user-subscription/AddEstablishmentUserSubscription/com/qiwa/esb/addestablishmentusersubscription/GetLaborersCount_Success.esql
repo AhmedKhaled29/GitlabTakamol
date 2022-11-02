@@ -1,0 +1,25 @@
+BROKER SCHEMA com.qiwa.esb.addestablishmentusersubscription
+PATH Qiwa.Framework.Lib; 
+
+
+CREATE FILTER MODULE GetLaborersCount_Success
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		 IF Root.XMLNSC.GetUnifiedNumbertTotalLaborersCountMLSDRs.Header.ResponseStatus.Code  = GetESBSuccessCode() THEN 
+			  SET Environment.Variabl.GetNum = Root.XMLNSC.GetUnifiedNumbertTotalLaborersCountMLSDRs.Body;         
+		
+			  RETURN TRUE;
+	 ELSEIF  Root.XMLNSC.GetUnifiedNumbertTotalLaborersCountMLSDRs.Header.ResponseStatus.Code = 'E0000121'  THEN 
+			  SET Environment.Variabl.GetNum.TotalRecordCount = 0; 
+			  
+	   RETURN TRUE;
+	 ELSE  
+			
+			SET Environment.Variables.MWResponse.status = Root.XMLNSC.GetUnifiedNumbertTotalLaborersCountMLSDRs.Header.ResponseStatus.Code;
+			 
+			RETURN FALSE;
+		 
+	END IF;	
+	END;
+
+END MODULE;

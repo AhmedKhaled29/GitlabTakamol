@@ -1,0 +1,22 @@
+BROKER SCHEMA com.qiwa.esb.addestablishmentusersubscription
+PATH Qiwa.Framework.Lib;
+
+CREATE FILTER MODULE AddEstablishmentUserSubscriptionFlow_IsSuccessCall
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.AddEstablishmentUserSubscription.AddEstablishmentUserSubscriptionFlow;
+		IF Root.XMLNSC.CheckUserEstablishmentsEligibilityRs.Header.ResponseStatus.Code = GetESBSuccessCode() THEN
+		
+			SET Environment.Variables.esb.CheckUserEstablishmentsEligibilityRs=Root.XMLNSC.CheckUserEstablishmentsEligibilityRs;
+                
+			RETURN TRUE;
+	
+		ELSE
+			
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.Variables.UserEstEbtError;
+			
+			RETURN FALSE;
+		END IF;
+	END;
+
+END MODULE;

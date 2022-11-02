@@ -1,0 +1,56 @@
+BROKER SCHEMA com.qiwa.esb.subscribeusertoestablishments
+
+CREATE COMPUTE MODULE GetEstabInfo_CallGetEstab
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage();
+		--DECLARE Environment.Variables REFERENCE TO Environment.Variables;
+
+		DECLARE bodyRef REFERENCE TO Environment.Variables.Body;
+		DECLARE rInputHeader REFERENCE TO Environment.Variables.Header;
+		DECLARE code CHAR Environment.Properties.subscribeUserToEstablishments.subscribeUserToEstablishmentsFlow.Variables.Codegetinfo;
+		DECLARE channel CHAR Environment.Properties.subscribeUserToEstablishments.subscribeUserToEstablishmentsFlow.Variables.ChannelId;
+
+
+
+		SET OutputRoot.Properties = Environment.Variables.Properties;
+		SET OutputRoot.MQMD = Environment.Variables.MQMD;
+		SET OutputRoot.MQRFH2 = Environment.Variables.MQRFH2;
+
+		CREATE FIELD OutputRoot.XMLNSC.GetEstablishmentsUnifiedNumberMLSDRq.Header;
+		SET OutputRoot.XMLNSC.GetEstablishmentsUnifiedNumberMLSDRq.Header = rInputHeader;
+
+		DECLARE rOutputHeader REFERENCE TO OutputRoot.XMLNSC.GetEstablishmentsUnifiedNumberMLSDRq.Header;
+
+		CREATE FIELD OutputRoot.XMLNSC.GetEstablishmentsUnifiedNumberMLSDRq.Body;
+		DECLARE outRef REFERENCE TO OutputRoot.XMLNSC.GetEstablishmentsUnifiedNumberMLSDRq.Body;
+
+		SET rOutputHeader.ServiceCode = code ;
+		SET rOutputHeader.ChannelId = channel ;
+
+		DECLARE i INT 1;
+		DECLARE SubscriptionItemRef REFERENCE TO bodyRef.SubscriptionsList.SubscriptionItem[1];
+		WHILE LASTMOVE(SubscriptionItemRef) = TRUE DO
+			SET outRef.EstablishmentIdsList.EstablishmentIds[i] = SubscriptionItemRef.EstablishmentId;
+			SET i = i+1;
+			MOVE SubscriptionItemRef NEXTSIBLING;
+		END WHILE;
+		SET Environment.InternalServiceCaller.callCorrIDOffset = SUBSTRING(rInputHeader.TransactionId FROM 1 FOR 1) || '2';
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;

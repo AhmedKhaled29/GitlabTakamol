@@ -1,0 +1,22 @@
+BROKER SCHEMA com.qiwa.esb.getumservicesnonsubscribedusers
+path Qiwa.Framework.Lib;
+
+
+CREATE FILTER MODULE GetLabInfoHRSD_IsSuccess
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+	DECLARE loadproperties REFERENCE TO Environment.Properties.GetUMServicesNonSubscribedUsers.HTTP_GetUMServicesNonSubscribedUsersFlow.Variables;	
+	 
+	IF Root.XMLNSC.GetLaborerInformationMLSDRs.Header.ResponseStatus.Code = GetESBSuccessCode() THEN
+		-- save GetLabInfoHRSD response body in variable GetLabInfoHRSDBody
+		SET Environment.Variables.ESB.GetLabInfoHRSDBody = Root.XMLNSC.GetLaborerInformationMLSDRs.Body;
+		-- save GetLabInfoHRSD response header in variable GetLabInfoHRSDHeader 
+		SET Environment.Variables.ESB.GetLabInfoHRSDHeader = Root.XMLNSC.GetLaborerInformationMLSDRs.Header;
+		RETURN TRUE;
+	ELSE 
+		SET Environment.Variables.MWResponse.status = Root.XMLNSC.GetLaborerInformationMLSDRs.Header.ResponseStatus.Code;
+		RETURN TRUE;
+	END IF;	
+	END;
+
+END MODULE;

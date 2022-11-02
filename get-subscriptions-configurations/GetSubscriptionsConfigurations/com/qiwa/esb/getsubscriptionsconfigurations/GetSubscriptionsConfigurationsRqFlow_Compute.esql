@@ -1,0 +1,56 @@
+BROKER SCHEMA com.qiwa.esb.getsubscriptionsconfigurations
+PATH Qiwa.Framework.Lib;
+
+DECLARE get NAMESPACE 'http://www.ibm.com/rules/decisionservice/GetSubscriptionsConfigurationsDC/GetSubscriptionsConfigurations';
+DECLARE par NAMESPACE 'http://www.ibm.com/rules/decisionservice/GetSubscriptionsConfigurationsDC/GetSubscriptionsConfigurations/param';
+
+
+
+CREATE COMPUTE MODULE GetSubscriptionsConfigurationsRqFlow_Compute
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+	
+	CALL CopyMessageHeaders();
+		
+		DECLARE channelRequest REFERENCE TO InputRoot.XMLNSC.GetSubscriptionsConfigurationsRq;
+		DECLARE propertiesRef REFERENCE TO Environment.Properties.GetSubscriptionsConfigurations.GetSubscriptionsConfigurationsRqFlow;
+		
+		SET OutputRoot.MQMD.ReplyToQ = propertiesRef.Variables.replyToQueueName;
+		SET OutputRoot.MQRFH2.usr.soap.url=propertiesRef.Variables.ODMURL;
+		
+		CREATE LASTCHILD OF OutputRoot DOMAIN 'XMLNSC';
+		
+		CREATE FIRSTCHILD OF OutputRoot.XMLNSC.GetSubscriptionsConfigurationsRq NAME 'Header';
+		CREATE LASTCHILD OF OutputRoot.XMLNSC.GetSubscriptionsConfigurationsRq NAME 'Body';
+		
+		SET OutputRoot.XMLNSC.GetSubscriptionsConfigurationsRq.Header = channelRequest.Header;
+			
+		
+		DECLARE backendBodyRq REFERENCE TO OutputRoot.XMLNSC.GetSubscriptionsConfigurationsRq.Body;
+
+			
+	
+		SET backendBodyRq.get:GetSubscriptionsConfigurationsRequest.get:DecisionID = channelRequest.Header.TransactionId;
+		
+		SET backendBodyRq.get:GetSubscriptionsConfigurationsRequest.par:userManagementSubscriptionsRequest.userManagementSubscriptionsRequest.EstablishmentSize = channelRequest.Body.EstablishmentSize;   
+		SET backendBodyRq.get:GetSubscriptionsConfigurationsRequest.par:userManagementSubscriptionsRequest.userManagementSubscriptionsRequest.LaborersCount = channelRequest.Body.LaborersCount;   
+		
+		
+		
+	RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;

@@ -1,0 +1,65 @@
+<properties refresh-policy="automatic">
+	
+<group name="RenewUserSubscription.RenewUserSubscriptionFlow"> 
+		<group name="Logging">
+			<property name="LogEnabled" value="TRUE" /> 
+			<property name="AuditEnabled" value="FALSE" />
+			<property name="key1" value="" />
+			<property name="value1" value="" />
+			<property name="key2" value="" />
+			<property name="value2" value="" />
+			<property name="key3" value="" />
+			<property name="value3" value="" />
+			<property name="key4" value="" />
+			<property name="value4" value="" />
+		</group>
+		<group name="Variables">
+			<property name="NoDataFound" value="E0000024" /> 
+			<property name="RenewSuccAddPrivParError" value="E0000088" /> 
+			<property name="RenewParAddPrivSuccError" value="E0000089" /> 
+			<property name="RenewParAddPrivParError" value="E0000100" /> 
+			<property name="ServiceIdNullError" value="E0000085" /> 
+			<property name="NoSubsToBeReNewed" value="E0000068" /> 
+			<property name="NotEligible" value="E0000046" /> 
+			<property name="MissingParameters" value="E0000042" />
+			<property name="IdNoPrvlgError" value="E0000057" />
+			<property name="PayRefIsNotPaid" value="E0000039" />
+			<property name="UserNotActive" value="E0000050" />
+            <property name="ServiceCode" value="CUEE0001" />
+			<property name="ServiceCodeSPT" value="SPT00001" />
+			<property name="ServiceCodeGUI" value="GUI00001" />
+			<property name="ServiceCodeMGLI" value="MGLI0001" />
+			<property name="ServiceCodeAOUUP" value="AOUUP001" />
+            <property name="ChannelId" value="ESB" />
+			<property name="TimeOutError" value="E9999998" /> 
+			<property name="ServiceId" value="12" />
+			<property name="ListAll" value="0" />
+			<property name="ProductId" value="4" />
+			<property name="StatusId " value="3" />
+			<property name="PageSize" value="1" />
+			<property name="PageIndex" value="1" />
+			<property name="AddOrUpdate" value="1" />
+			<property name="DBURL" value="http://datapower.qiwa.info:7086/GetSaudiNonSaudiLaborerInfo" />
+			<property name="FailedToRenew" value="E0000618" />
+			<property name="RenewalPeriod" value="30" /> 
+			<property name="Duration" value="12" />  
+  			<property name="CountFail" value="E0000790" />  
+    		<property name="UnifiedTotLabURL" value="http://datapower.qiwa.info:7089/GetUnifiedLaborsCount" />  
+    		<property name="ExcludeEconomicActivities" value="true" />  
+    		<property name="One" value="1" />  
+    		
+		</group> 
+		<group name="SchemaValidation">
+            <property name="ValidationEnabled" value="TRUE" />
+        </group>
+		<group name="Retry">
+				<property name="RetryEnabled" value="FALSE" />
+			<property name="minWaitDurationSec" value="60" />
+			<property name="maxRetryCount" value="5" />
+		</group>
+	</group>
+	
+	
+	
+</properties>
+	

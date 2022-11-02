@@ -1,0 +1,29 @@
+BROKER SCHEMA com.qiwa.esb.checkuserestablishmentseligibility
+
+
+CREATE FILTER MODULE CheckUserEstablishmentsEligibilityFlow_Validation
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		
+		SET Environment.Variables.Properties = Root.Properties;
+		SET Environment.Variables.MQMD = Root.MQMD;
+		SET Environment.Variables.MQRFH2 = Root.MQRFH2;
+		SET Environment.Variables.XMLNSC = Root.XMLNSC; 
+		DECLARE properties CHAR Environment.Properties.CheckUserEstablishmentsEligibility.CheckUserEstablishmentsEligibilityFlow.Variables.MissingParameter;
+		
+		
+		
+		IF (Root.XMLNSC.CheckUserEstablishmentsEligibilityRq.Body.ListAll = 0)THEN 
+			IF EXISTS(Root.XMLNSC.CheckUserEstablishmentsEligibilityRq.Body.EstablishmentsList[])THEN 
+		      RETURN TRUE;
+			ELSE 
+			  SET Environment.Variables.MWResponse.status = properties;  
+		      RETURN FALSE;
+			END IF;
+		ELSE 
+			RETURN TRUE; 	
+		END IF;	  		
+		
+	END;
+
+END MODULE;

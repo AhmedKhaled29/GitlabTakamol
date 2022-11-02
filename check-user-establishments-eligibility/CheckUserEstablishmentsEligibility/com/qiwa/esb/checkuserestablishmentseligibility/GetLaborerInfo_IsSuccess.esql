@@ -1,0 +1,26 @@
+BROKER SCHEMA com.qiwa.esb.checkuserestablishmentseligibility
+PATH Qiwa.Framework.Lib;
+
+
+CREATE FILTER MODULE GetLaborerInfo_IsSuccess
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		 IF Root.XMLNSC.GetLaborerInformationMLSDRs.Header.ResponseStatus.Code  = GetESBSuccessCode() OR Root.XMLNSC.GetLaborerInformationMLSDRs.Header.ResponseStatus.Code  = 'E0000098'  THEN 
+       	  
+		  SET Environment.Variables.GetLaborerInformationMLSDRs  = Root.XMLNSC.GetLaborerInformationMLSDRs.Body ; 
+		  -- if no laborer then hes not eligible for selfSub but that doesnt mean the laborer doesnt exist         
+          IF Root.XMLNSC.GetLaborerInformationMLSDRs.Header.ResponseStatus.Code  = 'E0000098' THEN 
+          	SET Environment.var.noLab = '1'; 
+          END IF; 
+		  RETURN TRUE;
+	
+		ELSE 
+
+			SET Environment.Variables.MWResponse.status = Root.XMLNSC.GetLaborerInformationMLSDRs.Header.ResponseStatus.Code;
+			 
+			RETURN FALSE;
+		 
+		END IF;
+	END;
+
+END MODULE;

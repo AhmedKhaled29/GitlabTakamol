@@ -1,0 +1,117 @@
+BROKER SCHEMA com.qiwa.esb.cancelchangeoccupationrequest
+PATH Qiwa.Framework.Lib;
+
+CREATE COMPUTE MODULE CancelChangeOccupationRequestFlow_Update_SP
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+	 CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage();
+		DECLARE EV REFERENCE TO Environment.Variables;
+		SET OutputRoot.Properties = Environment.Variables.Properties;
+		SET OutputRoot.MQMD  = Environment.Variables.MQMD;
+		SET OutputRoot.MQRFH2  = Environment.Variables.MQRFH2;
+		
+		
+		CREATE LASTCHILD OF OutputRoot DOMAIN 'XMLNSC';
+		CREATE FIRSTCHILD OF OutputRoot.XMLNSC.CancelChangeOccupationRequestRs  NAME 'Header';
+		CREATE LASTCHILD OF OutputRoot.XMLNSC.CancelChangeOccupationRequestRs  NAME 'Body'; 
+
+	     
+	    DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.CancelChangeOccupationRequest.CancelChangeOccupationRequestFlow.Variables;
+	    
+		DECLARE reqHeaderRef REFERENCE TO Environment.Variables.XMLNSC.CancelChangeOccupationRequestRq.Header;
+		DECLARE rOutHeaderRef REFERENCE TO OutputRoot.XMLNSC.CancelChangeOccupationRequestRs.Header; 
+		DECLARE OutRef REFERENCE TO OutputRoot.XMLNSC.CancelChangeOccupationRequestRs.Body;
+		DECLARE InRef REFERENCE TO Environment.Variables.XMLNSC.CancelChangeOccupationRequestRq.Body;
+
+		DECLARE RsRoot REFERENCE TO Environment.Variables.CancelChangeOccupationRequestRs;
+		DECLARE status INT Environment.Variabl.SearchChangeOccupationRs.ChangeOccupationList.ChangeOccupationItem[1].RequestDetailsList.RequestDetailsItem[1].StatusDetails.StatusId;
+		
+		-- Getting LaborerIdNo from search change occupation service
+		DECLARE LaborerIdNo INT Environment.Variabl.SearchChangeOccupationRs.ChangeOccupationList.ChangeOccupationItem[1].RequestDetailsList.RequestDetailsItem[1].LaborerIdNo;
+
+		DECLARE newStatus INT;
+		
+-- Prepare labore office and request sequence and year from the RequestNumber
+		SET EV.SequenceAndYear	=	COALESCE(SUBSTRING(InRef.RequestNumber AFTER '-'),NULL);
+		SET EV.Sequence	=	COALESCE(SUBSTRING(EV.SequenceAndYear BEFORE '-'),NULL); 
+		SET EV.Year	=	COALESCE(SUBSTRING(EV.SequenceAndYear AFTER '-'),NULL);
+		SET EV.Laboroffice	=	COALESCE(SUBSTRING(InRef.RequestNumber BEFORE '-'),NULL);		
+		
+		DECLARE LaborOfficeId INTEGER EV.Laboroffice;
+		DECLARE RequestYear INTEGER EV.Year;
+		DECLARE RequestSequence INTEGER EV.Sequence;
+		DECLARE LaborerName CHAR NULL;
+		DECLARE CurrentOccupationId INTEGER NULL;
+		DECLARE NewOccupationId INTEGER NULL;
+		DECLARE RejectionDescription CHAR NULL;
+		DECLARE CurrEmplApproveRejDate CHAR NULL;
+		DECLARE LaborerApprovalRejDate CHAR NULL;
+		DECLARE NICApprovalRejDate CHAR NULL;
+		
+--
+--		IF (status = '2') THEN 
+--			IF LaborerIdNo = reqHeaderRef.UserInfo.IDNumber THEN
+--				SET newStatus = '10';
+--			ELSE 
+--				SET Environment.Variables.MWResponse.status = loadedPropertiesRef.LaborerIdError;
+--				PROPAGATE TO TERMINAL 'out1';
+--				RETURN FALSE;
+--			END IF;
+--		ELSE  
+--			SET newStatus = '9';
+--
+--		END IF; 
+		
+		DECLARE StatusId INT 9;
+--			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.InvalidContr;
+--			PROPAGATE TO TERMINAL 'out1';
+--			RETURN FALSE;
+		
+		CALL Update_ChangeOccupationRequestDetail(  LaborOfficeId,
+	 						 		     	  RequestYear,
+	 						 		     	  RequestSequence,
+	 						 		     	  
+	 						 		     	  StatusId, 
+	 						 		     	  RejectionDescription,
+	 						 		     	  CurrEmplApproveRejDate,
+	 						 		     	  LaborerApprovalRejDate,
+	 						 		     	  NICApprovalRejDate,
+									Environment.Variables.DB.ResultSet[]);
+		
+		CALL Create_esbXML_Response_Header(GetESBSuccessCode(),reqHeaderRef,rOutHeaderRef);
+		
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+	
+	
+	CREATE PROCEDURE Update_ChangeOccupationRequestDetail( IN LaborOfficeId  INTEGER,
+	 						 		     	 IN RequestYear INTEGER,
+	 						 		     	 IN RequestSequence INTEGER,
+	 						 		     	 IN StatusId INTEGER, 
+	 						 		     	  
+	 						 		     	 
+	 						 		     	 IN RejectionDescription CHAR,
+	 						 		     	 IN CurrEmplApproveRejDate CHAR,
+	 						 		     	 IN LaborerApprovalRejDate CHAR,
+	 						 		     	 IN NICApprovalRejDate CHAR)  
+							 		  	   
+    LANGUAGE DATABASE DYNAMIC RESULT SETS 1 
+    EXTERNAL NAME "dbo.Update_ChangeOccupationRequestDetail";   
+
+	
+END MODULE;

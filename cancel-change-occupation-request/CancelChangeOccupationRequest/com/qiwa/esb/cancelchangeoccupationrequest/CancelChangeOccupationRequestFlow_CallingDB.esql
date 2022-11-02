@@ -1,0 +1,112 @@
+BROKER SCHEMA com.qiwa.esb.cancelchangeoccupationrequest
+PATH Qiwa.Framework.Lib;
+
+CREATE COMPUTE MODULE CancelChangeOccupationRequestFlow_CallingDB
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage();
+		SET OutputRoot.Properties = Environment.Variables.Properties;
+		SET OutputRoot.MQMD = Environment.Variables.MQMD;
+		SET OutputRoot.MQRFH2 = Environment.Variables.MQRFH2; 
+		
+		DECLARE RqNm REFERENCE TO Environment.Variables.Body;
+		DECLARE EV REFERENCE TO Environment.Variables;
+		DECLARE rOutHeaderRef REFERENCE TO InputRoot.XMLNSC.CancelChangeOccupationRequestRq.Header; 
+		DECLARE rInHeaderRef REFERENCE TO Environment.Variables.Header;
+		DECLARE rInBodyRef REFERENCE TO InputRoot.XMLNSC.CancelChangeOccupationRequestRq.Body;  
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.CancelChangeOccupationRequest.CancelChangeOccupationRequestFlow.Variables;
+		
+		SET rOutHeaderRef = rInHeaderRef;
+		
+		SET EV.SequenceAndYear	=	COALESCE(SUBSTRING(RqNm.RequestNumber AFTER '-'),NULL); 
+		SET EV.Sequence	=	COALESCE(SUBSTRING(EV.SequenceAndYear BEFORE '-'),NULL);  
+		SET EV.Year	=	COALESCE(SUBSTRING(EV.SequenceAndYear AFTER '-'),NULL);
+		SET EV.Laboroffice	=	COALESCE(SUBSTRING(RqNm.RequestNumber BEFORE '-'),NULL); 
+		
+		DECLARE LaborOfficeId int EV.Laboroffice;
+		DECLARE RequestSequence INTEGER EV.Sequence;
+		DECLARE RequestYear int EV.Year;
+		DECLARE StatusId int 3;
+		DECLARE PageSize int 1;
+		DECLARE PageIndex int 1;
+		DECLARE Result INT; 
+		DECLARE TotalRecordsCount INT; 
+		
+	SET Result =  Search_ChangeOccupation  (	NULL,       
+												NULL,  
+												LaborOfficeId,
+												NULL,
+												NULL,
+												NULL,
+												NULL,
+												NULL, 
+												NULL,
+												NULL,
+												NULL,
+												NULL,
+												NULL, 
+												RequestSequence, 
+												RequestYear, 
+												NULL,
+												StatusId, 
+												NULL,
+												NULL,
+												PageSize,
+												PageIndex,
+												TotalRecordsCount,  
+												Environment.Variables.DB.ResultSet[]); 
+												
+		IF TotalRecordsCount > 0 THEN
+			DECLARE Seq INTEGER Environment.Variables.DB.ResultSet.SequenceNumber;
+			SET Environment.Variables.SequenceNumber = Seq;
+			Return True;
+		ELSE
+			-- CALL Create_esbXML_Response_Header(loadedPropertiesRef.Invalid,rInHeaderRef,rOutHeaderRef); 
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.Invalid;
+				Propagate TO TERMINAL 'out1';
+				RETURN FALSE;
+		END IF;
+		
+		
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+	
+	CREATE PROCEDURE Search_ChangeOccupation (IN RequestId INTEGER, 
+									IN RequestTypeId INTEGER,
+									IN LaborOfficeId INTEGER,
+									IN SequenceNumber INTEGER,
+									IN EstablishmentId INTEGER,
+									IN RequesterUserId INTEGER, 
+									IN RequesterIdNo CHARACTER, 
+									IN LaborerIdNo CHARACTER,
+									IN LaborerNationalityId INTEGER,
+									IN LaborerName CHARACTER,
+									IN LaborerNationalityName CHARACTER,
+									IN CurrentOccupationId INTEGER, 
+									IN NewOccupationId INTEGER ,
+									IN RequestSequence INTEGER, 
+									IN RequestYear INTEGER,
+									IN IsIncludedDraft INTEGER,
+									IN StatusId INTEGER,
+									IN CurrentOccupationName CHARACTER,
+									IN NewOccupationName CHARACTER,   
+									IN PageSize INTEGER,
+									IN PageIndex INTEGER, 
+									INOUT TotalRecordsCount INTEGER
+									) 	 										 
+RETURNS INTEGER	LANGUAGE DATABASE DYNAMIC RESULT SETS 1 EXTERNAL NAME "dbo.Search_ChangeOccupation"; 
+END MODULE;

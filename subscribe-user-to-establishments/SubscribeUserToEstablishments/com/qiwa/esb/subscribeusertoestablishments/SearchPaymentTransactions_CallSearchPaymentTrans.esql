@@ -1,0 +1,61 @@
+BROKER SCHEMA com.qiwa.esb.subscribeusertoestablishments
+
+CREATE COMPUTE MODULE SearchPaymentTransactions_CallSearchPaymentTrans
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage();
+		DECLARE bodyRef REFERENCE TO Environment.Variables.Body;
+		DECLARE rInputHeader REFERENCE TO Environment.Variables.Header;
+		DECLARE channel CHAR Environment.Properties.subscribeUserToEstablishments.subscribeUserToEstablishmentsFlow.Variables.ChannelId;
+		DECLARE code CHAR Environment.Properties.subscribeUserToEstablishments.subscribeUserToEstablishmentsFlow.Variables.CodeSearch;	    
+
+
+
+
+		SET OutputRoot.Properties = Environment.Variables.Properties;
+		SET OutputRoot.MQMD = Environment.Variables.MQMD;
+		SET OutputRoot.MQRFH2 = Environment.Variables.MQRFH2;
+		--SET Environment.Variables.ROut = OutputRoot.XMLNSC.CheckUserEstablishmentsEligibilityRs.Header;
+
+
+		CREATE FIELD OutputRoot.XMLNSC.SearchPaymentTransactionsRq.Header;
+		DECLARE rOutputHeader REFERENCE TO OutputRoot.XMLNSC.SearchPaymentTransactionsRq.Header;
+        SET OutputRoot.XMLNSC.SearchPaymentTransactionsRq.Header = rInputHeader;
+
+		CREATE FIELD OutputRoot.XMLNSC.SearchPaymentTransactionsRq.Body;
+		DECLARE outRef REFERENCE TO OutputRoot.XMLNSC.SearchPaymentTransactionsRq.Body;
+
+		SET rOutputHeader.ServiceCode = code ;
+		SET rOutputHeader.ChannelId = channel;
+		DECLARE PageIndex INT 1;
+		DECLARE PageSize INT 1;
+		DECLARE ProductId INT 4;
+		DECLARE StatusId INT 3;
+
+		SET outRef.PaymentReference VALUE = bodyRef.PaymentReference;
+		SET outRef.PageSize VALUE = PageSize;
+		SET outRef.PageIndex VALUE = PageIndex;
+		SET outRef.ProductId VALUE = ProductId;
+		SET outRef.StatusId VALUE = StatusId;
+
+		SET Environment.InternalServiceCaller.callCorrIDOffset = SUBSTRING(rInputHeader.TransactionId FROM 1 FOR 1) || '3';
+
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;

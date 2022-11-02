@@ -1,0 +1,12 @@
+BROKER SCHEMA com.qiwa.esb.cancelchangeoccupationrequest
+
+
+CREATE FILTER MODULE SearchChangeOccupationFlow_TimeOutError
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.CancelChangeOccupationRequest.CancelChangeOccupationRequestFlow;
+		SET Environment.Variables.MWResponse.status = loadedPropertiesRef.Variables.TimeOutError;--'E9999998';
+		RETURN TRUE;
+	END;
+
+END MODULE;

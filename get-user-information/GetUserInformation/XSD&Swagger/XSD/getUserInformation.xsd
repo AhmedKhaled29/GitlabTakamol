@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?><xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://Qiwa/UserManagement/GetUserInformation/v1.0" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:bons0="http://Qiwa/UserManagement/GetUserInformation/v1.0" xmlns:bons1="http://Qiwa/Common/Types" xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions">
+
+	<xsd:import namespace="http://Qiwa/Common/Types" schemaLocation="../common/types/ESB_common_types_v1.0.xsd"/>
+
+    <xsd:element name="GetUserInformationRq" type="bons0:GetUserInformationRq_Type"/>
+	<xsd:element name="GetUserInformationRs" type="bons0:GetUserInformationRs_Type"/>
+
+	<complexType name="GetUserInformationRq_Type"> 
+		<sequence>
+				<xsd:element name="Header" type="bons1:ESBXMLRequestHeader_Type"/>
+				<xsd:element name="Body" type="bons0:GetUserInformationRq_BodyType"/>
+			</sequence>
+		</complexType>
+
+
+	<complexType name="GetUserInformationRs_Type">
+		<sequence>
+				<xsd:element name="Header" type="bons1:ESBXMLResponseHeader_Type"/>
+				<xsd:element minOccurs="0" name="Body" type="bons0:GetUserInformationRs_BodyType"/>
+			</sequence>
+		</complexType>
+
+
+	<complexType name="GetUserInformationRq_BodyType">
+		<all>
+            <element minOccurs="0" name="IdNo" type="string"/>
+			<element minOccurs="0" name="MobileNumber" type="string"/>		
+			<element minOccurs="0" name="UserId" type="integer"/>		
+			<element minOccurs="0" name="UserName" type="string"/>		
+		</all>
+	</complexType>
+	
+	
+
+
+	<complexType name="GetUserInformationRs_BodyType">
+		<sequence>
+			<element minOccurs="0" name="IDNO" type="string"/>
+            <element minOccurs="0" name="Name" type="string"/>
+			<element minOccurs="0" name="DateOfBirth" type="bons1:Dt_Type"/>		
+			<element minOccurs="0" name="Email" type="string"/>		
+			<element minOccurs="0" name="IsEmailVerified" type="string"/>		
+			<element minOccurs="0" name="MobileNumber" type="string"/>	
+            <element minOccurs="0" name="MobileLastVerificationDate" type="bons1:Dt_Type"/>
+            <element minOccurs="0" name="Status" type="bons0:Status"/>			
+            <element minOccurs="0" name="UserId" type="integer"/>
+            <element minOccurs="0" name="IsMobileVerified" type="boolean"/> 
+            <element minOccurs="0" name="Nationality" type="bons0:Nationality"/>            
+            <element minOccurs="0" name="Gender" type="bons0:Gender"/>            
+            <element minOccurs="0" name="Religion" type="bons0:Religion"/>
+			<element minOccurs="0" name="IdExpiryDate" type="bons1:Dt_Type"/>		
+			<element minOccurs="0" name="UserName" type="string"/>			
+			<element minOccurs="0" name="CreationDate" type="string"/>			
+	
+	    </sequence>
+		
+	</complexType>
+	
+	<complexType name="Status">
+		<all>
+           <element minOccurs="1" name="StatusId" type="integer"/>		
+			<element minOccurs="1" name="StatusEn" type="string"/>		
+			<element minOccurs="1" name="StatusAr" type="string"/>		
+		</all>
+	</complexType>
+	
+	<complexType name="Nationality">
+		<all>
+       <element minOccurs="1" name="NationalityId" type="integer"/>		
+			<element minOccurs="1" name="NationalityEn" type="string"/>		
+			<element minOccurs="1" name="NationalityAr" type="string"/>	
+		</all>
+	</complexType>
+	
+	<complexType name="Gender">
+		<all>
+          <element minOccurs="1" name="GenderId" type="integer"/>
+			<element minOccurs="1" name="GenderEn" type="string"/>		
+			<element minOccurs="1" name="GenderAr" type="string"/>			
+		</all>
+	</complexType>
+	
+	<complexType name="Religion">
+		<all>
+          <element minOccurs="1" name="ReligionId" type="integer"/>
+            <element minOccurs="1" name="ReligionEn" type="string"/>
+			<element minOccurs="1" name="ReligionAr" type="string"/>	
+		</all>
+	</complexType>
+
+	
+</xsd:schema>

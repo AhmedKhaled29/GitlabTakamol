@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?><xsd:schema
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+ targetNamespace="http://Qiwa/UserManagement/SearchUsersSubUniNum/v1.0" 
+ xmlns="http://www.w3.org/2001/XMLSchema" 
+ xmlns:bons0="http://Qiwa/UserManagement/SearchUsersSubUniNum/v1.0" 
+ xmlns:bons1="http://Qiwa/Common/Types" 
+ xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions">
+
+	<xsd:import namespace="http://Qiwa/Common/Types" schemaLocation="../common/types/ESB_common_types_v1.0.xsd"/>
+
+ 
+	<xsd:element name="SearchUsersSubUniNumRq" type="bons0:SearchUsersSubUniNumRq_Type"/> 
+	<xsd:element name="SearchUsersSubUniNumRs" type="bons0:SearchUsersSubUniNumRs_Type"/>
+	
+	<complexType name="SearchUsersSubUniNumRq_Type">
+		<sequence>
+			<xsd:element name="Header" type="bons1:ESBXMLRequestHeader_Type"/>  
+			<xsd:element name="Body" type="bons0:SearchUsersSubUniNumRq_BodyType"/>
+		</sequence>
+	</complexType>
+	
+	<complexType name="SearchUsersSubUniNumRs_Type">
+		<sequence>
+			<xsd:element name="Header" type="bons1:ESBXMLResponseHeader_Type"/>
+			<xsd:element name="Body" type="bons0:SearchUsersSubUniNumRs_BodyType"/>
+		</sequence>
+	</complexType>
+
+	<complexType name="SearchUsersSubUniNumRq_BodyType">
+		<all>
+			<element minOccurs="1" name="UnifiedNumberId" type="integer"/> 
+			<element minOccurs="1" name="PageSize" type="integer"/>
+			<element minOccurs="1" name="PageIndex" type="integer"/>
+		</all>  
+	</complexType>
+	        
+
+	<complexType name="SearchUsersSubUniNumRs_BodyType">
+		<all>
+		    <element minOccurs="0" name="UsersList" type="bons0:UsersList_Type"/>
+		    <element minOccurs="1" name="TotalRecordsCount " type="integer"/>
+      </all>
+	</complexType>
+	
+	<complexType name="UsersList_Type">
+		<sequence>
+			<element maxOccurs="unbounded" minOccurs="1" name="UserItem" type="bons0:UserItem_Type"/>
+		</sequence>
+	</complexType>
+		
+	<complexType name="UserItem_Type">
+		<all>
+			<element minOccurs="1" name="UnifiedNumberStatus" type="integer"/>
+			<element minOccurs="1" name="StartDate" type="date"/>
+			<element minOccurs="1" name="ExpiryDate" type="date"/>
+	        <element minOccurs="1" name="IdNo" type="string"/>
+		    <element minOccurs="1" name="UserId" type="integer"/>
+			<element minOccurs="1" name="Name" type="string"/>
+			<element minOccurs="0" name="SubscriptionsList" type="bons0:SubscriptionsList_Type"/>
+		</all>
+		
+	</complexType>
+		<complexType name="SubscriptionsList_Type">
+			<sequence>
+				<element maxOccurs="unbounded" minOccurs="1" name="SubscriptionsItem" type="bons0:SubscriptionsItem_Type"/>
+			</sequence>
+		</complexType>
+	
+	
+	<complexType name="SubscriptionsItem_Type">
+		<all>
+	        <element minOccurs="1" name="LaborOfficeId" type="integer"/>
+		    <element minOccurs="1" name="SequenceNumber" type="integer"/>
+			<element minOccurs="1" name="Status" type="bons0:Status_Type"/>
+			<element minOccurs="1" name="StartDate" type="dateTime"/>
+		    <element minOccurs="1" name="ExpiredDate" type="dateTime"/>
+			<element minOccurs="1" name="Subscription" type="bons0:Subscription_Type"/>
+		</all>
+	</complexType>
+	
+	<complexType name="Status_Type">
+		<all>
+	        <element minOccurs="1" name="StatusId" type="integer"/>
+		    <element minOccurs="1" name="StatusEn" type="string"/>
+			<element minOccurs="1" name="StatusAr" type="string"/>
+		</all>
+	</complexType>
+	
+	<complexType name="Subscription_Type">
+		<all>
+	        <element minOccurs="1" name="Subscription" type="integer"/>
+	    	<element minOccurs="1" name="SubscriptionTypeEn" type="string"/>
+			<element minOccurs="1" name="SubscriptionTypeAr" type="string"/>
+		</all>
+	</complexType>
+	
+	
+</xsd:schema>

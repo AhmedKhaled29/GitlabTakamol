@@ -1,0 +1,14 @@
+BROKER SCHEMA com.qiwa.esb.subscribeusertoestablishments
+
+
+CREATE FILTER MODULE UserMangServiceFlow_SetTimeOutError
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+	     DECLARE loadProperties CHAR Environment.Properties.SubscribeUserToEstablishments.SubscribeUserToEstablishmentsFlow.Variables.MW;
+		
+		 	SET Environment.Variables.MWResponse.status = loadProperties;	
+    RETURN TRUE ;
+    		 	
+	END;
+
+END MODULE;

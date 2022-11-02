@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?><xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://Qiwa/UserManagement/CheckUserEstablishmentsEligibility/v1.0" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:bons0="http://Qiwa/UserManagement/CheckUserEstablishmentsEligibility/v1.0" xmlns:bons1="http://Qiwa/Common/Types" xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions">
+
+	<xsd:import namespace="http://Qiwa/Common/Types" schemaLocation="../common/types/ESB_common_types_v1.0.xsd"/>
+
+	
+	<xsd:element name="CheckUserEstablishmentsEligibilityRq" type="bons0:CheckUserEstablishmentsEligibilityRq_Type"/>
+	<xsd:element name="CheckUserEstablishmentsEligibilityRs" type="bons0:CheckUserEstablishmentsEligibilityRs_Type"/>
+	
+	<complexType name="CheckUserEstablishmentsEligibilityRq_Type">
+		<sequence>
+			<xsd:element name="Header" type="bons1:ESBXMLRequestHeader_Type"/>
+			<xsd:element name="Body" type="bons0:CheckUserEstablishmentsEligibilityRq_BodyType"/>
+		</sequence>
+	</complexType>
+	
+	<complexType name="CheckUserEstablishmentsEligibilityRs_Type">
+		<sequence>
+			<xsd:element name="Header" type="bons1:ESBXMLResponseHeader_Type"/>
+			<xsd:element minOccurs="0" name="Body" type="bons0:CheckUserEstablishmentsEligibilityRs_BodyType"/>
+		</sequence>
+	</complexType>
+
+	<complexType name="CheckUserEstablishmentsEligibilityRq_BodyType">
+	<all>
+     <element minOccurs="1" name="IdNo" type="string"/>
+	 <element minOccurs="0" name="EstablishmentsList" type="bons0:EstablishmentsList_Type"/>
+	 <element minOccurs="0" name="ServiceId" type="integer"/>
+	 <element minOccurs="1" name="ListAll" >
+				<simpleType>
+					<restriction base="integer">
+						  <enumeration value="0"/>
+						  <enumeration value="1"/>
+						 
+					</restriction>
+				</simpleType>
+			</element>
+
+    </all>
+	</complexType>	
+	
+	<complexType name="EstablishmentsList_Type">
+	<sequence>
+     <element minOccurs="1" maxOccurs='unbounded' name="EstablishmentsItem" type="bons0:EstablishmentsItem_Type"/>
+
+    </sequence>
+	</complexType>	
+	
+	<complexType name="EstablishmentsItem_Type">
+	<all>
+
+     <element minOccurs="1" name="LaborOfficeId" type="integer"/>
+	 <element minOccurs="1" name="EstablishmentSequence " type="integer"/>
+    </all>
+	</complexType>	
+	
+	
+	
+	<complexType name="CheckUserEstablishmentsEligibilityRs_BodyType">
+    <all>
+     <element minOccurs="0" name="EligibleEstablishmentsList" type="bons0:EligibleEstablishmentsList_Type"/>
+	 <element minOccurs="0" name="NonEligibleEstablishmentsList" type="bons0:NonEligibleEstablishmentsList_Type"/>
+
+    </all>
+	</complexType>
+	
+	<complexType name="EligibleEstablishmentsList_Type">
+		<sequence>
+			<element maxOccurs="unbounded" minOccurs="0" name="EligibleEstablishmentsItem" type="bons0:EligibleEstablishmentsItem_Type"/>
+		</sequence>
+	</complexType>
+	
+	
+	<complexType name="EligibleEstablishmentsItem_Type">
+		<all>
+		   <element minOccurs="1" name="LaborOfficeId" type="integer"/> 
+	       <element minOccurs="1" name="EstablishmentSequence " type="integer"/>
+	       <element minOccurs="0" name="EstablishmentName " type="string"/>
+	       <element minOccurs="0" name="UnifiedNumber " type="integer"/>
+	       <element minOccurs="0" name="IsMainBranch " type="string"/>
+	       
+	    </all>
+	</complexType>
+	
+	<complexType name="NonEligibleEstablishmentsList_Type">
+		<sequence>
+				<element maxOccurs="unbounded" minOccurs="0" name="NonEligibleEstablishmentsItem"  type="bons0:NonEligibleEstablishmentsItem_Type"/>
+
+	    </sequence>
+	</complexType>
+	
+	<complexType name="NonEligibleEstablishmentsItem_Type">
+		<all>
+		<element minOccurs="1" name="LaborOfficeId" type="integer"/> 
+	       <element minOccurs="1" name="EstablishmentSequence " type="integer"/>
+	          <element minOccurs="0" name="EstablishmentName " type="string"/>
+	       <element minOccurs="0" name="UnifiedNumber " type="integer"/>
+	       <element minOccurs="0" name="IsMainBranch " type="string"/>
+	       <element minOccurs="1" name="EligibleForSelfSubscripition " type="integer"/>
+		  
+	    </all>
+	</complexType>
+	
+</xsd:schema>

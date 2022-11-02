@@ -1,0 +1,69 @@
+BROKER SCHEMA com.qiwa.esb.addorterminateusersubsription
+
+
+CREATE COMPUTE MODULE CheckUserEligibility_CheckUser
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyMessageHeaders();    
+		-- CALL CopyEntireMessage(); 
+		DECLARE bodyRef REFERENCE TO Environment.Variables.XMLNSC.UpdateOrTerminateUserSubscriptionRq.Body; 
+		DECLARE rInputHeader REFERENCE TO Environment.Variables.XMLNSC.UpdateOrTerminateUserSubscriptionRq.Header;
+	    DECLARE channel CHAR Environment.Properties.UpdateOrTerminateUserSubscription.UpdateOrTerminateUserSubscriptionFlow.Variables.channel; 
+	    DECLARE code CHAR Environment.Properties.UpdateOrTerminateUserSubscription.UpdateOrTerminateUserSubscriptionFlow.Variables.checkUserElig;
+	    DECLARE Servicecode CHAR Environment.Properties.UpdateOrTerminateUserSubscription.UpdateOrTerminateUserSubscriptionFlow.Variables.Servicecode;
+ 		 
+		   
+
+		 SET OutputRoot.Properties = Environment.Variables.Properties;
+		SET OutputRoot.MQMD = Environment.Variables.MQMD;
+		SET OutputRoot.MQRFH2 = Environment.Variables.MQRFH2;
+ 		
+		
+		CREATE LASTCHILD OF OutputRoot DOMAIN ('XMLNSC');
+		
+		SET OutputRoot.XMLNSC.CheckUserEstablishmentsEligibilityRq.Header = rInputHeader;    
+		 
+		DECLARE rOutputHeader REFERENCE TO OutputRoot.XMLNSC.CheckUserEstablishmentsEligibilityRq.Header;      
+		 
+		CREATE LASTCHILD OF OutputRoot.XMLNSC.CheckUserEstablishmentsEligibilityRq NAME 'Body';  
+		DECLARE outRef REFERENCE TO OutputRoot.XMLNSC.CheckUserEstablishmentsEligibilityRq.Body;      
+  
+		SET rOutputHeader.ServiceCode = code ;    
+		SET rOutputHeader.ChannelId = channel;
+		
+		DECLARE i INT 1; 
+		SET outRef.IdNo VALUE = rInputHeader.UserInfo.IDNumber;  
+		FOR InRef AS bodyRef.EstablishmentsList.Establishments[] DO  
+			SET outRef.EstablishmentsList.EstablishmentsItem[i].LaborOfficeId = InRef.LaborOfficeId;
+			SET outRef.EstablishmentsList.EstablishmentsItem[i].EstablishmentSequence = InRef.EstablishmentSequence; 
+			 
+			SET	Environment.Variabl.NonEligibleEst.EstablishmentsList.EstablishmentItem[i].LaborOfficeId =InRef.LaborOfficeId;
+		    SET Environment.Variabl.NonEligibleEst.EstablishmentsList.EstablishmentItem[i].SequenceNumber =InRef.EstablishmentSequence;
+			
+			SET i = i+1;  
+		END FOR; 
+		 	 
+		
+		SET outRef.ServiceId VALUE = Servicecode; 
+ 		SET outRef.ListAll = 0;  
+ 		
+ 		SET Environment.InternalServiceCaller.callCorrIDOffset = SUBSTRING(rInputHeader.TransactionId FROM 1 FOR 2);
+ 		
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+

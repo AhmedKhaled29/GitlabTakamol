@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema targetNamespace="http://Qiwa/UserManagement/RenewUserSubscription/v1.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:bons2="http://Qiwa/UserManagement/RenewUserSubscription/v1.0" xmlns:bons0="http://Qiwa/Common/Types" xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions">
+
+	<xsd:import namespace="http://Qiwa/Common/Types" schemaLocation="../common/types/ESB_common_types_v1.0.xsd"/>
+
+
+	<xsd:element name="RenewUserSubscriptionRq" type="bons2:RenewUserSubscriptionRq_Type"/>
+	<xsd:element name="RenewUserSubscriptionRs" type="bons2:RenewUserSubscriptionRs_Type"/>
+
+	<complexType ibmSchExtn:docRoot="true" name="RenewUserSubscriptionRq_Type">
+			<sequence>
+				<xsd:element name="Header" type="bons0:ESBXMLRequestHeader_Type"/>
+				<xsd:element name="Body" type="bons2:RenewUserSubscriptionRq_BodyType"/>
+			</sequence>
+	</complexType>
+	
+	<complexType ibmSchExtn:docRoot="true" name="RenewUserSubscriptionRs_Type">
+			<sequence>
+				<xsd:element name="Header" type="bons0:ESBXMLResponseHeader_Type"/>
+				<xsd:element minOccurs="1" name="Body" type="bons2:RenewUserSubscriptionRs_BodyType"/>
+			</sequence>
+	</complexType>
+	
+	
+	<complexType name="RenewUserSubscriptionRq_BodyType">
+		<all>
+			<element minOccurs="1" name="IdNo" type="string"/>
+			<element minOccurs="1" name="EstablishmentsList"
+				type="bons2:EstablishmentsList_Type" />
+
+			<xsd:element name="PaymentReference" type="xsd:string"
+				minOccurs="0">
+			</xsd:element>
+			<xsd:element name="UserId" type="xsd:integer" minOccurs="1" maxOccurs="1"></xsd:element>
+		</all>
+	</complexType>
+	
+		<complexType name="EstablishmentsList_Type">
+			<sequence>
+			<element  maxOccurs="unbounded" minOccurs="1" name="EstablishmentItem" type="bons2:EstablishmentItem_Type"/> 
+				
+		    </sequence>
+	</complexType>
+	
+	
+	<complexType name="EstablishmentItem_Type">
+		<sequence>
+			<element minOccurs="1" name="LaborOfficeId" type="integer"/>
+			<element minOccurs="1" name="SequenceNumber" type="integer"/>
+			 
+		</sequence>
+	</complexType>
+	
+	
+	<complexType name="RenewUserSubscriptionRs_BodyType">
+		<all>
+		
+			<element  minOccurs="1" name="ErrorsList" type="bons2:ErrorsList_Type"/> 
+			
+		</all>	
+	</complexType>
+	
+		
+	
+	<complexType name="ErrorsList_Type">
+		<sequence>
+			<element  maxOccurs="unbounded" minOccurs="1" name="ErrorItem" type="bons2:ErrorItem_Type"/> 
+			
+		</sequence>
+	</complexType>
+	
+	<complexType name="ErrorItem_Type">
+		<sequence>
+			<element minOccurs="1" name="ErrorCode" type="string"/>
+			<element minOccurs="1" name="ArDescription" type="string"/>
+			<element minOccurs="1" name="EnDescription" type="string"/>
+			 
+		</sequence>
+	</complexType>
+	
+	
+</xsd:schema>

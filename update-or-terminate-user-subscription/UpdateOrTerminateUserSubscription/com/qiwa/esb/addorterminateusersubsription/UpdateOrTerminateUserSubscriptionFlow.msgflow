@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmCompute.msgnode="ComIbmCompute.msgnode" xmlns:ComIbmFilter.msgnode="ComIbmFilter.msgnode" xmlns:Qiwa_Framework_Lib_MQ_Input_Node.subflow="Qiwa/Framework/Lib/MQ_Input_Node.subflow" xmlns:Qiwa_Framework_Lib_MQ_Output_Node.subflow="Qiwa/Framework/Lib/MQ_Output_Node.subflow" xmlns:Qiwa_Framework_Lib_MWBusinessErrorResponse.subflow="Qiwa/Framework/Lib/MWBusinessErrorResponse.subflow" xmlns:com_qiwa_esb_addorterminateusersubsription_CheckUserEligibility.subflow="com/qiwa/esb/addorterminateusersubsription/CheckUserEligibility.subflow"
+    xmlns:com_qiwa_esb_addorterminateusersubsription_GetUserEstablishments.subflow="com/qiwa/esb/addorterminateusersubsription/GetUserEstablishments.subflow" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="com/qiwa/esb/addorterminateusersubsription/UpdateOrTerminateUserSubscriptionFlow.msgflow" nsPrefix="com_qiwa_esb_addorterminateusersubsription_UpdateOrTerminateUserSubscriptionFlow.msgflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <translation xmi:type="utility:TranslatableString" key="UpdateOrTerminateUserSubscriptionFlow" bundleName="com/qiwa/esb/addorterminateusersubsription/UpdateOrTerminateUserSubscriptionFlow" pluginId="UpdateOrTerminateUserSubscription"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/UpdateOrTerminateUserSubscription/icons/full/obj16/UpdateOrTerminateUserSubscriptionFlow.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/UpdateOrTerminateUserSubscription/icons/full/obj30/UpdateOrTerminateUserSubscriptionFlow.gif"/>
+    <composition>
+      <nodes xmi:type="Qiwa_Framework_Lib_MQ_Input_Node.subflow:FCMComposite_1" xmi:id="FCMComposite_1_1" location="90,152" LOG_ENABLED="true" PROPERTIES_ENABLED="true" queueName="ESB.UPDATEORTERMINATEUSERSUB.RQ" messageDomainProperty="DFDL" PropertiesGroup="UpdateOrTerminateUserSubscription.UpdateOrTerminateUserSubscriptionFlow" PropertyFilename="${broker.name}/USER-SERVICES-MANAGEMENT.xml">
+        <translation xmi:type="utility:ConstantString" string="MQ_Input_Node"/>
+      </nodes>
+      <nodes xmi:type="Qiwa_Framework_Lib_MQ_Output_Node.subflow:FCMComposite_1" xmi:id="FCMComposite_1_2" location="827,157" LOG_ENABLED="true" queueName="ESB.UPDATEORTERMINATEUSERSUB.RS">
+        <translation xmi:type="utility:ConstantString" string="MQ_Output_Node"/>
+      </nodes>
+      <nodes xmi:type="com_qiwa_esb_addorterminateusersubsription_CheckUserEligibility.subflow:FCMComposite_1" xmi:id="FCMComposite_1_3" location="330,164">
+        <translation xmi:type="utility:ConstantString" string="CheckUserEligibility"/>
+      </nodes>
+      <nodes xmi:type="ComIbmFilter.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_6" location="228,152" filterExpression="esql://routine/com.qiwa.esb.addorterminateusersubsription#AddOrTerminateUserSubsriptionFlow_Validate.Main">
+        <translation xmi:type="utility:ConstantString" string="Validate"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_7" location="568,287" computeExpression="esql://routine/com.qiwa.esb.addorterminateusersubsription#AddOrTerminateUserSubsriptionFlow_SetHeaders.Main">
+        <translation xmi:type="utility:ConstantString" string="SetHeaders"/>
+      </nodes>
+      <nodes xmi:type="Qiwa_Framework_Lib_MWBusinessErrorResponse.subflow:FCMComposite_1" xmi:id="FCMComposite_1_8" location="823,288" OUT_QUEUE="ESB.UPDATEORTERMINATEUSERSUB.RS">
+        <translation xmi:type="utility:ConstantString" string="MWBusinessErrorResponse"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_9" location="706,156" dataSource="MWQIWA_DS" computeExpression="esql://routine/com.qiwa.esb.addorterminateusersubsription#AddOrTerminateUserSubsriptionFlow_CallDB.Main">
+        <translation xmi:type="utility:ConstantString" string="CallDB"/>
+      </nodes>
+      <nodes xmi:type="com_qiwa_esb_addorterminateusersubsription_GetUserEstablishments.subflow:FCMComposite_1" xmi:id="FCMComposite_1_4" location="480,160">
+        <translation xmi:type="utility:ConstantString" string="GetUserEstablishments"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="FCMComposite_1_6" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="FCMComposite_1_7" sourceNode="FCMComposite_1_6" sourceTerminalName="OutTerminal.false" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_8" sourceNode="FCMComposite_1_7" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_5" targetNode="FCMComposite_1_7" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.Output1" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_7" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_9" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_11" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_6" sourceTerminalName="OutTerminal.true" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_6" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_8" targetNode="FCMComposite_1_7" sourceNode="FCMComposite_1_4" sourceTerminalName="OutTerminal.Output1" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_9" targetNode="FCMComposite_1_9" sourceNode="FCMComposite_1_4" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+    </composition>
+    <propertyOrganizer/>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

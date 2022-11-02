@@ -1,0 +1,22 @@
+BROKER SCHEMA com.qiwa.esb.getumservicesnonsubscribedusers
+path Qiwa.Framework.Lib;
+
+
+CREATE FILTER MODULE GetUserEstablishmentsHRSD_IsSuccess
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+	DECLARE loadproperties REFERENCE TO Environment.Properties.GetUMServicesNonSubscribedUsers.HTTP_GetUMServicesNonSubscribedUsersFlow.Variables;	
+	 
+	IF Root.XMLNSC.GetUserEstablishmentsHRSDRs.Header.ResponseStatus.Code = GetESBSuccessCode() THEN
+		-- save GetUserEstablishmentsHRSD response body in variable GetUserEstabBodyRs
+		SET Environment.Variables.ESB.GetUserEstabBodyRs = Root.XMLNSC.GetUserEstablishmentsHRSDRs.Body;
+		-- save GetUserEstablishmentsHRSD response header in variable GetUserEstabHeaderRs 
+		SET Environment.Variables.ESB.GetUserEstabHeaderRs = Root.XMLNSC.GetUserEstablishmentsHRSDRs.Header;
+		RETURN TRUE;
+	ELSE 
+		SET Environment.Variables.MWResponse.status = Root.XMLNSC.GetUserEstablishmentsHRSDRs.Header.ResponseStatus.Code;
+		RETURN TRUE;
+	END IF;	
+	END;
+
+END MODULE;

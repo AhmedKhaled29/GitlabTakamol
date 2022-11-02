@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?><xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://Qiwa/UserManagement/UpdateUserInformation/v1.0" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:bons0="http://Qiwa/UserManagement/UpdateUserInformation/v1.0" xmlns:bons1="http://Qiwa/Common/Types" xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions">
+
+	<xsd:import namespace="http://Qiwa/Common/Types"
+		schemaLocation="../common/types/ESB_common_types_v1.0.xsd"/>
+
+ 
+	<xsd:element name="UpdateUserInformationRq" type="bons0:UpdateUserInformationRq_Type"/>
+	<xsd:element name="UpdateUserInformationRs" type="bons0:UpdateUserInformationRs_Type"/>
+	
+	<complexType name="UpdateUserInformationRq_Type">
+		<sequence>
+			<xsd:element name="Header" type="bons1:ESBXMLRequestHeader_Type"/>
+			<xsd:element name="Body" type="bons0:UpdateUserInformationRq_BodyType"/>
+		</sequence>
+	</complexType>
+	
+	<complexType name="UpdateUserInformationRs_Type">
+		<sequence>
+			<xsd:element name="Header" type="bons1:ESBXMLResponseHeader_Type"/>
+			<xsd:element name="Body" type="bons0:UpdateUserInformationRs_BodyType"/>
+		</sequence>
+	</complexType>
+
+	<complexType name="UpdateUserInformationRq_BodyType">
+		<all>
+			<element minOccurs="1" name="IdNo" type="string"/>
+			<element minOccurs="0" name="Name" type="string"/>
+			<element minOccurs="0" name="DateOfBirth" type="integer"/>
+			<element minOccurs="0" name="Email" type="string"/>
+			<element minOccurs="0" name="MobileNumber" type="string"/>
+		    <element minOccurs="0" name="StatusId" type="integer"/>
+			<element minOccurs="0" name="NationalityId" type="integer"/>
+			<element minOccurs="0" name="GenderId" type="integer"/>
+			<element minOccurs="0" name="ReligionId" type="integer"/>
+			<element minOccurs="0" name="IdExpiryDate" type="bons1:Dt_Type"/>
+			<element minOccurs="0" name="UserName" type="string"/>
+			<element minOccurs="0" name="Password" type="string"/>
+			<element minOccurs="0" name="IsMobileVerified" type="boolean"/>
+			<element minOccurs="0" name="IsEmailVerified" type="boolean"/>
+			
+		</all>  
+	</complexType>
+	
+    
+
+	<complexType name="UpdateUserInformationRs_BodyType">
+		<all>
+		</all>
+	</complexType>
+	
+</xsd:schema>

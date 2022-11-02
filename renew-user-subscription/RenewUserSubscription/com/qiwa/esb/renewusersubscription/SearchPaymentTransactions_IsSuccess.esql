@@ -1,0 +1,17 @@
+BROKER SCHEMA com.qiwa.esb.renewusersubscription
+PATH Qiwa.Framework.Lib;
+
+CREATE FILTER MODULE SearchPaymentTransactions_IsSuccess
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.RenewUserSubscription.RenewUserSubscriptionFlow;
+		IF Root.XMLNSC.SearchPaymentTransactionsRs.Header.ResponseStatus.Code = GetESBSuccessCode() THEN
+				SET Environment.Variables.esb.SearchPaymentTransactionsRs.Body=Root.XMLNSC.SearchPaymentTransactionsRs.Body;
+				RETURN TRUE;
+		ELSE
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.Variables.PayRefIsNotPaid;
+			RETURN FALSE;
+		END IF;
+	END;
+
+END MODULE;

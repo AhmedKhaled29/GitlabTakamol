@@ -1,0 +1,65 @@
+<properties refresh-policy="automatic">
+	
+	
+	   <group name="SearchUsersSubUniNum.HTTP_SearchUsersSubUniNumFlow"> 
+		<group name="Logging">
+			<property name="LogEnabled" value="TRUE" /> 
+			<property name="AuditEnabled" value="FALSE" />
+			<property name="key1" value="" />
+			<property name="value1" value="" />
+			<property name="key2" value="" />
+			<property name="value2" value="" />
+			<property name="key3" value="" />
+			<property name="value3" value="" />
+			<property name="key4" value="" />
+			<property name="value4" value="" />
+		</group>
+		<group name="Variables">
+			<property name="UserSubNotFound" value="E0000443" />
+			<property name="RequestURL" value="http://datapower.qiwa.info:7086/MOLEstablishmentIds" />
+			
+
+		</group>
+		<group name="SchemaValidation">
+            <property name="ValidationEnabled" value="TRUE" />
+        </group>
+		<group name="Retry">
+				<property name="RetryEnabled" value="FALSE" />
+			<property name="minWaitDurationSec" value="60" />
+			<property name="maxRetryCount" value="5" />
+		</group>
+	</group>
+	
+	<group name="SearchUsersSubUniNum.HTTP_INT_SearchUsersSubUniNumFlow"> 
+		<group name="Logging">
+			<property name="LogEnabled" value="TRUE" /> 
+			<property name="AuditEnabled" value="FALSE" />
+			<property name="key1" value="" />
+			<property name="value1" value="" />
+			<property name="key2" value="" />
+			<property name="value2" value="" />
+			<property name="key3" value="" />
+			<property name="value3" value="" />
+			<property name="key4" value="" />
+			<property name="value4" value="" />
+		</group>
+		<group name="Variables">
+			<property name="UserSubNotFound" value="E0000443" />
+			<property name="RequestURL" value="http://datapower.qiwa.info:7086/MOLEstablishmentIds" />
+			
+
+		</group>
+		<group name="SchemaValidation">
+            <property name="ValidationEnabled" value="TRUE" />
+        </group>
+		<group name="Retry">
+				<property name="RetryEnabled" value="FALSE" />
+			<property name="minWaitDurationSec" value="60" />
+			<property name="maxRetryCount" value="5" />
+		</group>
+	</group>
+
+  
+	
+</properties>
+	

@@ -1,0 +1,283 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "title" : "AddEstablishmentUserSubscription",
+    "version" : "1.0.0",
+    "description" : "This service is used to add several subscriptions and their users ."
+  },
+  "paths" : {
+    "/addestablishmentusersubscription" : {
+      "post" : {
+        "operationId" : "AddEstablishmentUserSubscription",
+        "responses" : {
+          "200" : {
+            "description" : "The operation was successful.",
+            "schema" : {
+              "$ref" : "#/definitions/AddEstablishmentUserSubscriptionRs_MessageType"
+            }
+          }
+        },
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "description" : "Add Establishment User Subscription",
+        "parameters" : [ {
+          "name" : "body",
+          "in" : "body",
+          "schema" : {
+            "$ref" : "#/definitions/AddEstablishmentUserSubscriptionRq_MessageType"
+          },
+          "description" : "AddEstablishmentUserSubscriptionRq",
+          "required" : true
+        } ]
+      }
+    }
+  },
+  "basePath" : "/usermanagement",
+  "definitions" : {
+    "AddEstablishmentUserSubscriptionRq_MessageType" : {
+      "type" : "object",
+      "properties" : {
+        "AddEstablishmentUserSubscriptionRq" : {
+          "$ref" : "#/definitions/AddEstablishmentUserSubscriptionRq_Type"
+        }
+      }
+    },
+    "AddEstablishmentUserSubscriptionRs_MessageType" : {
+      "type" : "object",
+      "properties" : {
+        "AddEstablishmentUserSubscriptionRs" : {
+          "$ref" : "#/definitions/AddEstablishmentUserSubscriptionRs_Type"
+        }
+      }
+    },
+    "AddEstablishmentUserSubscriptionRq_Type" : {
+      "type" : "object",
+      "properties" : {
+        "Header" : {
+          "$ref" : "#/definitions/ESBXMLRequestHeader_Type"
+        },
+        "Body" : {
+          "$ref" : "#/definitions/AddEstablishmentUserSubscriptionRq_BodyType"
+        }
+      }
+    },
+    "AddEstablishmentUserSubscriptionRq_BodyType" : {
+      "type" : "object",
+      "properties" : {
+        "SubscriptionsList" : {
+          "$ref" : "#/definitions/SubscriptionsList_Type"
+        }, 
+    
+      "PaymentReference" : {
+        "type" : "string"
+      },
+    
+      }
+    },
+    "AddEstablishmentUserSubscriptionRs_Type" : {
+      "type" : "object",
+      "properties" : {
+        "Header" : {
+          "$ref" : "#/definitions/ESBXMLResponseHeader_Type"
+        },
+        "Body" : {
+          "$ref" : "#/definitions/AddEstablishmentUserSubscriptionRs_BodyType"
+        }
+      }
+    },
+    "AddEstablishmentUserSubscriptionRs_BodyType" : {
+      "type" : "object",
+      "properties" : {
+        "ErrorsList" : {
+          "$ref" : "#/definitions/ErrorItem"
+        }
+      }
+    },
+    "ESBXMLRequestHeader_Type" : {
+      "type" : "object",
+      "properties" : {
+        "TransactionId" : {
+          "type" : "string"
+        },
+        "ChannelId" : {
+          "type" : "string"
+        },
+        "SessionId" : {
+          "type" : "string"
+        },
+        "RequestTime" : {
+          "type" : "string"
+        },
+        "MWRequestTime" : {
+          "type" : "string"
+        },
+        "ServiceCode" : {
+          "type" : "string"
+        },
+        "DebugFlag" : {
+          "type" : "integer"
+        },
+        "UserInfo" : {
+          "$ref" : "#/definitions/UserInfo_Type"
+        },
+        "UDF" : {
+          "$ref" : "#/definitions/UDF_Type"
+        }
+      },
+      "required" : [ "ServiceCode", "ChannelId", "TransactionId", "RequestTime" ]
+    },
+    "ESBXMLResponseHeader_Type" : {
+      "type" : "object",
+      "properties" : {
+        "TransactionId" : {
+          "type" : "string"
+        },
+        "ChannelId" : {
+          "type" : "string"
+        },
+        "SessionId" : {
+          "type" : "string"
+        },
+        "RequestTime" : {
+          "type" : "string"
+        },
+        "MWRequestTime" : {
+          "type" : "string"
+        },
+        "MWResponseime" : {
+          "type" : "string"
+        },
+        "ServiceCode" : {
+          "type" : "string"
+        },
+        "DebugFlag" : {
+          "type" : "integer"
+        },
+        "UserInfo" : {
+          "$ref" : "#/definitions/UserInfo_Type"
+        },
+        "UDF" : {
+          "$ref" : "#/definitions/UDF_Type"
+        },
+        "ResponseStatus" : {
+          "$ref" : "#/definitions/MWResponseStatus_Type"
+        },
+        "BackendError" : {
+          "$ref" : "#/definitions/BackendError_Type"
+        }
+      },
+      "required" : [ "TransactionId", "ChannelId", "RequestTime", "ServiceCode" ]
+    },
+    "UDF_Type" : {
+      "type" : "object",
+      "properties" : {
+        "KeyValueArr" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/KeyValueArr_Type"
+          }
+        }
+      }
+    },
+    "KeyValueArr_Type" : {
+      "type" : "object",
+      "properties" : {
+        "key" : {
+          "type" : "string"
+        },
+        "value" : {
+          "type" : "string"
+        }
+      }
+    },
+    "Tmstmp_Type" : {
+      "type" : "object"
+    },
+    "UserInfo_Type" : {
+      "type" : "object",
+      "properties" : {
+        "UserId" : {
+          "type" : "integer"
+        },
+        "IDNumber" : {
+          "type" : "integer"
+        }
+      }
+    },
+    "MWResponseStatus_Type" : {
+      "type" : "object",
+      "properties" : {
+        "Status" : {
+          "type" : "string"
+        },
+        "Code" : {
+          "type" : "string"
+        },
+        "ArabicMsg" : {
+          "type" : "string"
+        },
+        "EnglishMsg" : {
+          "type" : "string"
+        }
+      },
+      "required" : [ "Code", "Status", "ArabicMsg", "EnglishMsg" ]
+    },
+    "BackendError_Type" : {
+      "type" : "object",
+      "properties" : {
+        "ErrorCode" : {
+          "type" : "string"
+        },
+        "ErrorDescription" : {
+          "type" : "string"
+        }
+      }
+    },
+    "SubscriptionItem_Type" : {
+      "type" : "array",
+      "items" : {
+        "type" : "object",
+        "properties" : {
+          "SubscriptionId" : {
+            "type" : "string"
+          },
+          "IdNo" : {
+            "type" : "string"
+          },
+          "Duration" : {
+            "type" : "string"
+          },
+          "LaborOfficeId" : {
+            "type" : "string"
+          },
+          "SequenceNumber" : {
+            "type" : "string"
+          },
+          "EstablishmentId" : {
+            "type" : "string"
+          }
+        }
+      }
+    },
+    "ErrorItem" : {
+      "type" : "object",
+      "properties" : {
+        "ErrorCode" : {
+          "type" : "string"
+        },
+        "ArDescription" : {
+          "type" : "string"
+        },
+        "EnDescription" : {
+          "type" : "string"
+        }
+      }
+    },
+    "SubscriptionsList_Type" : {
+      "$ref" : "#/definitions/SubscriptionItem"
+    },
+    "SubscriptionItem" : {
+      "$ref" : "#/definitions/SubscriptionItem_Type"
+    }
+  }
+}

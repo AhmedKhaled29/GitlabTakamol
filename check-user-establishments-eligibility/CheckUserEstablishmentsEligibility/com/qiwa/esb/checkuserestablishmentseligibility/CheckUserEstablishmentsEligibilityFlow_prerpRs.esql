@@ -1,0 +1,471 @@
+BROKER SCHEMA com.qiwa.esb.checkuserestablishmentseligibility
+PATH Qiwa.Framework.Lib;  
+
+
+CREATE COMPUTE MODULE CheckUserEstablishmentsEligibilityFlow_prerpRs
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage();
+		SET OutputRoot.Properties = Environment.Variables.Properties;
+		SET OutputRoot.MQMD  = Environment.Variables.MQMD;
+		SET OutputRoot.MQRFH2  = Environment.Variables.MQRFH2;
+		
+		CREATE LASTCHILD OF OutputRoot DOMAIN 'XMLNSC';
+		CREATE FIRSTCHILD OF OutputRoot.XMLNSC.CheckUserEstablishmentsEligibilityRs  NAME 'Header';
+		CREATE LASTCHILD OF OutputRoot.XMLNSC.CheckUserEstablishmentsEligibilityRs  NAME 'Body'; 
+
+		DECLARE Inbody REFERENCE TO Environment.Variables.XMLNSC.CheckUserEstablishmentsEligibilityRq.Body;  
+		DECLARE reqHeaderRef REFERENCE TO Environment.Variables.XMLNSC.CheckUserEstablishmentsEligibilityRq.Header;
+		DECLARE rOutHeaderRef REFERENCE TO OutputRoot.XMLNSC.CheckUserEstablishmentsEligibilityRs.Header; 
+		DECLARE OutRef REFERENCE TO OutputRoot.XMLNSC.CheckUserEstablishmentsEligibilityRs.Body;
+	    --DECLARE size INT CARDINALITY(Environment.Variables.XMLNSC.CheckUserEstablishmentsEligibilityRq.Body.EstablishmentsList.EstablishmentsItem[]);
+	    DECLARE someEstab CHAR Environment.Properties.CheckUserEstablishmentsEligibility.CheckUserEstablishmentsEligibilityFlow.Variables.someEstabs;
+		DECLARE allEstab CHAR Environment.Properties.CheckUserEstablishmentsEligibility.CheckUserEstablishmentsEligibilityFlow.Variables.AllEstabs;
+		 
+		--DECLARE codeLoop INT CARDINALITY( Environment.Variabl.GetUserRs.UserEstablishmentsList.UserEstablishmentsItem[] );  
+	
+		 
+		
+		
+		--DECLARE eligibleEst INT 0;
+        
+		DECLARE z,t,f,r INT 1 ; 
+		--DECLARE resultSetCount INT CARDINALITY(Environment.Variables.DB.ResultSet[]);
+		--DECLARE mlsdloop INT CARDINALITY (Environment.Variabl.GetEstabInfoRs.EstablishmentInformation.EstablishmentItem[]);
+		DECLARE l INT 1 ;
+		DECLARE p INT 1;  
+		 
+		 
+		
+		
+		
+		
+		
+		
+		
+--		-- check DB stored procedures and building response body accordingly   
+--		WHILE (z <= resultSetCount) DO 
+--			DECLARE db REFERENCE TO Environment.Variables.DB.ResultSet[z];
+--			
+--			IF (Environment.Variables.DB.ResultSet[z].IsEligible =1 )THEN 
+--				
+--					
+--					DECLARE userEstRef REFERENCE TO Environment.Variabl.GetUserRs.UserEstablishmentsList.UserEstablishmentsItem[z];
+--					-- if l is smaller than codeloop then we r still looping on userestab part in db , else we start looping on estabinfo(DP) part in db 
+--					IF l  <= codeLoop THEN 
+--						SET OutRef.EligibleEstablishmentsList.EligibleEstablishmentsItem[r].LaborOfficeId = Environment.Variables.DB.ResultSet[z].LaborOfficeId;
+--						SET OutRef.EligibleEstablishmentsList.EligibleEstablishmentsItem[r].EstablishmentSequence =Environment.Variables.DB.ResultSet[z].SequenceNumber;
+--						
+-- 						SET OutRef.EligibleEstablishmentsList.EligibleEstablishmentsItem[r].EstablishmentId =  Environment.Variables.DB.ResultSet[z].EstablishmentId  ;  --userEstRef.Establishment.EstablishmentId;
+--						SET OutRef.EligibleEstablishmentsList.EligibleEstablishmentsItem[r].UserType =  Environment.Variables.DB.ResultSet[z].MLSDUserTypeId ; --userEstRef.AuthorizationType.Code; 
+--						
+--						 
+--						IF (Environment.Variables.XMLNSC.CheckUserEstablishmentsEligibilityRq.Body.ListAll =1)THEN 
+--						  SET OutRef.EligibleEstablishmentsList.EligibleEstablishmentsItem[r].EstablishmentName =userEstRef.Establishment.Name;
+--						  SET OutRef.EligibleEstablishmentsList.EligibleEstablishmentsItem[r].UnifiedNumber =userEstRef.UnifiedNumber;
+--						  SET OutRef.EligibleEstablishmentsList.EligibleEstablishmentsItem[r].IsMainBranch =userEstRef.IsMainBranch;
+--						
+--						END IF;   
+--					    SET l = l+1;  
+--					    SET t = t+1; 
+--					    SET r = r+1;   	     
+--					     
+--				      
+--				     
+--					ELSE 
+--						--else we start looping on estabinfo(DP) part in db
+--						IF EXISTS (Environment.Variabl.GetEstabInfoRs.EstablishmentInfoList.EstablishmentInfoItem[]) THEN
+--								DECLARE b INT 1;
+--								-- check the current db value with all the values that came back from DP GetEstabInfoRs , till it matches with one 
+--								FOR DPREF AS  Environment.Variabl.GetEstabInfoRs.EstablishmentInfoList.EstablishmentInfoItem[] DO 
+--									DECLARE mlsdRef REFERENCE TO Environment.Variabl.GetEstabInfoRs.EstablishmentInfoList.EstablishmentInfoItem[b];
+--									 IF  mlsdRef.SequenceNumber = Environment.Variables.DB.ResultSet[z].SequenceNumber AND mlsdRef.LaborOffice = Environment.Variables.DB.ResultSet[z].LaborOfficeId THEN 
+--										--IF EXISTS(mlsdRef.EstablishmentId[]) THEN  
+--											SET OutRef.EligibleEstablishmentsList.EligibleEstablishmentsItem[t].LaborOfficeId = Environment.Variables.DB.ResultSet[z].LaborOfficeId;
+--											SET OutRef.EligibleEstablishmentsList.EligibleEstablishmentsItem[t].EstablishmentSequence =Environment.Variables.DB.ResultSet[z].SequenceNumber;
+--											SET OutRef.EligibleEstablishmentsList.EligibleEstablishmentsItem[t].UserType =Environment.Variables.DB.ResultSet[z].MLSDUserTypeId; 
+--											
+--											 
+--											SET Environment.Var.info[] =
+--											(SELECT R.UnifiedNumberId AS UnifiedNumberId, R.IsMainBranch AS IsMainBranch, R.EstablishmentId AS EstablishmentId, R.Name AS Name
+--											 FROM Environment.Variabl.GetEstabInfoRs.EstablishmentInfoList.EstablishmentInfoItem[] AS R   
+--											 WHERE R.SequenceNumber = Environment.Variables.DB.ResultSet[z].SequenceNumber  AND R.LaborOffice = Environment.Variables.DB.ResultSet[z].LaborOfficeId ); 
+--										 				
+--											 										
+--											SET OutRef.EligibleEstablishmentsList.EligibleEstablishmentsItem[t].EstablishmentId =Environment.Var.info.EstablishmentId;  
+--											IF (Environment.Variables.XMLNSC.CheckUserEstablishmentsEligibilityRq.Body.ListAll =1)THEN  
+--											  SET OutRef.EligibleEstablishmentsList.EligibleEstablishmentsItem[t].EstablishmentName =Environment.Var.info.Name;
+--											  SET OutRef.EligibleEstablishmentsList.EligibleEstablishmentsItem[t].UnifiedNumber =Environment.Var.info.UnifiedNumberId; 
+--											  SET OutRef.EligibleEstablishmentsList.EligibleEstablishmentsItem[t].IsMainBranch =Environment.Var.info.IsMainBranch;
+--											 
+--											END IF;
+--										       
+--										    	 
+--										    SET t = t+1;   
+--										    SET b = b + 500; 
+--									 END IF; 
+--								
+--									 SET b = b + 1;
+--								END FOR;  
+--								 
+--								  
+--									--END IF;  
+--						END IF;               
+--					END IF;    
+--			ELSE  
+--				-- if flag 1 loop on db records that are equald to the mlsd record as the db procedure returns them in the same order 
+--				IF (Environment.Variables.XMLNSC.CheckUserEstablishmentsEligibilityRq.Body.ListAll =1) THEN 
+--					--DECLARE i INT 1;
+--				  	--WHILE i <= codeLoop DO 
+--				  		DECLARE userEstRef REFERENCE TO Environment.Variabl.GetUserRs.UserEstablishmentsList.UserEstablishmentsItem[z];
+--					  	 
+----					  	IF (db.LaborOfficeId = userEstRef.Establishment.LaborOfficeId
+----					  		AND db.EstablishmentSequence = userEstRef.Establishment.SequenceNumber) THEN
+----				
+--					   
+--						    SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].LaborOfficeId = Environment.Variables.DB.ResultSet[z].LaborOfficeId;
+--							SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].EstablishmentSequence =Environment.Variables.DB.ResultSet[z].SequenceNumber;
+--						    SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].EstablishmentId =userEstRef.Establishment.EstablishmentId;
+--							SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].UserType = userEstRef.AuthorizationType.Code; 
+--						    SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].EstablishmentName =userEstRef.Establishment.Name;
+--						    SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].UnifiedNumber =userEstRef.UnifiedNumber;
+--						    SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].IsMainBranch =userEstRef.IsMainBranch;
+--							IF userEstRef.AuthorizationType.Code = 1  THEN 
+--							  SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].EligibleForSelfSubscripition ='1';
+--							ELSEIF userEstRef.AuthorizationType.Code = 2 THEN  
+--							   IF Environment.var.noLab = '1' THEN
+--							   	  SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].EligibleForSelfSubscripition ='0';
+--							   ELSE 	
+--								  IF userEstRef.UnifiedNumber = Environment.Variables.GetLaborerInformationMLSDRs.EstablishmentInfo.UnifiedNumberId THEN 
+--								     SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].EligibleForSelfSubscripition ='1';
+--								  ELSE 
+--								  	 SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].EligibleForSelfSubscripition ='0';
+--								  END IF;
+--							   END IF; 
+--							ELSE 	 
+--								SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].EligibleForSelfSubscripition ='0';
+--							END IF;
+--						     
+--						    SET p = p + 1; 	
+--						    SET l = l+1; 	
+--						    
+--					  	--END IF;
+--					  	--SET i = i+1; 
+--				  	--END WHILE ;
+--				ELSE  
+--					-- else if flag zero then loop on DB values(that only equal the values sent in the request body) and check if they match with mlsd then output the vlaue 
+--				    DECLARE i INT 1; 
+--				  	WHILE i <= codeLoop DO
+--				  		DECLARE userEstRef REFERENCE TO Environment.Variabl.GetUserRs.UserEstablishmentsList.UserEstablishmentsItem[i];
+--					  	
+--					  	IF (db.LaborOfficeId = userEstRef.Establishment.LaborOfficeId
+--					  		AND db.SequenceNumber = userEstRef.Establishment.SequenceNumber) THEN 
+--				 
+--					  
+--						    SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].LaborOfficeId = Environment.Variables.DB.ResultSet[z].LaborOfficeId;
+--							SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].EstablishmentSequence =Environment.Variables.DB.ResultSet[z].SequenceNumber;
+--						    SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].EstablishmentId =userEstRef.Establishment.EstablishmentId;
+--						    SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].UserType = userEstRef.AuthorizationType.Code; 
+--							
+--							IF userEstRef.AuthorizationType.Code = 1  THEN 
+--							  SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].EligibleForSelfSubscripition ='1';
+--							ELSEIF userEstRef.AuthorizationType.Code = 2 THEN 
+--							  IF Environment.var.noLab = '1' THEN 
+--							   	  SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].EligibleForSelfSubscripition ='0';
+--							   ELSE 	
+--								  IF userEstRef.UnifiedNumber = Environment.Variables.GetLaborerInformationMLSDRs.EstablishmentInfo.UnifiedNumberId THEN 
+--								     SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].EligibleForSelfSubscripition ='1';
+--								  ELSE 
+--								  	 SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].EligibleForSelfSubscripition ='0';
+--								  END IF;
+--							  END IF;  
+--							ELSE 	 
+--								SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].EligibleForSelfSubscripition ='0';
+--							END IF;
+--						    SET eligibleEst = 1;
+--						    SET i = codeLoop;    
+--						    SET p = p + 1; 	
+--					  	ELSE 
+--					  		SET eligibleEst = 0;
+--							
+--					  	END IF;
+--					   
+--					  	SET i = i+1;
+--				  	END WHILE ;	 
+--				  	DECLARE userEstRef REFERENCE TO Environment.Variabl.GetUserRs.UserEstablishmentsList.UserEstablishmentsItem[i];
+--				  	
+--				  	IF eligibleEst = 0 THEN 
+--					  	SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].LaborOfficeId = Environment.Variables.DB.ResultSet[z].LaborOfficeId;
+--						SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].EstablishmentSequence =Environment.Variables.DB.ResultSet[z].SequenceNumber;
+--						SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].EstablishmentId =Environment.Variables.DB.ResultSet[z].EstablishmentId; 
+--						SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].UserType = Environment.Variables.DB.ResultSet[z].MLSDUserTypeId;  
+--						
+--						SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].EligibleForSelfSubscripition ='0';	
+--				  	    SET p = p + 1;
+--				  	END IF; 	
+--				
+--				END IF;   
+--			END IF;  
+--		SET z = z + 1; 
+--		END WHILE; 
+		
+		
+		
+		
+		
+		
+		
+		DECLARE o, m INT 1; 
+		DECLARE loopsize INT CARDINALITY (Environment.Variabl.GetDPRs.row[]);
+		DECLARE MLSDrow ROW ;  
+	 
+		X : LOOP    
+		--WHILE o <= loopsize DO 
+                IF o > loopsize THEN 
+				   LEAVE X; 
+               	END IF; 
+                 
+                    
+                SET MLSDrow.EstablishmentId[]= ( 
+                SELECT R.value AS EstablishmentId  
+                FROM Environment.Variabl.GetDPRs.row[o].column[] as R 
+                WHERE R.name = 'EstablishmentId');   
+                SET Environment.Variabl.GetEstabInfoRs.EstablishmentInfoList.EstablishmentInfoItems[o].EstablishmentId =    MLSDrow.EstablishmentId.EstablishmentId;  
+                
+                SET MLSDrow.Name[]= (
+                SELECT R.value AS Name  
+                FROM Environment.Variabl.GetDPRs.row[o].column[] as R 
+                WHERE R.name = 'Name'); 
+                SET Environment.Variabl.GetEstabInfoRs.EstablishmentInfoList.EstablishmentInfoItems[o].Name =    MLSDrow.Name.Name;  
+                
+                SET MLSDrow.IsMainBranch[]= (
+                SELECT R.value AS IsMainBranch  
+                FROM Environment.Variabl.GetDPRs.row[o].column[] as R 
+                WHERE R.name = 'IsMainBranch'); 
+                SET Environment.Variabl.GetEstabInfoRs.EstablishmentInfoList.EstablishmentInfoItems[o].IsMainBranch =    MLSDrow.IsMainBranch.IsMainBranch;  
+                
+                SET MLSDrow.UnifiedNumberId[]= (
+                SELECT R.value AS UnifiedNumberId  
+                FROM Environment.Variabl.GetDPRs.row[o].column[] as R 
+                WHERE R.name = 'UnifiedNumberId'); 
+                SET Environment.Variabl.GetEstabInfoRs.EstablishmentInfoList.EstablishmentInfoItems[o].UnifiedNumberId =    MLSDrow.UnifiedNumberId.UnifiedNumberId;  
+                
+                SET MLSDrow.LaborOffice[]= (
+                SELECT R.value AS LaborOffice  
+                FROM Environment.Variabl.GetDPRs.row[o].column[] as R 
+                WHERE R.name = 'LaborOffice'); 
+                SET Environment.Variabl.GetEstabInfoRs.EstablishmentInfoList.EstablishmentInfoItems[o].LaborOffice =    MLSDrow.LaborOffice.LaborOffice;  
+                
+                SET MLSDrow.SequenceNumber[]= (
+                SELECT R.value AS SequenceNumber  
+                FROM Environment.Variabl.GetDPRs.row[o].column[] as R 
+                WHERE R.name = 'SequenceNumber'); 
+                SET Environment.Variabl.GetEstabInfoRs.EstablishmentInfoList.EstablishmentInfoItems[o].SequenceNumber =    MLSDrow.SequenceNumber.SequenceNumber;  
+                
+                SET MLSDrow.EstabStatusId[]= (
+                SELECT R.value AS EstabStatusId  
+                FROM Environment.Variabl.GetDPRs.row[o].column[] as R 
+                WHERE R.name = 'EstabStatusId');        
+                SET Environment.Variabl.GetEstabInfoRs.EstablishmentInfoList.EstablishmentInfoItems[o].EstabStatusId =    MLSDrow.EstabStatusId.EstabStatusId;  
+              	
+              	-- check if estab status is 1 else ignore it 
+              	IF  Environment.Variabl.GetEstabInfoRs.EstablishmentInfoList.EstablishmentInfoItems[o].EstabStatusId <> 1 THEN 
+				  	--SET Environment.Variabl.GetEstabInfoRs.EstablishmentInfoList.EstablishmentInfoItem[m] =Environment.Variabl.GetEstabInfoRs.EstablishmentInfoList.EstablishmentInfoItems[o];
+				  	--SET m = m+1; 
+				  	SET o = o+1; 
+				  	ITERATE X; 
+              	END IF;  
+              	
+              	DECLARE DPRef REFERENCE TO Environment.Variabl.GetEstabInfoRs.EstablishmentInfoList.EstablishmentInfoItems[o]; 
+              	-- select from DB the values that equal the ones that came back from DP 
+              	SET Environment.Vars.DPtoDB[] = (
+                SELECT R.IsEligible AS IsEligible , R.MLSDUserTypeId AS MLSDUserTypeId , R.SubscriptionStatusId AS SubscriptionStatusId
+                FROM Environment.Variables.DB.ResultSet[] as R  
+                WHERE R.SequenceNumber = DPRef.SequenceNumber AND R.LaborOfficeId = DPRef.LaborOffice);   
+              	-- select from MlSD the userType  
+              	SET Environment.Vars.MLSDUserType[] = ( 
+                SELECT R.AuthorizationType.Code AS Code         
+                FROM Environment.Variabl.GetUserRs.UserEstablishmentsList.UserEstablishmentsItem[] as R     
+                WHERE R.Establishment.SequenceNumber = DPRef.SequenceNumber AND R.Establishment.LaborOfficeId = DPRef.LaborOffice) ;            
+  	            -- if the UserType doesnt exist in mlsd take the one selected from qiwa DB 
+  	            IF Environment.Vars.MLSDUserType.Code IS NULL THEN 
+  	            	SET Environment.Vars.MLSDUserType.Code = Environment.Vars.DPtoDB.MLSDUserTypeId ;
+  	            END IF; 
+              	  
+              	 
+              	 
+              	 
+              	IF (Environment.Vars.DPtoDB.IsEligible =1 )THEN    
+              		 
+              		  
+              		    SET OutRef.EligibleEstablishmentsList.EligibleEstablishmentsItem[r].LaborOfficeId = Environment.Variabl.GetEstabInfoRs.EstablishmentInfoList.EstablishmentInfoItems[o].LaborOffice; 
+						SET OutRef.EligibleEstablishmentsList.EligibleEstablishmentsItem[r].EstablishmentSequence =Environment.Variabl.GetEstabInfoRs.EstablishmentInfoList.EstablishmentInfoItems[o].SequenceNumber;
+						 
+ 						SET OutRef.EligibleEstablishmentsList.EligibleEstablishmentsItem[r].EstablishmentId =  Environment.Variabl.GetEstabInfoRs.EstablishmentInfoList.EstablishmentInfoItems[o].EstablishmentId  ;  --userEstRef.Establishment.EstablishmentId;
+						SET OutRef.EligibleEstablishmentsList.EligibleEstablishmentsItem[r].UserType = Environment.Vars.MLSDUserType.Code; --Environment.Vars.DPtoDB.MLSDUserTypeId ; --userEstRef.AuthorizationType.Code; 
+						 
+						 
+						IF (Environment.Variables.XMLNSC.CheckUserEstablishmentsEligibilityRq.Body.ListAll =1)THEN 
+						  SET OutRef.EligibleEstablishmentsList.EligibleEstablishmentsItem[r].EstablishmentName = Environment.Variabl.GetEstabInfoRs.EstablishmentInfoList.EstablishmentInfoItems[o].Name;
+						  SET OutRef.EligibleEstablishmentsList.EligibleEstablishmentsItem[r].UnifiedNumber = Environment.Variabl.GetEstabInfoRs.EstablishmentInfoList.EstablishmentInfoItems[o].UnifiedNumberId; 
+						  SET OutRef.EligibleEstablishmentsList.EligibleEstablishmentsItem[r].IsMainBranch = Environment.Variabl.GetEstabInfoRs.EstablishmentInfoList.EstablishmentInfoItems[o].IsMainBranch;
+						
+						END IF;   
+						SET r = r+1;   
+              	ELSE  
+              			 
+		              	IF (Environment.Variables.XMLNSC.CheckUserEstablishmentsEligibilityRq.Body.ListAll =1) THEN 
+						 
+						  		DECLARE userEstRef REFERENCE TO Environment.Variabl.GetEstabInfoRs.EstablishmentInfoList.EstablishmentInfoItems[o];
+							  	 
+		 				
+							     
+								    SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].LaborOfficeId = userEstRef.LaborOffice;
+									SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].EstablishmentSequence =userEstRef.SequenceNumber; 
+								    SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].EstablishmentId =userEstRef.EstablishmentId; 
+									SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].UserType = Environment.Vars.MLSDUserType.Code; 
+								    SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].EstablishmentName =userEstRef.Name;
+								    SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].UnifiedNumber =userEstRef.UnifiedNumberId;
+								    SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].IsMainBranch =userEstRef.IsMainBranch;  
+								    SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].SubscriptionStatusId =Environment.Vars.DPtoDB.SubscriptionStatusId;  
+									IF Environment.Vars.MLSDUserType.Code = 1  THEN 
+									  SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].EligibleForSelfSubscripition ='1';
+									ELSEIF Environment.Vars.MLSDUserType.Code = 2 THEN  
+									   IF Environment.var.noLab = '1' THEN
+									   	  SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].EligibleForSelfSubscripition ='0';
+									   ELSE 	  
+										  IF userEstRef.UnifiedNumberId = Environment.Variables.GetLaborerInformationMLSDRs.EstablishmentInfo.UnifiedNumberId THEN 
+										     SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].EligibleForSelfSubscripition ='1';
+										  ELSE 
+										  	 SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].EligibleForSelfSubscripition ='0';
+										  END IF;
+									   END IF; 
+									ELSE 	  
+										SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].EligibleForSelfSubscripition ='0';
+									END IF;
+								     
+								    SET p = p + 1; 	
+								    --SET l = l+1; 	
+								    
+							 
+		              	ELSE   
+							-- else if flag zero then return 
+						    --DECLARE i INT 1; 
+						  	--WHILE i <= codeLoop DO
+						  		DECLARE userEstRef REFERENCE TO Environment.Variabl.GetEstabInfoRs.EstablishmentInfoList.EstablishmentInfoItems[o];
+							  	 
+-- 							  	IF (db.LaborOfficeId = userEstRef.Establishment.LaborOfficeId
+--							  		AND db.SequenceNumber = userEstRef.Establishment.SequenceNumber) THEN 
+--						   
+							    
+								    SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].LaborOfficeId = userEstRef.LaborOffice;
+									SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].EstablishmentSequence =userEstRef.SequenceNumber;
+								    SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].EstablishmentId =userEstRef.EstablishmentId;
+								    SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].UserType = Environment.Vars.MLSDUserType.Code; 
+								    SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].SubscriptionStatusId =Environment.Vars.DPtoDB.SubscriptionStatusId;
+									
+									IF Environment.Vars.MLSDUserType.Code = 1  THEN 
+									  SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].EligibleForSelfSubscripition ='1';
+									ELSEIF Environment.Vars.MLSDUserType.Code = 2 THEN 
+									  IF Environment.var.noLab = '1' THEN  
+									   	  SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].EligibleForSelfSubscripition ='0';
+									   ELSE 	
+										  IF userEstRef.UnifiedNumberId = Environment.Variables.GetLaborerInformationMLSDRs.EstablishmentInfo.UnifiedNumberId THEN 
+										     SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].EligibleForSelfSubscripition ='1';
+										  ELSE 
+										  	 SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].EligibleForSelfSubscripition ='0';
+										  END IF;
+									  END IF;  
+									ELSE 	 
+										SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].EligibleForSelfSubscripition ='0';
+									END IF;
+--								    SET eligibleEst = 1; 
+--								    SET i = codeLoop;    
+								    SET p = p + 1; 	
+--							  	ELSE 
+--							  		SET eligibleEst = 0;
+--									 
+--							  	END IF; 
+							   
+							  	--SET i = i+1; 
+						  	--END WHILE ;	  
+						  	--DECLARE userEstRef REFERENCE TO Environment.Variabl.GetUserRs.UserEstablishmentsList.UserEstablishmentsItem[i];
+						  	
+--						  	IF eligibleEst = 0 THEN 
+--							  	SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].LaborOfficeId = Environment.Variables.DB.ResultSet[z].LaborOfficeId;
+--								SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].EstablishmentSequence =Environment.Variables.DB.ResultSet[z].SequenceNumber;
+--								SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].EstablishmentId =Environment.Variables.DB.ResultSet[z].EstablishmentId; 
+--								SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].UserType = Environment.Variables.DB.ResultSet[z].MLSDUserTypeId;  
+--								
+--								SET OutRef.NonEligibleEstablishmentsList.NonEligibleEstablishmentsItem[p].EligibleForSelfSubscripition ='0';	
+--						  	    SET p = p + 1;
+--						  	END IF; 	
+						
+		              	END IF; 
+		              		
+              	END IF; 
+              	
+              	
+               	
+               	-- exit loop 
+--               	IF o >= loopsize THEN 
+--				   LEAVE X; 
+--               	END IF; 
+                SET o = o + 1; 
+                DELETE FIELD Environment.Vars; 
+                --DELETE FIELD Environment.Vars.DPtoDB;  
+                
+		-- END WHILE; 
+		END LOOP X;
+		
+		
+	
+		
+		
+	
+		IF EXISTS(OutputRoot.XMLNSC.CheckUserEstablishmentsEligibilityRs.Body.NonEligibleEstablishmentsList[]) THEN 
+			IF EXISTS(OutputRoot.XMLNSC.CheckUserEstablishmentsEligibilityRs.Body.EligibleEstablishmentsList[]) THEN 
+	    	   CALL Create_esbXML_Response_Header(someEstab,reqHeaderRef,rOutHeaderRef);   
+			ELSE 
+			   CALL Create_esbXML_Response_Header(allEstab,reqHeaderRef,rOutHeaderRef); 
+			END IF; 
+			
+	     
+		ELSE  
+			IF OutputRoot.XMLNSC.CheckUserEstablishmentsEligibilityRs.Body.EligibleEstablishmentsList.EligibleEstablishmentsItem[1].LaborOfficeId <> '' THEN 
+				CALL Create_esbXML_Response_Header(GetESBSuccessCode(),reqHeaderRef,rOutHeaderRef);  
+				
+			ELSE  
+				CALL Create_esbXML_Response_Header(allEstab,reqHeaderRef,rOutHeaderRef); 
+				
+				
+		    END IF;  
+	
+			
+			 
+		END IF;  
+		
+	
+		
+		
+		
+		
+		
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;

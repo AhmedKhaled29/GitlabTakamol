@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://Qiwa/UserManagement/GetSubscriptionsConfigurations/v1.0" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:bons2="http://Qiwa/UserManagement/GetSubscriptionsConfigurations/v1.0" xmlns:bons0="http://Qiwa/Common/Types" xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions">
+
+	<xsd:import namespace="http://Qiwa/Common/Types" schemaLocation="../common/types/ESB_common_types_v1.0.xsd"/>
+
+
+	<xsd:element name="GetSubscriptionsConfigurationsRq" type="bons2:GetSubscriptionsConfigurationsRq_Type"/>
+	<xsd:element name="GetSubscriptionsConfigurationsRs" type="bons2:GetSubscriptionsConfigurationsRs_Type"/>
+
+	<complexType ibmSchExtn:docRoot="true" name="GetSubscriptionsConfigurationsRq_Type">
+			<sequence>
+				<xsd:element name="Header" type="bons0:ESBXMLRequestHeader_Type"/>
+				<xsd:element name="Body" type="bons2:GetSubscriptionsConfigurationsRq_BodyType"/>
+			</sequence>
+	</complexType>
+	
+	<complexType ibmSchExtn:docRoot="true" name="GetSubscriptionsConfigurationsRs_Type">
+			<sequence>
+				<xsd:element name="Header" type="bons0:ESBXMLResponseHeader_Type"/>
+				<xsd:element minOccurs="1" name="Body" type="bons2:GetSubscriptionsConfigurationsRs_BodyType"/>
+			</sequence>
+	</complexType>
+	
+	
+	<complexType name="GetSubscriptionsConfigurationsRq_BodyType">
+		<all>
+			<element minOccurs="0" name="EstablishmentSize" type="integer"/>
+			<element minOccurs="0" name="LaborersCount" type="integer"/>
+		</all>
+	</complexType>
+	
+			
+	
+	<complexType name="GetSubscriptionsConfigurationsRs_BodyType">
+		<all>
+			<element minOccurs="0" name="SubscrptionsList" type="bons2:SubscriptionsList_Type"/> 
+			
+			
+		</all>
+	</complexType>
+	
+	
+	<complexType name="SubscriptionsList_Type">
+			<sequence>
+			<element  maxOccurs="unbounded" minOccurs="1" name="SubscrptionsItem" type="bons2:SubscriptionsItem_Type"/> 
+				
+		    </sequence>
+	</complexType>
+	
+	
+	<complexType name="SubscriptionsItem_Type">
+		<sequence>
+			<element minOccurs="1" name="SubscriptionId" type="integer"/>
+			<element minOccurs="1" name="SubscriptionPeriodInMonth" type="integer"/>
+			<element minOccurs="1" name="SubscriptionPrice" type="decimal"/>
+			<element minOccurs="1" name="VAT" type="decimal"/>
+			<element minOccurs="1" name="EstablishmentSize" type="integer"/>
+		</sequence>
+	</complexType>
+	
+	
+
+</xsd:schema>

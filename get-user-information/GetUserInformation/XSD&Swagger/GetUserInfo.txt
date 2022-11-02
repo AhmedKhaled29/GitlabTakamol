@@ -1,0 +1,372 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "title" : "GetUserInformation",
+    "version" : "1.0.0",
+    "description" : "GetUserInformation"
+  },
+  "paths" : {
+    "/GetUserInformation" : {
+      "post" : {
+        "operationId" : "GetUserInformation",
+        "responses" : {
+          "200" : {
+            "description" : "The operation was successful.",
+            "schema" : {
+              "$ref" : "#/definitions/GetUserInformationRs_MessageType"
+            }
+          }
+        },
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "description" : "get user information",
+        "parameters" : [ {
+          "name" : "body",
+          "in" : "body",
+          "schema" : {
+            "$ref" : "#/definitions/GetUserInformationRq_MessageType"
+          },
+          "description" : "GetUserInformationRq",
+          "required" : true
+        } ]
+      }
+    }
+  },
+  "basePath" : "/qiwa/esb",
+  "definitions" : {
+    "GetUserInformationRq_MessageType" : {
+      "type" : "object",
+      "properties" : {
+        "GetUserInformationRq" : {
+          "$ref" : "#/definitions/GetUserInformationRq_Type"
+        }
+      }
+    },
+    "GetUserInformationRs_MessageType" : {
+      "type" : "object",
+      "properties" : {
+        "GetUserInformationRs" : {
+          "$ref" : "#/definitions/GetUserInformationRs_Type"
+        }
+      }
+    },
+    "GetUserInformationRq_Type" : {
+      "type" : "object",
+      "properties" : {
+        "Header" : {
+          "$ref" : "#/definitions/ESBXMLRequestHeader_Type"
+        },
+        "Body" : {
+          "$ref" : "#/definitions/GetUserInformationRq_BodyType"
+        }
+      }
+    },
+    "GetUserInformationRq_BodyType" : {
+      "type" : "object",
+      "properties" : {
+       
+       "IdNo" : {
+          "type" : "string"
+        },
+		"MobileNumber" : {
+          "type" : "string"
+        },
+		"UserId" : {
+          "type" : "integer"
+        },
+		"UserName" : {
+          "type" : "string"
+        }
+	   
+		
+      }
+    },
+   
+   
+    "GetUserInformationRs_Type" : {
+      "type" : "object",
+      "properties" : {
+        "Header" : {
+          "$ref" : "#/definitions/ESBXMLResponseHeader_Type"
+        },
+        "Body" : {
+          "$ref" : "#/definitions/GetUserInformationRs_BodyType"
+        }
+      }
+    },
+    "GetUserInformationRs_BodyType" : {
+      "type" : "object",
+      "properties" : {
+	  
+	   "IdNo" : {
+          "type" : "string"
+        },
+		"Name" : {
+          "type" : "string"
+        },
+		"DateOfBirth" : {
+          "type" : "string"
+        },
+		"Email" : {
+          "type" : "string"
+        },
+		"MobileNumber" : { 
+          "type" : "string"
+        },
+		"MobileLastVerificationDate" : {
+          "type" : "string"
+        },
+		
+		"Status" : {
+		 "$ref" : "#/definitions/Status"
+		
+		},
+		
+		"UserId" : {
+          "type" : "integer"
+        }, 
+        
+        "IsMobileVerified" : {
+          "type" : "boolean"
+        },
+		
+		"Nationality" : {
+		 "$ref" : "#/definitions/Nationality"
+		},
+		
+		"Gender" : {
+		 "$ref" : "#/definitions/Gender"
+		
+		},
+		
+		"Religion" : {
+		 "$ref" : "#/definitions/Religion"		
+		
+		},
+		
+		
+		"IdExpiryDate" : {
+          "type" : "string"
+        },
+		"UserName" : {
+          "type" : "string"
+        },
+	    "CreationDate" : {
+          "type" : "string"
+        },
+    
+      }
+    },
+	
+	
+	 "Status" : {
+      "type" : "object",
+      "properties" : {
+        "StatusId" : {
+          "type" : "integer"
+        },
+		
+		"StatusEn" : {
+          "type" : "string"
+        },
+		"StatusAr" : {
+          "type" : "string"
+        }
+      }
+    },
+	
+	 "Nationality" : {
+      "type" : "object",
+      "properties" : {
+	  
+        "NationalityId" : {
+          "type" : "integer"
+        },
+		"NationalityEn" : {
+          "type" : "string"
+        },
+		"NationalityAr" : {
+          "type" : "string"
+        }
+      }
+    },
+	
+	 "Gender" : {
+      "type" : "object",
+      "properties" : {
+	  
+       "GenderId" : {
+          "type" : "integer"
+        },
+		"GenderEn" : {
+          "type" : "string"
+        },
+		"GenderAr" : {
+          "type" : "string"
+        }
+      }
+    },
+	
+	
+	 "Religion" : {
+      "type" : "object",
+      "properties" : {
+	  
+       "ReligionId" : {
+          "type" : "integer"
+        },
+		"ReligionEn" : {
+          "type" : "string"
+        },
+		"ReligionAr" : {
+          "type" : "string"
+        }
+      }
+    },
+	
+	
+	
+	
+	
+    "ESBXMLRequestHeader_Type" : {
+      "type" : "object",
+      "properties" : {
+        "TransactionId" : {
+          "type" : "string"
+        },
+        "ChannelId" : {
+          "type" : "string"
+        },
+        "SessionId" : {
+          "type" : "string"
+        },
+        "RequestTime" : {
+          "type" : "string"
+        },
+        "MWRequestTime" : {
+          "type" : "string"
+        },
+        "ServiceCode" : {
+          "type" : "string"
+        },
+        "DebugFlag" : {
+          "type" : "integer"
+        },
+        "UserInfo" : {
+          "$ref" : "#/definitions/UserInfo_Type"
+        },
+        "UDF" : {
+          "$ref" : "#/definitions/UDF_Type"
+        }
+      },
+      "required" : [ "ServiceCode", "ChannelId", "TransactionId", "RequestTime" ]
+    },
+    "ESBXMLResponseHeader_Type" : {
+      "type" : "object",
+      "properties" : {
+        "TransactionId" : {
+          "type" : "string"
+        },
+        "ChannelId" : {
+          "type" : "string"
+        },
+        "SessionId" : {
+          "type" : "string"
+        },
+        "RequestTime" : {
+          "type" : "string"
+        },
+        "MWRequestTime" : {
+          "type" : "string"
+        },
+        "MWResponseime" : {
+          "type" : "string"
+        },
+        "ServiceCode" : {
+          "type" : "string"
+        },
+        "DebugFlag" : {
+          "type" : "integer"
+        },
+        "UserInfo" : {
+          "$ref" : "#/definitions/UserInfo_Type"
+        },
+        "UDF" : {
+          "$ref" : "#/definitions/UDF_Type"
+        },
+        "ResponseStatus" : {
+          "$ref" : "#/definitions/MWResponseStatus_Type"
+        },
+        "BackendError" : {
+          "$ref" : "#/definitions/BackendError_Type"
+        }
+      },
+      "required" : [ "TransactionId", "ChannelId", "RequestTime", "ServiceCode" ]
+    },
+    "UDF_Type" : {
+      "type" : "object",
+      "properties" : {
+        "KeyValueArr" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/KeyValueArr_Type"
+          }
+        }
+      }
+    },
+    "KeyValueArr_Type" : {
+      "type" : "object",
+      "properties" : {
+        "key" : {
+          "type" : "string"
+        },
+        "value" : {
+          "type" : "string"
+        }
+      }
+    },
+    "Tmstmp_Type" : {
+      "type" : "object"
+    },
+    "UserInfo_Type" : {
+      "type" : "object",
+      "properties" : {
+        "UserId" : {
+          "type" : "string"
+        },
+        "IDNumber" : {
+          "type" : "string"
+        }
+      }
+    },
+    "MWResponseStatus_Type" : {
+      "type" : "object",
+      "properties" : {
+        "Status" : {
+          "type" : "string"
+        },
+        "Code" : {
+          "type" : "string"
+        },
+        "ArabicMsg" : {
+          "type" : "string"
+        },
+        "EnglishMsg" : {
+          "type" : "string"
+        }
+      },
+      "required" : [ "Code", "Status", "ArabicMsg", "EnglishMsg" ]
+    },
+    "BackendError_Type" : {
+      "type" : "object",
+      "properties" : {
+        "ErrorCode" : {
+          "type" : "string"
+        },
+        "ErrorDescription" : {
+          "type" : "string"
+        }
+      }
+    }
+  }
+}

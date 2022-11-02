@@ -1,0 +1,26 @@
+BROKER SCHEMA com.qiwa.esb.checkuserestablishmentseligibility
+PATH Qiwa.Framework.Lib;
+
+
+CREATE FILTER MODULE MLSD_GetUserEstablishments_isSuccess
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+	  DECLARE errorCode CHAR Environment.Properties.CheckUserEstablishmentsEligibility.CheckUserEstablishmentsEligibilityFlow.Variables.NoEstError;
+      IF Root.XMLNSC.GetUserEstablishmentsMLSDRs.Header.ResponseStatus.Code  = GetESBSuccessCode() OR
+      	 Root.XMLNSC.GetUserEstablishmentsMLSDRs.Header.ResponseStatus.Code = errorCode THEN
+
+			  SET Environment.Variabl.GetUserRs = Root.XMLNSC.GetUserEstablishmentsMLSDRs.Body;         
+		
+			  RETURN TRUE;
+	
+		ELSE 
+			
+			SET Environment.Variables.MWResponse.status = Root.XMLNSC.GetUserEstablishmentsMLSDRs.Header.ResponseStatus.Code;
+			 
+			RETURN FALSE;
+		 
+		END IF;	
+	END; 
+
+END MODULE;
+ 

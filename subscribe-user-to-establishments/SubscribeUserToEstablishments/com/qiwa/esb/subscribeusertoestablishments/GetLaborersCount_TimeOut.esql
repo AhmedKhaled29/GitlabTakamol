@@ -1,0 +1,12 @@
+BROKER SCHEMA com.qiwa.esb.subscribeusertoestablishments
+
+
+CREATE FILTER MODULE GetLaborersCount_TimeOut
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.subscribeUserToEstablishments.subscribeUserToEstablishmentsFlow;
+		SET Environment.Variables.MWResponse.status = loadedPropertiesRef.Variables.TimeOutError;--'E9999998'; 
+		RETURN TRUE;
+	END;
+
+END MODULE;

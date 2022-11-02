@@ -1,0 +1,80 @@
+
+BROKER SCHEMA com.qiwa.esb.getpaymentswithoutusersubscriptions
+PATH Qiwa.Framework.Lib;
+
+CREATE COMPUTE MODULE HTTP_GetPaymentswithoutUserSubscriptions_CallGPITR
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage();
+		IF EXISTS(Environment.Properties.GetPaymentswithoutUserSubscriptions.HTTP_INT_GetPaymentswithoutUserSubscriptions[]) THEN
+			SET Environment.Properties.GetPaymentswithoutUserSubscriptions.HTTP_GetPaymentswithoutUserSubscriptions = Environment.Properties.GetPaymentswithoutUserSubscriptions.HTTP_INT_GetPaymentswithoutUserSubscriptions;
+			DELETE FIELD Environment.Properties.GetPaymentswithoutUserSubscriptions.HTTP_INT_GetPaymentswithoutUserSubscriptions;
+		END IF;
+
+		DECLARE rInHeaderRef REFERENCE TO InputRoot.XMLNSC.GetPaymentswithoutUserSubscriptionsRq.Header;
+		DECLARE rInBodyRef REFERENCE TO InputRoot.XMLNSC.GetPaymentswithoutUserSubscriptionsRq.Body;
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.GetPaymentswithoutUserSubscriptions.HTTP_GetPaymentswithoutUserSubscriptions.Variables;
+
+		SET Environment.Variables.Properties = InputRoot.Properties;
+		SET Environment.Variables.MQMD = InputRoot.MQMD;
+		SET Environment.Variables.MQRFH2 = InputRoot.MQRFH2;
+		SET Environment.Variables.XMLNSC = InputRoot.XMLNSC;
+		SET Environment.Variables.Request = InputRoot.XMLNSC.GetPaymentswithoutUserSubscriptionsRq;
+
+		CREATE FIRSTCHILD OF OutputRoot.XMLNSC.GetPaymentswithoutUserSubscriptionsRs NAME 'Header';
+		DECLARE rOutHeaderRef REFERENCE TO OutputRoot.XMLNSC.GetPaymentswithoutUserSubscriptionsRs.Header;
+
+		CREATE LASTCHILD OF OutputRoot.XMLNSC.GetPaymentswithoutUserSubscriptionsRs NAME 'Body';
+		DECLARE rOutBodyRef REFERENCE TO OutputRoot.XMLNSC.GetPaymentswithoutUserSubscriptionsRs.Body;
+
+		CALL Get_PaymentWithoutUserSubscriptions(CAST(rInBodyRef.StartDate AS DATE),
+												 CAST(rInBodyRef.EndDate AS DATE),
+												 CAST(rInBodyRef.PageSize AS INTEGER),
+												 CAST(rInBodyRef.PageIndex AS INTEGER),
+												 Environment.Variables.DB.Payments[]);
+		DECLARE X INTEGER 1;
+		IF EXISTS(Environment.Variables.DB.Payments.*[]) THEN
+			DECLARE envRef REFERENCE TO Environment.Variables.DB.Payments[>];
+			WHILE LASTMOVE(envRef) DO
+				SET rOutBodyRef.List.ListItem[X].PaymentReference = envRef.PaymentReference;
+				SET rOutBodyRef.List.ListItem[X].PaymentId = envRef.PGPaymentId;
+				SET rOutBodyRef.List.ListItem[X].InsertDate = envRef.InsertDate;
+				SET rOutBodyRef.List.ListItem[X].IdNumber = envRef.IdNumber;
+				SET rOutBodyRef.List.ListItem[X].TotalRecordsCount = envRef.TotalRecordsCount;
+				MOVE envRef NEXTSIBLING REPEAT NAME;
+				SET X = X + 1;
+			END WHILE;
+			CALL Create_esbXML_Response_Header(GetESBSuccessCode(), rInHeaderRef, rOutHeaderRef);
+			RETURN TRUE;
+		ELSE
+			-- No Payment References found for this period
+			CALL Create_esbXML_Response_Header(loadedPropertiesRef.NoPaymentReference,rInHeaderRef,rOutHeaderRef);
+			PROPAGATE TO TERMINAL 'out1' DELETE NONE;
+			RETURN FALSE;
+		END IF;
+
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+
+	CREATE PROCEDURE Get_PaymentWithoutUserSubscriptions( IN FromDate DATE,
+	IN ToDate DATE,
+	IN PageSize INTEGER,
+	IN PageIndex INTEGER)
+	LANGUAGE DATABASE
+	DYNAMIC RESULT SETS 1
+	EXTERNAL NAME "dbo.Get_PaymentWithoutUserSubscriptions";
+END MODULE;

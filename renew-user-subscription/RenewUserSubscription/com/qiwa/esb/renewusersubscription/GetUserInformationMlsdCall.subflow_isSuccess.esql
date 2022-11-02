@@ -1,0 +1,24 @@
+BROKER SCHEMA com.qiwa.esb.renewusersubscription
+PATH Qiwa.Framework.Lib;
+
+
+CREATE FILTER MODULE GetUserInformationMlsdCall_isSuccess
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.GetUserInformation.GetUserInformationFlow.Variables;
+	--	Based upon statusid it will route to success  or error
+		IF Root.XMLNSC.GetUserInformationRs.Header.ResponseStatus.Code = GetESBSuccessCode() THEN
+			IF Root.XMLNSC.GetUserInformationRs.Body.Status.StatusId <> 1 THEN
+				 SET Environment.Variables.MWResponse.status = loadedPropertiesRef.Variables.UserNotActive; 
+				RETURN FALSE;
+			ELSE
+				 SET Environment.Variables.esb.GetUserInformationRs.Body = Root.XMLNSC.GetUserInformationRs.Body;
+				RETURN TRUE;
+			END IF;
+		ELSE
+			SET Environment.Variables.MWResponse.status = Root.XMLNSC.GetUserInformationRs.Header.ResponseStatus.Code;
+			RETURN FALSE;
+		END IF;
+	END;
+
+END MODULE;

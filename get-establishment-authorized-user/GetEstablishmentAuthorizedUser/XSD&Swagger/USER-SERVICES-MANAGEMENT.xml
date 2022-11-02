@@ -1,0 +1,60 @@
+<properties refresh-policy="automatic">
+	
+	<group name="GetEstablishmentAuthorizedUser.GetEstablishmentAuthorizedUserFlow"> 
+		<group name="Logging">
+			<property name="LogEnabled" value="TRUE" /> 
+			<property name="AuditEnabled" value="FALSE" />
+			<property name="key1" value="" />
+			<property name="value1" value="" />
+			<property name="key2" value="" />
+			<property name="value2" value="" />
+			<property name="key3" value="" />
+			<property name="value3" value="" />
+			<property name="key4" value="" />
+			<property name="value4" value="" />
+		</group>
+		<group name="Variables"> 
+			<property name="AuthorizedTypeOne" value="1" /> 
+			<property name="AuthorizedTypeTwo" value="2" />
+			<property name="AuthorizedUserError" value="E0000145" /> 
+			<property name="EstAuthorizedError" value="E0000134" />
+            <property name="ServiceCode" value="MGUE0001" />
+			<property name="ExcludeEconomicActivities" value="true" />		
+            <property name="ChannelId" value="ESB" />
+			<property name="TimeOutError" value="E9999998" /> 
+			<property name="CodeThree" value="3" /> 
+			<property name="CodeTwo" value="2" /> 
+			<property name="MLSDUserTypeIdOne" value="1" />
+			<property name="MLSDUserTypeIdTwo" value="2" />
+			<property name="CodeOne" value="1" />
+			<property name="DPUrl" value="http://datapower.qiwa.info:7086/GetUserEstablishments" />
+			<group name="column">
+						<property name="column1" value="AuthorizedIdNo" /> 
+						<property name="column2" value="PK_AuthorizationId" /> 
+						<property name="column3" value="PK_EstablishmentId" /> 
+						<property name="column4" value="FK_LaborOfficeId" /> 
+						<property name="column5" value="SequenceNumber" /> 
+						<property name="column6" value="EstablishmentName" /> 
+						<property name="column7" value="AuthorizedType" /> 
+						<property name="column8" value="AuthorizedName" /> 
+						<property name="column9" value="IsVerified" /> 
+						<property name="column10" value="EndDate" /> 
+						<property name="column11" value="FK_SubEconomicActivityId" /> 
+						<property name="column12" value="FK_UnifiedNumberId" /> 
+						<property name="column13" value="IsMainBranch" /> 
+						<property name="column14" value="Type" /> 
+				</group>
+		</group>
+		<group name="SchemaValidation">
+            <property name="ValidationEnabled" value="TRUE" />
+        </group>
+		<group name="Retry">
+				<property name="RetryEnabled" value="FALSE" />
+			<property name="minWaitDurationSec" value="60" />
+			<property name="maxRetryCount" value="5" />
+		</group>
+	</group>
+	
+	
+</properties>
+	

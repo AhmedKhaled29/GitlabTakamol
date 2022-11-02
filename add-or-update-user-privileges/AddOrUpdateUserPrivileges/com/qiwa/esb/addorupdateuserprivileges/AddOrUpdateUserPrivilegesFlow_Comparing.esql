@@ -1,0 +1,148 @@
+BROKER SCHEMA com.qiwa.esb.addorupdateuserprivileges
+
+
+CREATE FILTER MODULE AddOrUpdateUserPrivilegesFlow_Comparing
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE outRef REFERENCE TO Environment.Variables.GetLaborerInformationMLSDRs;
+	    DECLARE InRef REFERENCE TO Environment.Variables.XMLNSC.AddOrUpdateUserPrivilegesRq.Body;
+	    DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.AddOrUpdateUserPrivileges.AddOrUpdateUserPrivilegesFlow;
+		DECLARE itemloop INT CARDINALITY(Environment.Variables.XMLNSC.AddOrUpdateUserPrivilegesRq.Body.EstablishmentsList.EstablishmentsItem[]);
+		
+	    --comparing Input EstablishmentList with Current EstablishmentList from MLSD_Getlabourerinformation adapter
+	    DECLARE b INT 1;
+	    DECLARE c INT 1;
+	     
+	    DECLARE i,j,h,p,s,t,e INT 1;
+	    
+	    DECLARE inRefCount INT CARDINALITY(Environment.Variables.ActiveServicesItem.item[]);
+	     WHILE i <= inRefCount DO
+	        -- IF Environment.Variables.ActiveServicesItem.item.item[i].LaborOfficeId= Environment.Variables.XMLNSC.AddOrUpdateUserPrivilegesRq.Body.EstablishmentsList.EstablishmentsItem[i].LaborOfficeId AND Environment.Variables.ActiveServicesItem.item.item[i].EstablishmentSequence = Environment.Variables.XMLNSC.AddOrUpdateUserPrivilegesRq.Body.EstablishmentsList.EstablishmentsItem[i].EstablishmentSequence  THEN 
+		 	 -- check if laborer exists 
+		 	 IF Environment.var.noLab = '1' THEN 
+		 	 	SET Environment.Variables.NonMatchGetLabrInfoMLSDRs.item[c].ServicesItem[] = Environment.Variables.ActiveServices[i].ServicesItem[];       
+	     		SET Environment.Variables.NonMatchGetLabrInfoMLSDRs.item[c].LaborOfficeId = Environment.Variables.ActiveServicesItem.item[i].LaborOfficeId;      
+			 	SET Environment.Variables.NonMatchGetLabrInfoMLSDRs.item[c].EstablishmentSequence = Environment.Variables.ActiveServicesItem.item[i].EstablishmentSequence;      
+				SET c = c + 1; 	
+		 	 ELSE 
+		 	 	IF (Environment.Variables.GetLaborerInformationMLSDRs.EstablishmentInfo.UnifiedNumberId = Environment.Variables.GetEstablishmentsUnified.UnifiedNumbersList.UnifiedNumbers[i].UnifiedNumberId) THEN    
+					
+					SET Environment.Variables.MatchGetLabrInfoMLSDRs.item[b].ServicesItem[] = Environment.Variables.ActiveServicesItem.item[i].ServicesItem[];        
+					SET Environment.Variables.MatchGetLabrInfoMLSDRs.item[b].LaborOfficeId = Environment.Variables.ActiveServicesItem.item[i].LaborOfficeId;      
+				 	SET Environment.Variables.MatchGetLabrInfoMLSDRs.item[b].EstablishmentSequence = Environment.Variables.ActiveServicesItem.item[i].EstablishmentSequence;      
+			  		SET b = b + 1; 
+		 	 	ELSE  
+		     		SET Environment.Variables.NonMatchGetLabrInfoMLSDRs.item[c].ServicesItem[] = Environment.Variables.ActiveServices[i].ServicesItem[];       
+		     		SET Environment.Variables.NonMatchGetLabrInfoMLSDRs.item[c].LaborOfficeId = Environment.Variables.ActiveServicesItem.item[i].LaborOfficeId;      
+				 	SET Environment.Variables.NonMatchGetLabrInfoMLSDRs.item[c].EstablishmentSequence = Environment.Variables.ActiveServicesItem.item[i].EstablishmentSequence;      
+					SET c = c + 1; 
+				END IF;
+	        --END IF;
+		 	 END IF; 
+				 
+				SET i = i + 1;
+	    END WHILE;	
+
+--         DECLARE inRefCount INT CARDINALITY(Environment.Variables.ActiveServicesItem.item[]);
+--	     
+--	     IF (Environment.Variables.GetLaborerInformationMLSDRs.EstablishmentInfo.UnifiedNumberId = Environment.Variables.unifiedNo) THEN    
+--	       WHILE i <= inRefCount DO
+--	        -- IF Environment.Variables.ActiveServicesItem.item.item[i].LaborOfficeId= Environment.Variables.XMLNSC.AddOrUpdateUserPrivilegesRq.Body.EstablishmentsList.EstablishmentsItem[i].LaborOfficeId AND Environment.Variables.ActiveServicesItem.item.item[i].EstablishmentSequence = Environment.Variables.XMLNSC.AddOrUpdateUserPrivilegesRq.Body.EstablishmentsList.EstablishmentsItem[i].EstablishmentSequence  THEN 	
+--					SET Environment.Variables.MatchGetLabrInfoMLSDRs.item[b].ServicesItem[] = Environment.Variables.ActiveServicesItem.item[i].ServicesItem[];        
+--					SET Environment.Variables.MatchGetLabrInfoMLSDRs.item[b].LaborOfficeId = Environment.Variables.ActiveServicesItem.item[i].LaborOfficeId;      
+--				 	SET Environment.Variables.MatchGetLabrInfoMLSDRs.item[b].EstablishmentSequence = Environment.Variables.ActiveServicesItem.item[i].EstablishmentSequence;      
+--			  		SET b = b + 1; 
+--			  		SET i = i+1; 
+--	       END WHILE; 
+--	     ELSE 
+--	     	WHILE i <= inRefCount DO 
+--		     		SET Environment.Variables.NonMatchGetLabrInfoMLSDRs.item[c].ServicesItem[] = Environment.Variables.ActiveServices[i].ServicesItem[];       
+--		     		SET Environment.Variables.NonMatchGetLabrInfoMLSDRs.item[c].LaborOfficeId = Environment.Variables.ActiveServicesItem.item[i].LaborOfficeId;      
+--				 	SET Environment.Variables.NonMatchGetLabrInfoMLSDRs.item[c].EstablishmentSequence = Environment.Variables.ActiveServicesItem.item[i].EstablishmentSequence;      
+--					SET c = c + 1;
+--					SET i = i+1; 
+--	        --END IF; 		
+--	        END WHILE;	
+--	    END IF; 
+--	     
+	    
+	    
+	    --WHILE i <= inRefCount DO
+	  	 
+	    	
+--	     DECLARE EnvNonMatch INT CARDINALITY(Environment.Variables.NonMatchGetLabrInfoMLSDRs[]);
+--	     DECLARE inRefActCount INT CARDINALITY(Environment.Variables.ActiveServicesItem.item[]);
+--	     DECLARE g INT 1; 
+--	     
+--	     IF (inRefActCount = EnvNonMatch) THEN
+--	   	   FOR NOMATCH AS Environment.Variables.NonMatchGetLabrInfoMLSDRs[] DO
+--	   	   		SET Environment.Variables.NoMatchGetLabrInfoMLSDRs[g].ServiceId = Environment.Variables.NonMatchGetLabrInfoMLSDRs[g].ServiceId;      
+--	   	   		SET Environment.Variables.NoMatchGetLabrInfoMLSDRs[g].LaborOfficeId = Environment.Variables.NonMatchGetLabrInfoMLSDRs[g].LaborOfficeId;      
+--			 	SET Environment.Variables.NoMatchGetLabrInfoMLSDRs[g].EstablishmentSequence = Environment.Variables.NonMatchGetLabrInfoMLSDRs[g].EstablishmentSequence;      
+--				SET g = g + 1;	
+--	   	   END FOR;	
+--	     END IF;
+--	   	    
+	   	   
+--	   	   DECLARE f,l INT 1; 
+--		DECLARE e INT CARDINALITY(Environment.Variables.MatchGetLabrInfoMLSDRs[]);
+--    
+----concatenate multiple serviceid's into one string delimited by comma
+--		DECLARE serviceIds CHAR '';
+--			 
+--	    WHILE j<=e DO
+--       	   DECLARE  newServiceId CHAR Environment.Variables.MatchGetLabrInfoMLSDRs[j].ServiceId;
+--       	   SET serviceIds = serviceIds || ',' || newServiceId;
+--          	   SET j = j + 1;
+--        END WHILE;
+--        	FOR MATCHCASE AS Environment.Variables.MatchGetLabrInfoMLSDRs[] DO
+--		        SET Environment.Variables.User[l].ServiceId  =  serviceIds;	  
+--			  	SET Environment.Variables.User[l].LaborOfficeId        = MATCHCASE.LaborOfficeId;	  
+--			    SET Environment.Variables.User[l].EstablishmentSequence= MATCHCASE.EstablishmentSequence;	  
+--					SET l = l+1;
+--        	END FOR;		
+--	    
+--	    
+	     DECLARE nonmatchSize INT CARDINALITY (Environment.Variables.NonMatchGetLabrInfoMLSDRs.item[]);
+	     IF inRefCount = nonmatchSize THEN  
+	     	SET Environment.Variables.allNotMatch = 1;
+	     	RETURN TRUE; 
+	     END IF; 
+	    
+	     DECLARE u,z INT 1; 
+	     DECLARE k INT  Environment.Variables.Size; -- take the last size the Environment.Variables.User stopped at, which will contain all what we will send to procedure
+		 -- store matching services to send to procedure 
+		 DECLARE InactiveSize INT CARDINALITY (Environment.Variables.MatchGetLabrInfoMLSDRs.item[]);
+		 	
+			 WHILE z<=InactiveSize DO
+			 	DECLARE inact REFERENCE TO  Environment.Variables.MatchGetLabrInfoMLSDRs.item[z]; 
+			 	DECLARE inactID INT CARDINALITY ( inact.ServicesItem.id[]);   
+			 	DECLARE v INT 1;  
+			 	DECLARE serviceIds CHAR '';
+			 	
+			 	WHILE v <= inactID DO   
+			 	 	
+	       	   	   DECLARE  newServiceId REFERENCE TO inact.ServicesItem.id[v]; 
+		       	   SET serviceIds = CAST (serviceIds || ',' || newServiceId.ServiceId AS CHAR); 
+		       	   SET v = v+1; 
+			 	END WHILE;     
+		        --SET Environment.Variables.User = serviceIds;
+          	    SET Environment.Variables.User.item[k].ServiceId  =  serviceIds;	   
+			    SET Environment.Variables.User.item[k].LaborOfficeId  = inact.LaborOfficeId;	  
+			    SET Environment.Variables.User.item[k].EstablishmentSequence= inact.EstablishmentSequence;	  
+      		    SET k = k + 1; 
+      		    SET z = z + 1;  
+			 END WHILE;  
+		 	 
+		 	 
+	    
+	    
+	    
+	    RETURN TRUE;
+	    
+	END;
+
+END MODULE;
+
+
+

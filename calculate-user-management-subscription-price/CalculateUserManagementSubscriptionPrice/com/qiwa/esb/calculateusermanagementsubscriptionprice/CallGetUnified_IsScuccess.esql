@@ -1,0 +1,24 @@
+BROKER SCHEMA com.qiwa.esb.calculateusermanagementsubscriptionprice
+PATH Qiwa.Framework.Lib; 
+
+CREATE FILTER MODULE CallGetUnified_IsScuccess
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+	 IF Root.XMLNSC.GetUnifiedNumbertTotalLaborersCountMLSDRs.Header.ResponseStatus.Code  = GetESBSuccessCode() THEN 
+			  SET Environment.Variabl.GetInfo = Root.XMLNSC.GetUnifiedNumbertTotalLaborersCountMLSDRs.Body;         
+		
+			  RETURN TRUE;
+	 ELSEIF  Root.XMLNSC.GetUnifiedNumbertTotalLaborersCountMLSDRs.Header.ResponseStatus.Code = 'E0000121'  THEN 
+			  SET Environment.Variabl.GetInfo.TotalRecordCount = 0;
+			  
+	   RETURN TRUE;
+	 ELSE  
+			
+			SET Environment.Variables.MWResponse.status = Root.XMLNSC.GetUnifiedNumbertTotalLaborersCountMLSDRs.Header.ResponseStatus.Code;
+			 
+			RETURN FALSE;
+		 
+	END IF;	END; 
+
+END MODULE; 
+ 

@@ -1,0 +1,90 @@
+BROKER SCHEMA com.qiwa.esb.getumservicesnonsubscribedusers
+path Qiwa.Framework.Lib; 
+
+
+CREATE COMPUTE MODULE HTTP_GetUMServicesNonSubscribedUsersFlow_Response
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage();
+		--save the output message and headers
+		SET OutputRoot.Properties = Environment.Variables.Properties;
+		SET OutputRoot.MQMD =  Environment.Variables.MQMD;
+		SET OutputRoot.MQRFH2 = Environment.Variables.MQRFH2;
+		
+		--reference to request header and body		
+		DECLARE InHeaderRef REFERENCE TO Environment.Variables.Request.Header;
+		DECLARE InBodyRef REFERENCE TO Environment.Variables.Request.Body; 
+		--create response header and body
+		CREATE FIRSTCHILD OF OutputRoot.XMLNSC.GetUMServicesNonSubscribedUsersRs  NAME 'Header';
+		CREATE LASTCHILD OF OutputRoot.XMLNSC.GetUMServicesNonSubscribedUsersRs  NAME 'Body';
+		--create reference to reponse header and body 
+		DECLARE outHeaderRef REFERENCE to OutputRoot.XMLNSC.GetUMServicesNonSubscribedUsersRs.Header;
+        DECLARE outBodyRef REFERENCE to OutputRoot.XMLNSC.GetUMServicesNonSubscribedUsersRs.Body;
+
+		DECLARE loadproperties REFERENCE TO Environment.Properties.GetUMServicesNonSubscribedUsers.HTTP_GetUMServicesNonSubscribedUsersFlow.Variables;	
+		-- errors 
+		IF Environment.Variables.MWResponse.status IS NOT NULL THEN 
+			CALL Create_esbXML_Response_Header(Environment.Variables.MWResponse.status, InHeaderRef, outHeaderRef);
+			RETURN TRUE;
+		END IF;
+		
+		DECLARE IsEmployee INTEGER;
+		IF CAST (Environment.Variables.ESB.GetLabInfoHRSDBody.EstablishmentInfo.UnifiedNumberId AS INTEGER) <> CAST (Environment.Variables.ESB.GetUserEstabBodyRs.UserEsatblishmentsList.UserEsatblishmentsDetails.UnifiedNumberId AS INTEGER) THEN
+			SET IsEmployee = 0;
+		ELSEIF CAST (Environment.Variables.ESB.GetLabInfoHRSDBody.EstablishmentInfo.UnifiedNumberId AS INTEGER) = CAST (Environment.Variables.ESB.GetUserEstabBodyRs.UserEsatblishmentsList.UserEsatblishmentsDetails.UnifiedNumberId AS INTEGER) THEN
+			SET IsEmployee = 1;
+		END IF;
+			
+		 DECLARE y INTEGER 1;
+         DECLARE x integer 1; 
+         DECLARE z integer 1;
+         DECLARE UserEstabList INTEGER CARDINALITY(Environment.Variables.ESB.GetUserEstabBodyRs.UserEsatblishmentsList.UserEsatblishmentsDetails[]);
+         WHILE x <= UserEstabList DO
+			CALL  Get_UMServicesByID (CAST(Environment.Variables.ESB.GetUserEstabBodyRs.UserEsatblishmentsList.UserEsatblishmentsDetails[x].AuthorizedType AS INTEGER), 
+									CAST (IsEmployee AS INTEGER),	
+			Environment.Variables.DB.ResultSet[]);
+			DECLARE UMServicesList INTEGER CARDINALITY (Environment.Variables.DB.ResultSet[]);
+			IF EXISTS (Environment.Variables.DB.ResultSet[]) THEN 
+				 WHILE z <= UMServicesList DO
+					SET outBodyRef.ServicesList.ServiceItem[y].Group.GroupId = Environment.Variables.DB.ResultSet[z].ServiceGroupingId;
+					SET outBodyRef.ServicesList.ServiceItem[y].Group.GroupNameEn = Environment.Variables.DB.ResultSet[z].ServiceGroupingEn;
+					SET outBodyRef.ServicesList.ServiceItem[y].Group.GroupNameAr = Environment.Variables.DB.ResultSet[z].ServiceGroupingAr;
+					SET outBodyRef.ServicesList.ServiceItem[y].Service.ServiceId = Environment.Variables.DB.ResultSet[z].Id; -- check 
+					SET outBodyRef.ServicesList.ServiceItem[y].Service.ServiceNameEn = Environment.Variables.DB.ResultSet[z].ServiceNameEn;    
+					SET outBodyRef.ServicesList.ServiceItem[y].Service.ServiceNameAr = Environment.Variables.DB.ResultSet[z].ServiceNameAr;
+        			SET y = y +1;
+        			SET z= z+1;
+				 END WHILE;
+				 SET z = 1; -- 
+				 call Create_esbXML_Response_Header(GetESBSuccessCode(), InHeaderRef, outHeaderRef);	
+			ELSE 	
+				CALL Create_esbXML_Response_Header(loadproperties.UMServicesNotFound, InHeaderRef, outHeaderRef);
+				SET UserEstabList = 0;
+			END IF;	
+			SET x = x + 1;
+         END WHILE;		 
+		
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+	CREATE PROCEDURE Get_UMServicesByID(IN AuthorizedType INTEGER, IN IsEmployee INTEGER )
+	LANGUAGE DATABASE
+	DYNAMIC RESULT SETS 1
+	EXTERNAL NAME "dbo.Get_UMServicesByID";
+END MODULE;
+
+

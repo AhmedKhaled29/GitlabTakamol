@@ -1,0 +1,110 @@
+BROKER SCHEMA com.qiwa.esb.searchusersupscriptions
+PATH Qiwa.Framework.Lib;   
+
+CREATE COMPUTE MODULE SearchUserSupscriptionsFlow_Preparing_msg
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyMessageHeaders();
+        -- creating the response structure "header and body"
+		CREATE LASTCHILD OF OutputRoot DOMAIN 'XMLNSC';
+		CREATE FIRSTCHILD OF OutputRoot.XMLNSC.SearchUserSubscriptionsRs  NAME 'Header'; 
+		CREATE LASTCHILD OF OutputRoot.XMLNSC.SearchUserSubscriptionsRs  NAME 'Body';   
+		-- creating refrences for the header and body of the response  
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.SearchUserSubscriptions.SearchUserSubscriptionsFlow.Variables;
+		DECLARE rOutHeaderRef REFERENCE TO OutputRoot.XMLNSC.SearchUserSubscriptionsRs.Header; 
+		DECLARE rInputHeader REFERENCE TO InputRoot.XMLNSC.SearchUserSubscriptionsRq.Header;    
+		DECLARE rInputBody REFERENCE TO InputRoot.XMLNSC.SearchUserSubscriptionsRq.Body;   
+		-- declaring all variables sent in the request 
+		DECLARE IdNo CHAR rInputBody.IdNo;  
+		DECLARE UserID  INT rInputBody.UserId;      
+		DECLARE LaborOfficeId  INT rInputBody.LaborOfficeId ; 
+		DECLARE EstablishmentSequence  INT rInputBody.EstablishmentSequence ; 
+		DECLARE StatusId  INT rInputBody.StatusId ;   
+		DECLARE SubscriptionId  INT rInputBody.SubscriptionId ;
+		DECLARE UnifiedNumberId INT rInputBody.UnifiedNumberId;
+		DECLARE PageSize  INT rInputBody.PageSize ; 
+		DECLARE PageIndex  INT rInputBody.PageIndex ;  
+		DECLARE TotalRecordsCount  INT ;   		 
+		  
+		-- calling the search procedure 
+		CALL UserSubscriptions( IdNo, 
+								UserID,  
+								LaborOfficeId,
+								EstablishmentSequence,
+								StatusId ,
+								SubscriptionId,
+								UnifiedNumberId,
+								PageSize,
+								PageIndex, 
+								TotalRecordsCount, 
+								Environment.Variables.DB.ResultSet[]);
+				
+	 
+		DECLARE i INT 1 ; 
+		DECLARE resultSetCount INT CARDINALITY(Environment.Variables.DB.ResultSet[]); 
+		-- checking if there is any records for the sent organization information 
+		IF resultSetCount <> 0 THEN 
+		    CALL Create_esbXML_Response_Header(GetESBSuccessCode(),rInputHeader,rOutHeaderRef); 
+			DECLARE RsRoot REFERENCE TO OutputRoot.XMLNSC.SearchUserSubscriptionsRs.Body;  
+			-- get the number of records with the sent information in request  
+			SET RsRoot.TotalRecordsCount = Environment.Variables.DB.ResultSet[1].TotalRecordsCount;   
+			WHILE i <= resultSetCount DO   
+				
+				-- the response structure by getting data from environment variables thats recieved from calling the procedure 
+				SET RsRoot.SubscriptionsList.SubscriptionsItem[i].IdNo = Environment.Variables.DB.ResultSet[i].IDNO;
+				SET RsRoot.SubscriptionsList.SubscriptionsItem[i].UserId = Environment.Variables.DB.ResultSet[i].UserID;
+				SET RsRoot.SubscriptionsList.SubscriptionsItem[i].Name = Environment.Variables.DB.ResultSet[i].Name;
+				SET RsRoot.SubscriptionsList.SubscriptionsItem[i].LaborOfficeId = Environment.Variables.DB.ResultSet[i].LaborOfficeId;
+				SET RsRoot.SubscriptionsList.SubscriptionsItem[i].SequenceNumber = Environment.Variables.DB.ResultSet[i].SequenceNumber ; 
+				SET RsRoot.SubscriptionsList.SubscriptionsItem[i].Status.StatusId = Environment.Variables.DB.ResultSet[i].StatusId;
+				SET RsRoot.SubscriptionsList.SubscriptionsItem[i].Status.StatusEn = Environment.Variables.DB.ResultSet[i].StatusEn;
+	           	SET RsRoot.SubscriptionsList.SubscriptionsItem[i].Status.StatusAr = Environment.Variables.DB.ResultSet[i].StatusAr; 
+	            SET RsRoot.SubscriptionsList.SubscriptionsItem[i].StartDate = Environment.Variables.DB.ResultSet[i].StartDate;
+				SET RsRoot.SubscriptionsList.SubscriptionsItem[i].ExpiredDate = Environment.Variables.DB.ResultSet[i].ExpiredDate; 
+				SET RsRoot.SubscriptionsList.SubscriptionsItem[i].Subscription.SubscriptionId = Environment.Variables.DB.ResultSet[i].SubscriptionId;
+				SET RsRoot.SubscriptionsList.SubscriptionsItem[i].Subscription.SubscriptionTypeEn = Environment.Variables.DB.ResultSet[i].SubscriptionTypeEn;
+				SET RsRoot.SubscriptionsList.SubscriptionsItem[i].Subscription.SubscriptionTypeAr = Environment.Variables.DB.ResultSet[i].SubscriptionTypeAr;
+				SET i = i+1;  
+				
+			END WHILE ;
+		 
+		  ELSE 
+			-- if there is no data give a no data error in the response 
+			CALL Create_esbXML_Response_Header(loadedPropertiesRef.NoDataFound,rInputHeader,rOutHeaderRef); 
+		
+		END IF;
+		
+		
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.[I] = InputRoot.[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END; 
+	
+	 -- the procedure that is called to find the requested info 
+	 CREATE PROCEDURE UserSubscriptions(IN IdNo CHAR ,  
+								        IN UserID  INT ,  
+								        IN LaborOfficeId INT ,
+								        IN EstablishmentSequence INT ,  
+								        IN StatusId INT ,
+								        IN SubscriptionId  INT , 
+								        IN UnifiedNumberId INT ,  
+								        IN PageSize INT ,
+								        IN PageIndex INT,
+								        INOUT TotalRecordsCount INT  )     
+							 		  	   
+    LANGUAGE DATABASE DYNAMIC RESULT SETS 1  
+    EXTERNAL NAME "dbo.Search_UserSubscriptions";   
+
+END MODULE;

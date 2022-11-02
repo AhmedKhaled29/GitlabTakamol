@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema targetNamespace="http://Qiwa/UserManagement/GetNearlySubsToBeExpired/v1.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:bons2="http://Qiwa/UserManagement/GetNearlySubsToBeExpired/v1.0" xmlns:bons0="http://Qiwa/Common/Types" xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions">
+
+	<xsd:import namespace="http://Qiwa/Common/Types" schemaLocation="../common/types/ESB_common_types_v1.0.xsd"/>
+
+
+	<xsd:element name="GetNearlySubsToBeExpiredRq" type="bons2:GetNearlySubsToBeExpiredRq_Type"/>
+	<xsd:element name="GetNearlySubsToBeExpiredRs" type="bons2:GetNearlySubsToBeExpiredRs_Type"/>
+
+	<complexType ibmSchExtn:docRoot="true" name="GetNearlySubsToBeExpiredRq_Type">
+			<sequence>
+				<xsd:element name="Header" type="bons0:ESBXMLRequestHeader_Type"/>
+				<xsd:element name="Body" type="bons2:GetNearlySubsToBeExpiredRq_BodyType"/>
+			</sequence>
+	</complexType>
+	
+	<complexType ibmSchExtn:docRoot="true" name="GetNearlySubsToBeExpiredRs_Type">
+			<sequence>
+				<xsd:element name="Header" type="bons0:ESBXMLResponseHeader_Type"/>
+				<xsd:element minOccurs="1" name="Body" type="bons2:GetNearlySubsToBeExpiredRs_BodyType"/>
+			</sequence>
+	</complexType>
+	
+	
+	<complexType name="GetNearlySubsToBeExpiredRq_BodyType">
+		<all>
+			<element minOccurs="0" name="LaborOfficeId" type="xsd:integer"/>
+			<element minOccurs="0" name="SequenceNumber" type="xsd:integer" /> 
+			<element minOccurs="0" name="UnifiedNumberId" type="xsd:string" />  			<element minOccurs="0" name="IdNo" type="xsd:string" /> 
+			<element minOccurs="0" name="UserId" type="xsd:string" /> 
+			<element minOccurs="1" name="DateFrom" type="bons0:Dt_Type" /> 
+			<element minOccurs="1" name="DateTo" type="bons0:Dt_Type" />
+			<element minOccurs="1" name="PageSize" type="xsd:integer"/>
+			<element minOccurs="1" name="PageIndex" type="xsd:integer" />
+		</all>
+	</complexType>
+	
+	
+	
+	
+	
+	<complexType name="GetNearlySubsToBeExpiredRs_BodyType">
+        <xsd:sequence>
+		
+			<element minOccurs="0" name="UsersList" type="bons2:UsersList_Type" /> 
+			<element minOccurs="1" name="TotalRecordsCount" type="xsd:integer" /> 
+		</xsd:sequence>	
+	</complexType>
+	
+	<complexType name="UsersList_Type">
+        <xsd:sequence>
+			<element minOccurs="0" maxOccurs="unbounded" name="UserItem" type="bons2:UserItem_Type" /> 
+		</xsd:sequence>	
+	</complexType>	
+	
+	<complexType name="UserItem_Type">
+        <xsd:sequence>
+        	<element minOccurs="1" name="IdNo" type="xsd:string" /> 
+        	<element minOccurs="1" name="UserId" type="xsd:integer" />
+        	<element minOccurs="1" name="Name" type="xsd:string" />
+        	<element minOccurs="1" name="MobileNumber" type="xsd:string" />
+        	<element minOccurs="1" name="Email" type="xsd:string" />
+			<element minOccurs="0" maxOccurs="unbounded" name="SubscriptionsList" type="bons2:SubscriptionsList_Type" /> 
+		</xsd:sequence>	
+	</complexType>
+	
+	<complexType name="SubscriptionsList_Type">
+        <xsd:sequence>
+        	<element minOccurs="1" name="LaborOfficeId"
+        		type="xsd:integer" />
+        	<element minOccurs="1" name="SequenceNumber"
+        		type="xsd:integer" />
+            <xsd:element name="UnifiedNumberId" type="xsd:string" minOccurs="1"></xsd:element>
+            <element minOccurs="1" name="Status"
+        		type="bons2:Status_Type" />
+        	<element minOccurs="1" name="StartDate"
+        		type="bons0:Tmstmp_Type" />
+        	<element minOccurs="1" name="ExpiredDate"
+        		type="bons0:Tmstmp_Type" />
+        	<element minOccurs="1" name="Subscription"
+        		type="bons2:Subscription_Type" />
+        </xsd:sequence>
+	</complexType>
+	
+	<complexType name="Status_Type">
+        <xsd:sequence>
+        	<element minOccurs="1" name="StatusId" type="xsd:integer" /> 
+        	<element minOccurs="1" name="StatusEn" type="xsd:string" />
+        	<element minOccurs="1" name="StatusAr" type="xsd:string" /> 
+		</xsd:sequence>	
+	</complexType>
+	<complexType name="Subscription_Type">
+        <xsd:sequence>
+        	<element minOccurs="1" name="Subscription" type="xsd:integer" /> 
+        	<element minOccurs="1" name="SubscriptionTypeEn" type="xsd:string" />
+        	<element minOccurs="1" name="SubscriptionTypeAr" type="xsd:string" /> 
+		</xsd:sequence>	
+	</complexType>
+</xsd:schema>

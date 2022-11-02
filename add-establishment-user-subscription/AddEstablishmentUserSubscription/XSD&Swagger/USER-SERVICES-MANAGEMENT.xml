@@ -1,0 +1,46 @@
+<properties refresh-policy="automatic">
+	
+	<group name="AddEstablishmentUserSubscription.AddEstablishmentUserSubscriptionFlow"> 
+		<group name="Logging">
+			<property name="LogEnabled" value="TRUE" /> 
+			<property name="AuditEnabled" value="FALSE" />
+			<property name="key1" value="" />
+			<property name="value1" value="" />
+			<property name="key2" value="" />
+			<property name="value2" value="" />
+			<property name="key3" value="" />
+			<property name="value3" value="" />
+			<property name="key4" value="" />
+			<property name="value4" value="" />
+		</group>
+			<group name="Variables">
+			<property name="NoDataFound" value="E0000024" />
+			<property name="IdNoIdenticalError" value="E0000049" />	
+			<property name="UserSubValError" value="E0000051" />	
+			<property name="UserEstEbtError" value="E0000052" />	
+			<property name="CrtUserSubError" value="E0000053" />
+			<property name="TimeOutError" value="E9999998" />
+			<property name="ServiceCode" value="CUEE0001" />
+			<property name="NOPAY" value="E0000078" />
+			<property name="ServiceId" value="12" />
+			<property name="ChannelId" value="ESB" />
+			<property name="CodeSearchpay" value="SPT00001" />
+			<property name="Codegetinfo" value="MGEUN001" />
+			<property name="PaymentNeeded" value="E0000116" />
+			<property name="CodegetUni" value="MGUNTLC1" />
+			<property name="CalcUMSubsSC" value="CUMSP001" />
+		</group>
+		
+		<group name="SchemaValidation">
+            <property name="ValidationEnabled" value="FALSE" />
+        </group>
+		<group name="Retry">
+				<property name="RetryEnabled" value="FALSE" />
+			<property name="minWaitDurationSec" value="60" />
+			<property name="maxRetryCount" value="5" />
+		</group>
+	</group>
+	
+	
+</properties>
+	

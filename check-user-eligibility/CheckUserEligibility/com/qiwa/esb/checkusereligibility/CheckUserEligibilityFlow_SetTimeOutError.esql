@@ -1,0 +1,13 @@
+BROKER SCHEMA com.qiwa.esb.checkusereligibility
+
+
+CREATE FILTER MODULE CheckUserEligibilityFlow_SetTimeOutError
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		 -- IF A TIMEOUT ERROR OCCURS THE SERVICE WILL COME BACK WITH TIMEOUT ERROR IN THE HEADER RESPONSE 
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.CheckUserEligibility.CheckUserEligibilityFlow; 
+		SET Environment.Variables.MWResponse.status = loadedPropertiesRef.Variables.TimeOutError;
+		RETURN TRUE;
+	END;
+
+END MODULE;

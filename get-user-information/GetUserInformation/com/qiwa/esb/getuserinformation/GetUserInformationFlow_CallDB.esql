@@ -1,0 +1,116 @@
+BROKER SCHEMA com.qiwa.esb.getuserinformation
+PATH Qiwa.Framework.Lib;  
+
+
+CREATE COMPUTE MODULE GetUserInformationFlow_CallDB
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		
+		CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage(); 
+		
+		--building output structure 
+		CREATE LASTCHILD OF OutputRoot DOMAIN 'XMLNSC';
+		CREATE FIRSTCHILD OF OutputRoot.XMLNSC.GetUserInformationRs  NAME 'Header';
+		CREATE LASTCHILD OF OutputRoot.XMLNSC.GetUserInformationRs  NAME 'Body'; 
+         
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.GetUserInformation.GetUserInformationFlow.Variables;		
+		DECLARE rOutHeaderRef REFERENCE TO OutputRoot.XMLNSC.GetUserInformationRs.Header;  
+		DECLARE rInputHeader REFERENCE TO InputRoot.XMLNSC.GetUserInformationRq.Header; 
+ 		
+ 		--accessing request body parameters   
+		DECLARE IdNo CHAR InputRoot.XMLNSC.GetUserInformationRq.Body.IdNo; 
+		DECLARE Phone CHAR InputRoot.XMLNSC.GetUserInformationRq.Body.MobileNumber;
+		DECLARE UserID INT InputRoot.XMLNSC.GetUserInformationRq.Body.UserId; 
+		DECLARE UserName CHAR InputRoot.XMLNSC.GetUserInformationRq.Body.UserName; 
+		
+		IF  IdNo is NOT NULL OR UserID is NOT NULL OR Phone is NOT NULL OR UserName is NOT NULL  THEN   
+		
+			-- user Info service call 	
+			CALL GetUserInfo(   IdNo,
+								Phone, 
+								UserID,
+								UserName, 
+								Environment.Variables.DB.ResultSet[]);
+							
+							
+			DECLARE i INT 1 ; 
+			DECLARE resultSetCount INT CARDINALITY(Environment.Variables.DB.ResultSet[]);
+			DECLARE RsRoot REFERENCE TO OutputRoot.XMLNSC.GetUserInformationRs.Body;
+			  
+			-- check DB stored procedures and building response body accordingly   
+			WHILE (i <= resultSetCount) DO  
+				  
+				    SET RsRoot.IdNo  = Environment.Variables.DB.ResultSet[i].IDNO ;  
+					SET RsRoot.Name  = Environment.Variables.DB.ResultSet[i].Name ;
+					SET RsRoot.DateOfBirth  = Environment.Variables.DB.ResultSet[i].DateOfBirth ;
+					SET RsRoot.Email  = Environment.Variables.DB.ResultSet[i].Email ;
+					SET RsRoot.IsEmailVerified   = Environment.Variables.DB.ResultSet[i].IsEmailVerified ;  
+					SET RsRoot.MobileNumber  = Environment.Variables.DB.ResultSet[i].Phone ;
+					SET RsRoot.IsMobileVerified  = Environment.Variables.DB.ResultSet[i].IsMobileVerified ; 
+					SET RsRoot.MobileLastVerificationDate  = Environment.Variables.DB.ResultSet[i].MobileLastVerificationDate ;
+					SET RsRoot.Status.StatusId  = Environment.Variables.DB.ResultSet[i].StatusId;
+					SET RsRoot.Status.StatusEn  = Environment.Variables.DB.ResultSet[i].StatusEn ;
+					SET RsRoot.Status.StatusAr  = Environment.Variables.DB.ResultSet[i].StatusAr ;
+					SET RsRoot.UserId  = Environment.Variables.DB.ResultSet[i].UserID ; 
+					SET RsRoot.Nationality.NationalityId   = Environment.Variables.DB.ResultSet[i].NationalityID ;
+					SET RsRoot.Nationality.NationalityEn  = Environment.Variables.DB.ResultSet[i].NationalityEn ;
+					SET RsRoot.Nationality.NationalityAr  = Environment.Variables.DB.ResultSet[i].NationalityAr ;
+					SET RsRoot.Gender.GenderId  = Environment.Variables.DB.ResultSet[i].GenderId ;
+					SET RsRoot.Gender.GenderEn  = Environment.Variables.DB.ResultSet[i].GenderEn ;
+					SET RsRoot.Gender.GenderAr  = Environment.Variables.DB.ResultSet[i].GenderAr ;
+					SET RsRoot.Religion.ReligionId   = Environment.Variables.DB.ResultSet[i].ReligionId  ;
+					SET RsRoot.Religion.ReligionEn   = Environment.Variables.DB.ResultSet[i].ReligionEn  ;
+					SET RsRoot.Religion.ReligionAr   = Environment.Variables.DB.ResultSet[i].ReligionAr  ;
+					SET RsRoot.IdExpiryDate    = Environment.Variables.DB.ResultSet[i].IDExpiryDate  ; 
+					SET RsRoot.UserName   = Environment.Variables.DB.ResultSet[i].UserName  ;
+					SET RsRoot.CreationDate   = Environment.Variables.DB.ResultSet[i].CreationDate  ;
+		
+			
+				SET i = i+1; 
+				
+				
+			END WHILE ;
+			 
+			-- resultSet conatins the number of related data Exsiting in db and returns success or error body 
+	        IF resultSetCount <> 0 THEN  
+			 	CALL Create_esbXML_Response_Header(GetESBSuccessCode(),rInputHeader,rOutHeaderRef);  
+		    ELSE  
+			    CALL Create_esbXML_Response_Header(loadedPropertiesRef.NoDataFound,rInputHeader,rOutHeaderRef);
+	        END IF; 
+		ELSE 
+			CALL Create_esbXML_Response_Header(loadedPropertiesRef.MissingParameters,rInputHeader,rOutHeaderRef);  
+		END IF;					
+							
+	
+ 		
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+	
+	CREATE PROCEDURE GetUserInfo (   IN IdNo  CHAR,
+						 		  	 IN Phone  CHAR,
+						 		  	 IN UserID INTEGER, 
+						 		  	 IN UserName CHAR)    
+						 		  	  
+    LANGUAGE DATABASE DYNAMIC RESULT SETS 1 
+    EXTERNAL NAME "dbo.Get_User";
+	
+	
+END MODULE;
+
+
+

@@ -1,0 +1,223 @@
+
+
+BROKER SCHEMA com.qiwa.esb.renewusersubscription
+PATH Qiwa.Framework.Lib;
+
+
+CREATE COMPUTE MODULE GetUnifiedTotLabCount_Rq
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage();
+		DECLARE bodyRef REFERENCE TO Environment.Variables.XMLNSC.RenewUserSubscriptionRq.Body;
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.RenewUserSubscription.RenewUserSubscriptionFlow.Variables;
+
+		DECLARE UserSubScriptions CHAR ;
+		CREATE FIELD Environment.Variables.SPXML1;
+		CREATE FIRSTCHILD OF Environment.Variables.SPXML1 DOMAIN 'XMLNSC';
+		DECLARE sizeDb INT CARDINALITY (Environment.Variables.DB.CheckRenwal[]); 
+		DECLARE i INT 1 ;
+		WHILE i <=sizeDb DO
+			SET Environment.Variables.SPXML1.XMLNSC.UsersSubscriptionList.UserSubscription[i].LaborOfficeId = Environment.Variables.DB.CheckRenwal[i].LaborOfficeId;
+			SET Environment.Variables.SPXML1.XMLNSC.UsersSubscriptionList.UserSubscription[i].SequenceNumber = Environment.Variables.DB.CheckRenwal[i].SequenceNumber;
+			SET Environment.Variables.SPXML1.XMLNSC.UsersSubscriptionList.UserSubscription[i].IsRenewal = Environment.Variables.DB.CheckRenwal[i].IsRenewal;
+			SET i = i + 1;
+		END WHILE;
+		SET UserSubScriptions = CAST(ASBITSTREAM(Environment.Variables.SPXML1.XMLNSC CCSID 1208) AS CHARACTER CCSID 1208);
+
+		DECLARE RemoveUM INT 0;
+		-- compare if subscription unified number equals the unified number from get laborer info
+		IF (Environment.Var.UnifiedNo.FK_UnifiedNumberId IS NOT NULL)AND(CAST(Environment.Var.UnifiedNo.FK_UnifiedNumberId AS INT) <> CAST(Environment.Variables.DB.CheckRenwal[1].UnifiedNumber AS INT)) THEN
+			--revoke UM privilge if unified number in qiwa DB dont equal in HRSD
+			SET RemoveUM = 1;
+		END IF;
+
+		DECLARE AmountTypeId INT;
+		DECLARE AmountPerUser DECIMAL;
+		
+		 
+		IF CAST (Environment.Variables.DB.CheckRenwal.IsRenewed AS BOOLEAN) THEN
+			DECLARE rInputHeader REFERENCE TO Environment.Variables.XMLNSC.RenewUserSubscriptionRq.Header;
+			CREATE FIRSTCHILD OF OutputRoot.XMLNSC.RenewUserSubscriptionRs NAME 'Header';
+			DECLARE rOutHeaderRef REFERENCE TO OutputRoot.XMLNSC.RenewUserSubscriptionRs.Header;
+			--if payment reference is null which mean free subs dont enter the below calc
+			IF (bodyRef.PaymentReference IS NOT NULL) OR (bodyRef.PaymentReference<> '') OR (LENGTH(bodyRef.PaymentReference)>0) THEN
+				--based on the number of laborers on the unified, stored on db
+				IF Environment.variables.resultDB.TotalLaborersCount >= 0 AND Environment.variables.resultDB.TotalLaborersCount <= 5 THEN
+
+					IF Environment.variables.resultDB.OriginalCount = 0 THEN --original AmountPerUser, if there is no one that already payed the original
+
+						SET AmountPerUser =1100;
+						SET AmountTypeId =1;
+
+						SET Environment.variables.resultDB.OriginalCount=Environment.variables.resultDB.OriginalCount+1 ;
+
+					ELSEIF Environment.variables.resultDB.SecondCount =0 THEN --75% discount , if there is no one already payed the 75% off
+
+						SET AmountPerUser =(1100*0.25);
+						SET AmountTypeId =2;
+
+						SET Environment.variables.resultDB.SecondCount=Environment.variables.resultDB.SecondCount+1 ;
+
+					ELSE --90% -- the rest should be 90 percent off
+						SET AmountPerUser =(1100*0.1);
+						SET AmountTypeId =3;
+
+						SET Environment.variables.resultDB.Count=Environment.variables.resultDB.Count+1 ;
+
+					END IF;
+				ELSEIF Environment.variables.resultDB.TotalLaborersCount >= 6 AND Environment.variables.resultDB.TotalLaborersCount <= 49 THEN
+
+					IF Environment.variables.resultDB.OriginalCount = 0 THEN --original AmountPerUser
+
+						SET AmountPerUser =2300;
+						SET AmountTypeId =1;
+						SET Environment.variables.resultDB.OriginalCount=Environment.variables.resultDB.OriginalCount+1 ;
+
+					ELSEIF Environment.variables.resultDB.SecondCount =0 THEN --75% discount
+
+						SET AmountPerUser =(2300*0.25);
+						SET AmountTypeId =2;
+						SET Environment.variables.resultDB.SecondCount=Environment.variables.resultDB.SecondCount+1 ;
+
+					ELSE
+						SET AmountPerUser =(2300*0.1);
+						SET AmountTypeId =3;
+						SET Environment.variables.resultDB.Count=Environment.variables.resultDB.Count+1 ;
+
+					END IF;
+
+				ELSEIF Environment.variables.resultDB.TotalLaborersCount >= 50 AND Environment.variables.resultDB.TotalLaborersCount <= 499 THEN
+
+					IF Environment.variables.resultDB.OriginalCount = 0 THEN --original AmountPerUser
+
+						SET AmountPerUser =7000;
+						SET AmountTypeId =1;
+						SET Environment.variables.resultDB.OriginalCount=Environment.variables.resultDB.OriginalCount+1 ;
+
+					ELSEIF Environment.variables.resultDB.SecondCount =0 THEN --75% discount
+
+						SET AmountPerUser =(7000*0.25);
+						SET AmountTypeId =2;
+						SET Environment.variables.resultDB.SecondCount=Environment.variables.resultDB.SecondCount+1 ;
+
+					ELSE
+						SET AmountPerUser =(7000*0.1);
+						SET AmountTypeId =3;
+						SET Environment.variables.resultDB.Count=Environment.variables.resultDB.Count+1 ;
+
+					END IF;
+
+				ELSEIF Environment.variables.resultDB.TotalLaborersCount >= 500 AND Environment.variables.resultDB.TotalLaborersCount <= 2999 THEN
+
+					IF Environment.variables.resultDB.OriginalCount = 0 THEN --original AmountPerUser
+
+						SET AmountPerUser =10000;
+						SET AmountTypeId =1;
+						SET Environment.variables.resultDB.OriginalCount=Environment.variables.resultDB.OriginalCount+1 ;
+
+					ELSEIF Environment.variables.resultDB.SecondCount =0 THEN --75% discount
+
+						SET AmountPerUser =(10000*0.25);
+						SET AmountTypeId =2;
+						SET Environment.variables.resultDB.SecondCount=Environment.variables.resultDB.SecondCount+1 ;
+
+					ELSE
+						SET AmountPerUser =(10000*0.1);
+						SET AmountTypeId =3;
+						SET Environment.variables.resultDB.Count=Environment.variables.resultDB.Count+1 ;
+
+					END IF;
+
+				ELSEIF Environment.variables.resultDB.TotalLaborersCount >= 3000 THEN
+
+					IF Environment.variables.resultDB.OriginalCount = 0 THEN --original AmountPerUser
+
+						SET AmountPerUser =12000;
+						SET AmountTypeId =1;
+						SET Environment.variables.resultDB.OriginalCount=Environment.variables.resultDB.OriginalCount+1 ;
+
+					ELSEIF Environment.variables.resultDB.SecondCount =0 THEN --75% discount
+
+						SET AmountPerUser =(12000*0.25);
+						SET AmountTypeId =2;
+						SET Environment.variables.resultDB.SecondCount=Environment.variables.resultDB.SecondCount+1 ;
+
+					ELSE
+						SET AmountPerUser =(12000*0.1);
+						SET AmountTypeId =3;
+						SET Environment.variables.resultDB.Count=Environment.variables.resultDB.Count+1 ;
+
+					END IF;
+				END IF;
+			END IF ;
+
+			DECLARE Result INT;
+			--call renew SP
+			--If subscription is still active and within the 30-31 days before expiry date , terminate old and add new record with same configuration with remaining days.
+			--in the case of free subs where AmountTypeId AmountPerUser are null then db will internally get the amount of AmountTypeid= 1 and set it in the amount of free subs records
+			CALL Renew_UserSubscriptions (CAST(bodyRef.IdNo AS CHARACTER),
+			CAST(UserSubScriptions AS CHARACTER),
+			CAST(rInputHeader.UserInfo.IDNumber AS CHAR),
+			CAST(loadedPropertiesRef.Duration AS INT) ,
+			RemoveUM,
+			CAST(AmountTypeId AS INT),
+			CAST(AmountPerUser AS DECIMAL),
+			NULL,
+			CAST(COALESCE(bodyRef.PaymentReference,Environment.Variables.DB.CheckRenwal[1].PaymentReference) AS CHARACTER),
+			Environment.Variables.DB.Renew[])INTO Result ; 
+			IF Result = -1 THEN
+				SET Environment.Variables.MWResponse.status= loadedPropertiesRef.FailedToRenew;
+				PROPAGATE TO TERMINAL 'out1';
+				RETURN FALSE;
+			END IF;
+
+			CALL Create_esbXML_Response_Header(GetESBSuccessCode(),rInputHeader,rOutHeaderRef);		
+
+
+			PROPAGATE TO TERMINAL 'out2';
+			RETURN FALSE;
+		ELSE
+
+			SET OutputRoot.Properties = Environment.Variables.Properties;
+			SET OutputRoot.MQMD = Environment.Variables.MQMD;
+			SET OutputRoot.MQRFH2 = Environment.Variables.MQRFH2;
+
+			SET OutputLocalEnvironment.Destination.HTTP.RequestURL = loadedPropertiesRef.UnifiedTotLabURL;
+
+			SET OutputRoot.XMLNSC.data.laborOfficeId = bodyRef.EstablishmentsList.EstablishmentItem.LaborOfficeId;
+			SET OutputRoot.XMLNSC.data.sequenceNumber = bodyRef.EstablishmentsList.EstablishmentItem.SequenceNumber;
+			SET OutputRoot.XMLNSC.data.ExcludeEconomicActivities = loadedPropertiesRef.ExcludeEconomicActivities;
+			SET OutputRoot.XMLNSC.data.pageIndex VALUE = loadedPropertiesRef.One;
+			SET OutputRoot.XMLNSC.data.pageSize VALUE = loadedPropertiesRef.One;
+			RETURN TRUE;
+		END IF;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+	CREATE PROCEDURE Renew_UserSubscriptions (IN LaborerIdNumber CHARACTER,
+	IN UserSubscriptions CHARACTER,
+	IN RequesterIdNo CHARACTER,
+	IN Duration INT,
+	IN ExcludeUserManagemnet INT,
+	IN AmountTypeId INT,
+	IN AmountPerUser DECIMAL,
+	IN LaborersCount INTEGER,
+	IN PaymentReference CHARACTER)
+	RETURNS INTEGER
+	LANGUAGE DATABASE
+	DYNAMIC RESULT SETS 1
+	EXTERNAL NAME "dbo.Renew_UserSubscriptions";
+END MODULE;

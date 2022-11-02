@@ -1,0 +1,14 @@
+BROKER SCHEMA com.qiwa.esb.getumservicesnonsubscribedusers
+path Qiwa.Framework.Lib;
+
+
+CREATE FILTER MODULE GetUserEstablishmentsHRSD_Timeout
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+	DECLARE loadproperties REFERENCE TO Environment.Properties.GetUMServicesNonSubscribedUsers.HTTP_GetUMServicesNonSubscribedUsersFlow.Variables;	
+	SET Environment.Variables.MWResponse.status = loadproperties.TimeOutError;
+		
+		RETURN TRUE;
+	END;
+
+END MODULE;

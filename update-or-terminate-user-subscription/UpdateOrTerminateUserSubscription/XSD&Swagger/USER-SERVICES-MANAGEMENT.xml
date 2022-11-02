@@ -1,0 +1,44 @@
+<properties refresh-policy="automatic">
+	
+	
+   <group name="UpdateOrTerminateUserSubscription.UpdateOrTerminateUserSubscriptionFlow"> 
+		<group name="Logging">
+			<property name="LogEnabled" value="TRUE" /> 
+			<property name="AuditEnabled" value="FALSE" />
+			<property name="key1" value="" />
+			<property name="value1" value="" />
+			<property name="key2" value="" />
+			<property name="value2" value="" />
+			<property name="key3" value="" />
+			<property name="value3" value="" />
+			<property name="key4" value="" />
+			<property name="value4" value="" />
+		</group>
+			<group name="Variables">
+			<property name="MissingParams" value="E0000004" />
+			<property name="channel" value="ESB" />
+			<property name="Servicecode" value="12" />
+			<property name="zero" value="0" />
+			<property name="two" value="-2" />
+			<property name="one" value="-1" />
+			<property name="InvalidDate" value="E0000083" />
+			<property name="InvalidSub" value="E0000084" /> 
+			<property name="ListError" value="E0000330" />
+ 			<property name="checkUserElig" value="CUEE0001" />  
+			<property name="NoDataFound" value="E0000128" />
+			<property name="DBURL" value="http://datapower.qiwa.info:7089/GetUserEstablishments" />
+			<property name="ExcludeEconomicActivities" value="781011,782002,782001,15,11600,11909,970001" />
+			<property name="OwnerError" value="E0000664" />
+  
+		</group>
+		<group name="SchemaValidation">
+            <property name="ValidationEnabled" value="TRUE" />
+        </group>
+		<group name="Retry">
+				<property name="RetryEnabled" value="FALSE" />
+			<property name="minWaitDurationSec" value="60" />
+			<property name="maxRetryCount" value="5" />
+		</group>
+	</group>
+</properties>
+	

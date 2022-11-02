@@ -1,0 +1,366 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "title" : "CheckUserEstablishmentsEligibility",
+    "version" : "1.0.0",
+    "description" : "CheckUserEstablishmentsEligibility"
+  },
+  "paths" : {
+    "/CheckUserEstablishmentsEligibility" : { 
+      "post" : {
+        "operationId" : "CheckUserEstablishmentsEligibility",
+        "responses" : {
+          "200" : {
+            "description" : "The operation was successful.",
+            "schema" : {
+              "$ref" : "#/definitions/CheckUserEstablishmentsEligibilityRs_MessageType"
+            }
+          }
+        },
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "description" : "Check User Establishments Eligibility",
+        "parameters" : [ {
+          "name" : "body",
+          "in" : "body",
+          "schema" : {
+            "$ref" : "#/definitions/CheckUserEstablishmentsEligibilityRq_MessageType"
+          },
+          "description" : "CheckUserEstablishmentsEligibilityRq",
+          "required" : true
+        } ]
+      }
+    }
+  },
+  "basePath" : "/usermanagement",
+  "definitions" : {
+    "CheckUserEstablishmentsEligibilityRq_MessageType" : {
+      "type" : "object",
+      "properties" : {
+        "CheckUserEstablishmentsEligibilityRq" : {
+          "$ref" : "#/definitions/CheckUserEstablishmentsEligibilityRq_Type"
+        }
+      }
+    },
+    "CheckUserEstablishmentsEligibilityRs_MessageType" : {
+      "type" : "object",
+      "properties" : {
+        "CheckUserEstablishmentsEligibilityRs" : {
+          "$ref" : "#/definitions/CheckUserEstablishmentsEligibilityRs_Type"
+        }
+      }
+    },
+    "CheckUserEstablishmentsEligibilityRq_Type" : {
+      "type" : "object",
+      "properties" : {
+        "Header" : {
+          "$ref" : "#/definitions/ESBXMLRequestHeader_Type"
+        },
+        "Body" : {
+          "$ref" : "#/definitions/CheckUserEstablishmentsEligibilityRq_BodyType"
+        }
+      }
+    },
+    "CheckUserEstablishmentsEligibilityRq_BodyType" : {
+      "type" : "object",
+      "properties" : {
+       
+        "IdNo" : {
+          "type" : "string"
+        },
+        "EstablishmentsList" : {
+          "$ref" : "#/definitions/EstablishmentsList_Type"
+        },
+     "ServiceId" : {
+          "type" : "integer"
+        },
+      
+       "ListAll" : {
+          "type" : "integer"
+        }
+      
+     
+    }
+  
+  },
+  
+    "EstablishmentsList_Type" : {
+      "type" : "object",
+      "properties" : {
+        "EstablishmentsItem" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/EstablishmentsItem_Type"
+          }
+        }
+      }
+    },
+  
+     "EstablishmentsItem_Type" : {
+      "type" : "object",
+      "properties" : {
+      
+      "LaborOfficeId":{
+    "type":"integer"
+    },
+    "EstablishmentSequence":{
+    "type":"integer"
+    }
+    
+      }
+    },
+   
+    "CheckUserEstablishmentsEligibilityRs_Type" : {
+      "type" : "object",
+      "properties" : {
+        "Header" : {
+          "$ref" : "#/definitions/ESBXMLResponseHeader_Type"
+        },
+        "Body" : {
+          "$ref" : "#/definitions/CheckUserEstablishmentsEligibilityRs_BodyType"
+        }
+      }
+    },
+    "CheckUserEstablishmentsEligibilityRs_BodyType" : {
+      "type" : "object",
+      "properties" : {
+      
+       "EligibleEstablishmentsList" : {
+          "$ref" : "#/definitions/EligibleEstablishments_Type"
+        },
+    "NonEligibleEstablishmentsList" : {
+          "$ref" : "#/definitions/NonEligibleEstablishments_Type"
+        }
+    
+    
+      }
+    },
+  
+  "EligibleEstablishments_Type" : {
+      "type" : "object",
+      "properties" : {
+        "EligibleEstablishmentsItem" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/EligibleEstablishmentsItem_Type"
+          }
+        }
+      }
+    },
+  
+  "NonEligibleEstablishments_Type" : {
+      "type" : "object",
+      "properties" : {
+        "NonEligibleEstablishmentsItem" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/NonEligibleEstablishmentsItem_Type"
+          }
+        }
+      }
+    },
+  
+    "EligibleEstablishmentsItem_Type" : {
+      "type" : "object",
+      "properties" : {
+      
+      "LaborOfficeId":{
+    "type":"integer"
+    },
+    "UserType":{
+        "type":"integer"
+        },
+        "EstablishmentId":{
+            "type":"integer"
+            },
+    "EstablishmentSequence":{
+    "type":"integer"
+    },
+    "EstablishmentName":{
+    "type":"string"
+    },
+     "IsMainBranch":{
+    "type":"string"
+    },
+    "UnifiedNumberId":{
+    "type":"integer"
+    }
+    }
+    },
+  
+  "NonEligibleEstablishmentsItem_Type" : {
+      "type" : "object",
+      "properties" : {
+      
+      "LaborOfficeId":{
+    "type":"integer"
+    },
+    "EstablishmentSequence":{
+    "type":"integer"
+    },
+    "UserType":{
+        "type":"integer"
+        },
+        "EstablishmentId":{
+            "type":"integer"
+            },
+    "EstablishmentName":{
+    "type":"string"
+    },
+    "IsMainBranch":{
+    "type":"string"
+    },
+    "UnifiedNumberId":{
+    "type":"integer"
+    },
+    "EligibleForSelfSubscripition":{
+      "type":"integer"
+      } 
+      
+    
+      }
+    },
+   
+  
+    "ESBXMLRequestHeader_Type" : {
+      "type" : "object",
+      "properties" : {
+        "TransactionId" : {
+          "type" : "string"
+        },
+        "ChannelId" : {
+          "type" : "string"
+        },
+        "SessionId" : {
+          "type" : "string"
+        },
+        "RequestTime" : {
+          "type" : "string"
+        },
+        "MWRequestTime" : {
+          "type" : "string"
+        },
+        "ServiceCode" : {
+          "type" : "string"
+        },
+        "DebugFlag" : {
+          "type" : "integer"
+        },
+        "UserInfo" : {
+          "$ref" : "#/definitions/UserInfo_Type"
+        },
+        "UDF" : {
+          "$ref" : "#/definitions/UDF_Type"
+        }
+      },
+      "required" : [ "ServiceCode", "ChannelId", "TransactionId", "RequestTime" ]
+    },
+    "ESBXMLResponseHeader_Type" : {
+      "type" : "object",
+      "properties" : {
+        "TransactionId" : {
+          "type" : "string"
+        },
+        "ChannelId" : {
+          "type" : "string"
+        },
+        "SessionId" : {
+          "type" : "string"
+        },
+        "RequestTime" : {
+          "type" : "string"
+        },
+        "MWRequestTime" : {
+          "type" : "string"
+        },
+        "MWResponseime" : {
+          "type" : "string"
+        },
+        "ServiceCode" : {
+          "type" : "string"
+        },
+        "DebugFlag" : {
+          "type" : "integer"
+        },
+        "UserInfo" : {
+          "$ref" : "#/definitions/UserInfo_Type"
+        },
+        "UDF" : {
+          "$ref" : "#/definitions/UDF_Type"
+        },
+        "ResponseStatus" : {
+          "$ref" : "#/definitions/MWResponseStatus_Type"
+        },
+        "BackendError" : {
+          "$ref" : "#/definitions/BackendError_Type"
+        }
+      },
+      "required" : [ "TransactionId", "ChannelId", "RequestTime", "ServiceCode" ]
+    },
+    "UDF_Type" : {
+      "type" : "object",
+      "properties" : {
+        "KeyValueArr" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/KeyValueArr_Type"
+          }
+        }
+      }
+    },
+    "KeyValueArr_Type" : {
+      "type" : "object",
+      "properties" : {
+        "key" : {
+          "type" : "string"
+        },
+        "value" : {
+          "type" : "string"
+        }
+      }
+    },
+    "Tmstmp_Type" : {
+      "type" : "object"
+    },
+    "UserInfo_Type" : {
+      "type" : "object",
+      "properties" : {
+        "UserId" : {
+          "type" : "integer"
+        },
+        "IDNumber" : {
+          "type" : "integer"
+        }
+      }
+    },
+    "MWResponseStatus_Type" : {
+      "type" : "object",
+      "properties" : {
+        "Status" : {
+          "type" : "string"
+        },
+        "Code" : {
+          "type" : "string"
+        },
+        "ArabicMsg" : {
+          "type" : "string"
+        },
+        "EnglishMsg" : {
+          "type" : "string"
+        }
+      },
+      "required" : [ "Code", "Status", "ArabicMsg", "EnglishMsg" ]
+    },
+    "BackendError_Type" : {
+      "type" : "object",
+      "properties" : {
+        "ErrorCode" : {
+          "type" : "string"
+        },
+        "ErrorDescription" : {
+          "type" : "string"
+        }
+      }
+    }
+  }
+}

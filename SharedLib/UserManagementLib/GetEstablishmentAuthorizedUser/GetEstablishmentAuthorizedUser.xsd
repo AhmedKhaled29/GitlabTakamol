@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema targetNamespace="http://Qiwa/UserManagement/GetEstablishmentAuthorizedUser/v1.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:bons2="http://Qiwa/UserManagement/GetEstablishmentAuthorizedUser/v1.0" xmlns:bons0="http://Qiwa/Common/Types" xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions">
+
+	<xsd:import namespace="http://Qiwa/Common/Types" schemaLocation="../common/types/ESB_common_types_v1.0.xsd"/>
+
+
+	<xsd:element name="GetEstablishmentAuthorizedUserRq" type="bons2:GetEstablishmentAuthorizedUserRq_Type"/>
+	<xsd:element name="GetEstablishmentAuthorizedUserRs" type="bons2:GetEstablishmentAuthorizedUserRs_Type"/>
+
+	<complexType ibmSchExtn:docRoot="true" name="GetEstablishmentAuthorizedUserRq_Type">
+			<sequence>
+				<xsd:element name="Header" type="bons0:ESBXMLRequestHeader_Type"/>
+				<xsd:element name="Body" type="bons2:GetEstablishmentAuthorizedUserRq_BodyType"/>
+			</sequence>
+	</complexType>
+	
+	<complexType ibmSchExtn:docRoot="true" name="GetEstablishmentAuthorizedUserRs_Type">
+			<sequence>
+				<xsd:element name="Header" type="bons0:ESBXMLResponseHeader_Type"/>
+				<xsd:element minOccurs="1" name="Body" type="bons2:GetEstablishmentAuthorizedUserRs_BodyType"/>
+			</sequence>
+	</complexType>
+	
+	
+	<complexType name="GetEstablishmentAuthorizedUserRq_BodyType">
+		<all>
+			<element minOccurs="1" name="LaborOfficeId" type="xsd:integer"/>
+			<element minOccurs="1" name="SequenceNumber"
+				type="xsd:integer" />
+
+		</all>
+	</complexType>
+	
+	
+	
+	
+	
+	<complexType name="GetEstablishmentAuthorizedUserRs_BodyType">
+        <xsd:sequence>
+		
+			<element minOccurs="1" name="AuthorizedIdNo" type="xsd:string" /> 
+			
+		</xsd:sequence>	
+	</complexType>
+	
+		
+	
+	
+	
+	
+</xsd:schema>

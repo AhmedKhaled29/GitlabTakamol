@@ -1,0 +1,28 @@
+BROKER SCHEMA com.qiwa.esb.getqiwaworkspaceservices
+PATH Qiwa.Framework.Lib;
+
+
+CREATE FILTER MODULE CheckUserEstablishment_IsSuccess
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.GetQiwaWorkspaceServices.GetQiwaWorkspaceServicesFlow.Variables;
+		DECLARE statusCode CHAR Root.XMLNSC.CheckUserEstablishmentsEligibilityRs.Header.ResponseStatus.Code;
+		IF statusCode = GetESBSuccessCode() OR
+			statusCode = 'E0000131' OR --loadedPropertiesRef.SomeNonEligibleError OR 
+			statusCode = 'E0000132' THEN --loadedPropertiesRef.AllNonEligibleError THEN
+			 
+			  SET Environment.Variables.CheckUserEstablishmentsEligibilityRs = Root.XMLNSC.CheckUserEstablishmentsEligibilityRs.Body;         
+		
+			  RETURN TRUE;
+	
+		ELSE 
+			
+			SET Environment.Variables.MWResponse.status = Root.XMLNSC.CheckUserEstablishmentsEligibilityRs.Header.ResponseStatus.Code;
+			 
+			RETURN FALSE;
+		 
+		END IF;	
+	
+	END;
+
+END MODULE;

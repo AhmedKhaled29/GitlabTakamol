@@ -1,0 +1,29 @@
+BROKER SCHEMA com.qiwa.esb.renewusersubscription
+
+
+CREATE FILTER MODULE RenewUserSubscriptionFlow_ServiceCallCheck
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		
+		
+	    DECLARE bodyRef REFERENCE TO Root.XMLNSC.RenewUserSubscriptionRq.Body; 
+		DECLARE rInputHeader REFERENCE TO Root.XMLNSC.RenewUserSubscriptionRq.Header;
+		  
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.RenewUserSubscription.RenewUserSubscriptionFlow.Variables; 
+		SET Environment.Variables.Properties = Root.Properties;
+		SET Environment.Variables.MQMD = Root.MQMD;
+		SET Environment.Variables.MQRFH2 = Root.MQRFH2;
+		SET Environment.Variables.XMLNSC = Root.XMLNSC; 
+		
+		DECLARE TotalRecordsCount,Result INT; 
+		
+		IF bodyRef.IdNo <> rInputHeader.UserInfo.IDNumber THEN 
+			--call check user esta elig
+			RETURN TRUE;
+		ELSE
+		    -- skip  check user estab
+			RETURN FALSE;
+		END IF;
+	END;
+
+END MODULE;

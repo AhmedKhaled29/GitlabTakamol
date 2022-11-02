@@ -1,0 +1,18 @@
+BROKER SCHEMA com.qiwa.esb.addorupdateuserprivileges
+PATH Qiwa.Framework.Lib;
+
+
+CREATE FILTER MODULE getEstabInfoMlsd_IsSuccess
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		
+		IF Root.XMLNSC.GetEstablishmentsUnifiedNumberMLSDRs.Header.ResponseStatus.Code = GetESBSuccessCode() THEN
+			SET Environment.Variables.GetEstablishmentsUnified =Root.XMLNSC.GetEstablishmentsUnifiedNumberMLSDRs.Body; 
+			RETURN TRUE;   
+		ELSE 
+			SET Environment.Variables.MWResponse.status = Root.XMLNSC.GetEstablishmentsUnifiedNumberMLSDRs.Header.ResponseStatus.Code;
+			RETURN FALSE;
+		END IF;	
+	END;
+
+END MODULE; 

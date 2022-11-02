@@ -1,0 +1,52 @@
+<properties refresh-policy="automatic">
+	
+<group name="subscribeUserToEstablishments.subscribeUserToEstablishmentsFlow">
+		<group name="Logging">
+			<property name="LogEnabled" value="TRUE" />
+			<property name="AuditEnabled" value="FALSE" />
+			<property name="key1" value="" />
+			<property name="value1" value="" />
+			<property name="key2" value="" />
+			<property name="value2" value="" />
+			<property name="key3" value="" />
+			<property name="value3" value="" />
+			<property name="key4" value="" />
+			<property name="value4" value="" />
+		</group>
+		
+	<group name="Variables">
+			<property name="NoData" value="E0000024" />
+			<property name="NOPAY" value="E0000078" />
+			<property name="NOOWNER" value="E0000130" />
+			<property name="Unfied" value="E0000054" />
+			<property name="EstabUser" value="E0000055" />
+			<property name="NotValid" value="E0000056" />
+			<property name="MW" value="E9999998" /> 
+			<property name="CodeSearch" value="SPT00001" />
+			<property name="CrtUserSub" value="E0000053" />
+            <property name="Code" value="MGUE0001" />
+            <property name="ChannelId" value="ESB" />
+			<property name="Codegetinfo" value="MGEUN001" />
+			<property name="PaymentNeeded" value="E0000116" />
+			<property name="CodeMang" value="GUMS0001" />
+			<property name="CodegetUni" value="MGUNTLC1" />
+			<property name="CUMSP" value="CUMSP001" />
+			<property name="NbUsers" value="1" />
+			
+
+		</group>
+		
+		<group name="SchemaValidation">
+            <property name="ValidationEnabled" value="TRUE" />
+        </group>		
+		
+		<group name="Retry">
+			<property name="RetryEnabled" value="FALSE" />
+			<property name="minWaitDurationSec" value="60" />
+			<property name="maxRetryCount" value="5" />
+		</group>
+	</group>
+	
+	
+</properties>
+	

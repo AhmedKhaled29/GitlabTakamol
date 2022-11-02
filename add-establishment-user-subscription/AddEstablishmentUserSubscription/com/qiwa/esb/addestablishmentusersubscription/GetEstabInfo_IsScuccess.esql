@@ -1,0 +1,39 @@
+BROKER SCHEMA com.qiwa.esb.addestablishmentusersubscription
+PATH Qiwa.Framework.Lib; 
+
+
+CREATE FILTER MODULE GetEstabInfo_IsScuccess
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+	 IF Root.XMLNSC.GetEstablishmentsUnifiedNumberMLSDRs.Header.ResponseStatus.Code  = GetESBSuccessCode() THEN 
+			  --SET Environment.Variabl.GetInfo = Root.XMLNSC.GetEstablishmentsUnifiedNumberMLSDRs.Body;   
+			  
+			  DECLARE x INT 1;
+			  DECLARE y INT CARDINALITY(Environment.Variables.Body.SubscriptionsList.SubscriptionItem[]);
+			  WHILE x <= y DO
+			  		SET Environment.Variabl.GetInfo.UnifiedNumbersList.UnifiedNumbers[x].EstablishmentId = 
+			  			Environment.Variables.Body.SubscriptionsList.SubscriptionItem[x].EstablishmentId;
+
+			  		
+			  		SET Environment.Variabl.UnifiedNumber[] = 
+			  			SELECT R.UnifiedNumberId AS UnifiedNumberId
+			  				FROM Root.XMLNSC.GetEstablishmentsUnifiedNumberMLSDRs.Body.UnifiedNumbersList.UnifiedNumbers[] AS R
+			  				WHERE R.EstablishmentId = Environment.Variables.Body.SubscriptionsList.SubscriptionItem[x].EstablishmentId;
+			  			
+			  	    SET Environment.Variabl.GetInfo.UnifiedNumbersList.UnifiedNumbers[x].UnifiedNumberId = 
+			  	    	Environment.Variabl.UnifiedNumber.UnifiedNumberId;
+			  	SET x= x + 1;
+			  END WHILE;
+		
+			  RETURN TRUE;
+	
+		ELSE 
+			
+			SET Environment.Variables.MWResponse.status = Root.XMLNSC.GetEstablishmentsUnifiedNumberMLSDRs.Header.ResponseStatus.Code;
+			 
+			RETURN FALSE;
+		 
+		END IF;	END;
+
+END MODULE;
+ 

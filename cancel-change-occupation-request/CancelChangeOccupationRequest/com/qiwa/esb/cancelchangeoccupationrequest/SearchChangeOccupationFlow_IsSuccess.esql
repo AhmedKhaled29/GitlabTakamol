@@ -1,0 +1,19 @@
+BROKER SCHEMA com.qiwa.esb.cancelchangeoccupationrequest
+PATH Qiwa.Framework.Lib;
+
+CREATE FILTER MODULE SearchChangeOccupationFlow_IsSuccess
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.CancelChangeOccupationRequest.CancelChangeOccupationRequestFlow;
+		
+       IF Root.XMLNSC.SearchChangeOccupationRs.Header.ResponseStatus.Code  = GetESBSuccessCode() THEN   
+ 			  SET Environment.Variabl.SearchChangeOccupationRs = Root.XMLNSC.SearchChangeOccupationRs.Body;   
+ 			 
+			  RETURN TRUE;
+		ELSE 
+			SET Environment.Variables.MWResponse.status = Root.XMLNSC.SearchChangeOccupationRs.Header.ResponseStatus.Code;
+			RETURN FALSE;
+		END IF;
+	END;
+	
+	END MODULE;

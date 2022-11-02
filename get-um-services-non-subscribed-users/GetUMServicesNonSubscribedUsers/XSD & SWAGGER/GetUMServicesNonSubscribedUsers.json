@@ -1,0 +1,303 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "title" : "GetUMServicesNonSubscribedUsers",
+    "version" : "1.0.0",
+    "description" : "Get UM Services NonSubscribed Users"
+  },
+  "paths" : {
+    "/getumservicesnonsubscribedusers" : {
+      "post" : {
+        "operationId" : "GetUMServicesNonSubscribedUsers",
+        "responses" : {
+          "200" : {
+            "description" : "The operation was successful.",
+            "schema" : {
+              "$ref" : "#/definitions/GetUMServicesNonSubscribedUsersRs_MessageType"
+            }
+          }
+        },
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "description" : "Get UM Services NonSubscribed Users",
+        "parameters" : [ {
+          "name" : "body",
+          "in" : "body",
+          "schema" : {
+            "$ref" : "#/definitions/GetUMServicesNonSubscribedUsersRq_MessageType"
+          },
+          "description" : "GetUMServicesNonSubscribedUsersRq",
+          "required" : true
+        } ]
+      }
+    }
+  },
+  "basePath" : "/usermanagement",
+  "definitions" : {
+    "GetUMServicesNonSubscribedUsersRq_MessageType" : {
+      "type" : "object",
+      "properties" : {
+        "GetUMServicesNonSubscribedUsersRq" : {
+          "$ref" : "#/definitions/GetUMServicesNonSubscribedUsersRq_Type"
+        }
+      }
+    },
+    "GetUMServicesNonSubscribedUsersRs_MessageType" : {
+      "type" : "object",
+      "properties" : {
+        "GetUMServicesNonSubscribedUsersRs" : {
+          "$ref" : "#/definitions/GetUMServicesNonSubscribedUsersRs_Type"
+        }
+      }
+    },
+    "GetUMServicesNonSubscribedUsersRq_Type" : {
+      "type" : "object",
+      "properties" : {
+        "Header" : {
+          "$ref" : "#/definitions/ESBXMLRequestHeader_Type"
+        },
+        "Body" : {
+          "$ref" : "#/definitions/GetUMServicesNonSubscribedUsersRq_BodyType"
+        }
+      }
+    },
+    "GetUMServicesNonSubscribedUsersRq_BodyType" : {
+      "type" : "object",
+      "properties" : {
+       
+    
+    "IdNo" : {
+         "type" : "string"
+        },
+      "LaborOfficeId" : {
+          "type" : "integer"
+      },
+      "SequanceNumber" : {
+          "type" : "integer"
+      }
+    }, "required" : ["IdNo", "LaborOfficeId", "SequanceNumber"]
+  },
+  
+   
+   
+    "GetUMServicesNonSubscribedUsersRs_Type" : {
+      "type" : "object",
+      "properties" : {
+        "Header" : {
+          "$ref" : "#/definitions/ESBXMLResponseHeader_Type"
+        },
+        "Body" : {
+          "$ref" : "#/definitions/GetUMServicesNonSubscribedUsersRs_BodyType"
+        }
+      }
+    },
+    "GetUMServicesNonSubscribedUsersRs_BodyType" : {
+      "type" : "object",
+      "properties" : {
+        "ServicesList":{
+           "$ref" : "#/definitions/ServicesList_Type"
+            }
+      }
+    },
+  
+   "ServicesList_Type" : {
+      "type" : "object",
+      "properties" : {
+        "ServiceItem" : {
+          "type" : "array" ,
+          "items" :{ 
+           "$ref" : "#/definitions/ServiceItem_Type"
+
+            }
+        }
+      }
+    },
+    
+    "ServiceItem_Type" : {
+      "type" : "object",
+      "properties" : {
+    "Group" : {
+        "$ref" : "#/definitions/Group_Type"  
+        },
+    "Service" : {
+        "$ref" : "#/definitions/Service_Type"  
+        }
+      }, "required" : ["Group", "Service"]
+    },
+	
+	
+	"Group_Type" : {
+      "type" : "object",
+      "properties" : {
+		"GroupId" : {
+          "type" : "integer"
+        },
+		"GroupNameEn" : {
+          "type" : "string"
+        },
+		"GroupNameAr" : {
+          "type" : "string"
+        }
+      }, "required" : ["GroupId", "GroupNameEn", "GroupNameAr"]
+    },
+	
+	
+	 "Service_Type" : {
+      "type" : "object",
+      "properties" : {
+	 "ServiceId" : {
+          "type" : "integer"
+        },
+     "ServiceNameEn" : {
+          "type" : "string"
+        },
+        "ServiceNameAr" : {
+            "type" : "string"
+          }
+      }, "required" : ["ServiceId", "ServiceNameEn", "ServiceNameAr"]
+    },
+  
+  
+  
+    "ESBXMLRequestHeader_Type" : {
+      "type" : "object",
+      "properties" : {
+        "TransactionId" : {
+          "type" : "string"
+        },
+        "ChannelId" : {
+          "type" : "string"
+        },
+        "SessionId" : {
+          "type" : "string"
+        },
+        "RequestTime" : {
+          "type" : "string"
+        },
+        "MWRequestTime" : {
+          "type" : "string"
+        },
+        "ServiceCode" : {
+          "type" : "string"
+        },
+        "DebugFlag" : {
+          "type" : "integer"
+        },
+        "UserInfo" : {
+          "$ref" : "#/definitions/UserInfo_Type"
+        },
+        "UDF" : {
+          "$ref" : "#/definitions/UDF_Type"
+        }
+      },
+      "required" : [ "ServiceCode", "ChannelId", "TransactionId", "RequestTime" ]
+    },
+    "ESBXMLResponseHeader_Type" : {
+      "type" : "object",
+      "properties" : {
+        "TransactionId" : {
+          "type" : "string"
+        },
+        "ChannelId" : {
+          "type" : "string"
+        },
+        "SessionId" : {
+          "type" : "string"
+        },
+        "RequestTime" : {
+          "type" : "string"
+        },
+        "MWRequestTime" : {
+          "type" : "string"
+        },
+        "MWResponseime" : {
+          "type" : "string"
+        },
+        "ServiceCode" : {
+          "type" : "string"
+        },
+        "DebugFlag" : {
+          "type" : "integer"
+        },
+        "UserInfo" : {
+          "$ref" : "#/definitions/UserInfo_Type"
+        },
+        "UDF" : {
+          "$ref" : "#/definitions/UDF_Type"
+        },
+        "ResponseStatus" : {
+          "$ref" : "#/definitions/MWResponseStatus_Type"
+        },
+        "BackendError" : {
+          "$ref" : "#/definitions/BackendError_Type"
+        }
+      },
+      "required" : [ "TransactionId", "ChannelId", "RequestTime", "ServiceCode" ]
+    },
+    "UDF_Type" : {
+      "type" : "object",
+      "properties" : {
+        "KeyValueArr" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/KeyValueArr_Type"
+          }
+        }
+      }
+    },
+    "KeyValueArr_Type" : {
+      "type" : "object",
+      "properties" : {
+        "key" : {
+          "type" : "string"
+        },
+        "value" : {
+          "type" : "string"
+        }
+      }
+    },
+    "Tmstmp_Type" : {
+      "type" : "object"
+    },
+    "UserInfo_Type" : {
+      "type" : "object",
+      "properties" : {
+        "UserId" : {
+          "type" : "integer"
+        },
+        "IDNumber" : {
+          "type" : "integer"
+        }
+      }
+    },
+    "MWResponseStatus_Type" : {
+      "type" : "object",
+      "properties" : {
+        "Status" : {
+          "type" : "string"
+        },
+        "Code" : {
+          "type" : "string"
+        },
+        "ArabicMsg" : {
+          "type" : "string"
+        },
+        "EnglishMsg" : {
+          "type" : "string"
+        }
+      },
+      "required" : [ "Code", "Status", "ArabicMsg", "EnglishMsg" ]
+    },
+    "BackendError_Type" : {
+      "type" : "object",
+      "properties" : {
+        "ErrorCode" : {
+          "type" : "string"
+        },
+        "ErrorDescription" : {
+          "type" : "string"
+        }
+      }
+    }
+  }
+}

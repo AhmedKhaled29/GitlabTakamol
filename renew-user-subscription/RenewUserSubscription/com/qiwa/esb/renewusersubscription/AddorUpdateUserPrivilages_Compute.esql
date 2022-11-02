@@ -1,0 +1,76 @@
+BROKER SCHEMA com.qiwa.esb.renewusersubscription
+
+
+CREATE COMPUTE MODULE AddorUpdateUserPrivilages_mlsdcall
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage(); 
+		IF FIELDNAME(Environment.Variables) IS NULL THEN
+			CREATE FIELD Environment.Variables;
+		END IF;
+		DECLARE EV REFERENCE TO Environment.Variables;
+		DECLARE bodyRef REFERENCE TO EV.XMLNSC.RenewUserSubscriptionRq.Body;
+		DECLARE rInputHeader REFERENCE TO EV.XMLNSC.RenewUserSubscriptionRq.Header;
+		DECLARE i INTEGER 1;
+		
+		SET OutputRoot.Properties = EV.Properties;
+		SET OutputRoot.MQMD = EV.MQMD;
+		SET OutputRoot.MQRFH2 = EV.MQRFH2;
+		
+		
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.RenewUserSubscription.RenewUserSubscriptionFlow;
+
+		CREATE LASTCHILD OF OutputRoot DOMAIN ('XMLNSC');
+
+		SET OutputRoot.XMLNSC.AddOrUpdateUserPrivilegesRq.Header = rInputHeader;
+
+		DECLARE rOutputHeader REFERENCE TO OutputRoot.XMLNSC.AddOrUpdateUserPrivilegesRq.Header;
+
+		CREATE LASTCHILD OF OutputRoot.XMLNSC.AddOrUpdateUserPrivilegesRq NAME 'Body';
+		DECLARE outRef REFERENCE TO OutputRoot.XMLNSC.AddOrUpdateUserPrivilegesRq.Body;
+		
+		SET rOutputHeader.ServiceCode = loadedPropertiesRef.Variables.ServiceCodeAOUUP;
+		SET rOutputHeader.ChannelId = loadedPropertiesRef.Variables.ChannelId;
+
+		SET outRef.UserId = COALESCE(bodyRef.UserId,NULL);
+		SET outRef.IdNo = COALESCE(bodyRef.IdNo,NULL);
+		DECLARE cnt,cnt1 INTEGER 1;
+		FOR INPUTMSG AS bodyRef.EstablishmentsList.EstablishmentItem[] DO
+			SET outRef.EstablishmentsList.EstablishmentsItem[cnt].LaborOfficeId = INPUTMSG.LaborOfficeId;
+			SET outRef.EstablishmentsList.EstablishmentsItem[cnt].EstablishmentSequence = INPUTMSG.SequenceNumber;
+			SET EV.SPXML2DATA.R[]=SELECT * FROM EV.SPXML2.XMLNSC.UsersSubscriptionList.UserSubscription[] AS P WHERE P.SequenceNumber=INPUTMSG.SequenceNumber AND P.LaborOfficeId=INPUTMSG.LaborOfficeId;
+			SET cnt1=1;
+			IF EXISTS(EV.SPXML2DATA.R[]) THEN
+				FOR SOURCE AS EV.SPXML2DATA.R[] DO
+					SET outRef.EstablishmentsList.EstablishmentsItem[cnt].ServicesList.ServicesItem[cnt1].ServiceId = SOURCE.ServiceID;
+					SET cnt1=cnt1+1;
+				END FOR;
+				SET EV.SPXML2DATA = NULL;
+				SET cnt=cnt+1;
+			ELSE
+				SET outRef.EstablishmentsList.EstablishmentsItem[cnt].LaborOfficeId = NULL;
+				SET outRef.EstablishmentsList.EstablishmentsItem[cnt].EstablishmentSequence = NULL;
+				DELETE FIELD outRef.EstablishmentsList.EstablishmentsItem[cnt];
+			END IF;
+		END FOR;
+		SET outRef.AddOrUpdate = loadedPropertiesRef.Variables.AddOrUpdate;
+
+		SET Environment.InternalServiceCaller.callCorrIDOffset = '14';
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;

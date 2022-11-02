@@ -1,0 +1,13 @@
+BROKER SCHEMA com.qiwa.esb.calculateusermanagementsubscriptionprice
+PATH Qiwa.Framework.Lib;
+
+
+CREATE FILTER MODULE CallGetUnified_TimeOut
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE loadproperties REFERENCE TO Environment.Properties.CalculateUserManagementSubscriptionPrice.CalculateUserManagementSubscriptionPriceFlow.Variables;
+		SET Environment.Variables.MWResponse.status = loadproperties.TimeOutError;
+		RETURN TRUE;
+	END;
+
+END MODULE;

@@ -1,0 +1,11 @@
+BROKER SCHEMA com.qiwa.esb.addestablishmentusersubscription
+
+
+CREATE FILTER MODULE CalcUMSubs_Timeout
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET Environment.Variables.MWResponse.status = Environment.Properties.AddEstablishmentUserSubscription.AddEstablishmentUserSubscriptionFlow.Variables.TimeOutError;
+		RETURN TRUE;
+	END;
+
+END MODULE;

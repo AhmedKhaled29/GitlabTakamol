@@ -1,0 +1,131 @@
+BROKER SCHEMA com.qiwa.esb.getnearlysubstobeexpired
+PATH Qiwa.Framework.Lib; 
+
+CREATE COMPUTE MODULE HTTP_GetNearlySubsToBeExpiredFlow_DBCALL
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		 CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage();
+		
+		IF EXISTS(Environment.Properties.GetNearlySubsToBeExpired.HTTP_INT_GetNearlySubsToBeExpiredFlow[]) THEN	  
+			SET Environment.Properties.GetNearlySubsToBeExpired.HTTP_GetNearlySubsToBeExpiredFlow = Environment.Properties.GetNearlySubsToBeExpired.HTTP_INT_GetNearlySubsToBeExpiredFlow; 
+			DELETE FIELD Environment.Properties.GetNearlySubsToBeExpired.HTTP_INT_GetNearlySubsToBeExpiredFlow; 	
+		END IF;
+		
+		--input properties 
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.GetNearlySubsToBeExpired.HTTP_GetNearlySubsToBeExpiredFlow.Variables;
+		
+		--input refference 
+		DECLARE rInHeaderRef REFERENCE TO InputRoot.XMLNSC.GetNearlySubsToBeExpiredRq.Header;
+		DECLARE rInBodyRef REFERENCE TO InputRoot.XMLNSC.GetNearlySubsToBeExpiredRq.Body;
+		
+		--output Header refference 
+		CREATE FIRSTCHILD OF OutputRoot.XMLNSC.GetNearlySubsToBeExpiredRs NAME 'Header';
+		DECLARE rOutHeaderRef REFERENCE TO OutputRoot.XMLNSC.GetNearlySubsToBeExpiredRs.Header;
+
+		DECLARE TotalRecordsCount  INT ;
+		
+		IF ((rInBodyRef.UnifiedNumberId IS NOT NULL) OR (rInBodyRef.LaborOfficeId IS NOT NULL AND rInBodyRef.SequenceNumber IS NOT NULL) OR rInBodyRef.IdNo IS NOT NULL OR rInBodyRef.UserId IS NOT NULL) THEN
+			
+			--call stored procedure 
+			CALL Get_NearlySubsToBeExpired(COALESCE(CAST(rInBodyRef.IdNo AS CHAR),null), 
+			COALESCE(CAST(rInBodyRef.UserId AS INT),null),
+			COALESCE(CAST(rInBodyRef.LaborOfficeId AS INT),null),
+			COALESCE(CAST(rInBodyRef.SequenceNumber AS INT),null),
+			COALESCE(CAST(rInBodyRef.UnifiedNumberId AS INT),null),
+			COALESCE(CAST(rInBodyRef.DateFrom AS CHAR FORMAT 'yyyy-MM-dd hh:mm:ss.SSS'),null),   
+			COALESCE(CAST(rInBodyRef.DateTo AS CHAR FORMAT 'yyyy-MM-dd hh:mm:ss.SSS'),null), 
+			COALESCE(CAST(rInBodyRef.PageSize AS INT),null), 
+			COALESCE(CAST(rInBodyRef.PageIndex AS INT),null),
+			TotalRecordsCount,
+			Environment.Variables.DB.ResultSet[]); 
+			
+			
+			--record count  
+			DECLARE resultSetCount INT CARDINALITY(Environment.Variables.DB.ResultSet[]);
+			 
+			--Check for Data
+			IF resultSetCount<> 0 THEN
+				CALL Create_esbXML_Response_Header(GetESBSuccessCode(),rInHeaderRef,rOutHeaderRef); 
+				--output Body  refference 
+				CREATE LASTCHILD OF OutputRoot.XMLNSC.GetNearlySubsToBeExpiredRs NAME 'Body'; 
+				DECLARE rOutBodyRef REFERENCE TO OutputRoot.XMLNSC.GetNearlySubsToBeExpiredRs.Body; 
+				DECLARE I INT 1;
+				WHILE I <= resultSetCount DO
+					SET rOutBodyRef.UsersList.UserItem[I].IdNo VALUE  = Environment.Variables.DB.ResultSet[I].IDNO;
+					SET rOutBodyRef.UsersList.UserItem[I].UserId VALUE  = Environment.Variables.DB.ResultSet[I].UserID; 
+					SET rOutBodyRef.UsersList.UserItem[I].Name VALUE  = Environment.Variables.DB.ResultSet[I].Name; 
+					SET rOutBodyRef.UsersList.UserItem[I].MobileNumber VALUE = Environment.Variables.DB.ResultSet[I].MobileNumber;
+					SET rOutBodyRef.UsersList.UserItem[I].Email VALUE  = Environment.Variables.DB.ResultSet[I].Email;
+					
+					IF Environment.Variables.DB.ResultSet[I].Subscriptions IS NOT NULL THEN
+						DECLARE SubscriptionListInXML CHAR Environment.Variables.DB.ResultSet[I].Subscriptions; 
+			            DECLARE SubscriptionMessage BLOB CAST (SubscriptionListInXML AS BLOB CCSID 1208); 
+			            CREATE LASTCHILD OF Environment.Variables.SubscriptionList DOMAIN('XMLNSC') PARSE(SubscriptionMessage,546,1208); 
+						
+						DECLARE SubscriptionCount INT CARDINALITY(Environment.Variables.SubscriptionList.XMLNSC.Subscriptions.Subscription[]);  
+						DECLARE J INT 1; 
+						WHILE J <= SubscriptionCount DO
+							SET rOutBodyRef.UsersList.UserItem[I].SubscriptionsList.SubscriptionsItem[J].LaborOfficeId VALUE = Environment.Variables.SubscriptionList.XMLNSC.Subscriptions.Subscription[J].LaborOfficeId;
+							SET rOutBodyRef.UsersList.UserItem[I].SubscriptionsList.SubscriptionsItem[J].SequenceNumber VALUE = Environment.Variables.SubscriptionList.XMLNSC.Subscriptions.Subscription[J].SequenceNumber;
+							SET rOutBodyRef.UsersList.UserItem[I].SubscriptionsList.SubscriptionsItem[J].UnifiedNumberId VALUE = Environment.Variables.SubscriptionList.XMLNSC.Subscriptions.Subscription[J].UnifiedNumber;  
+							SET rOutBodyRef.UsersList.UserItem[I].SubscriptionsList.SubscriptionsItem[J].Status.StatusId VALUE = Environment.Variables.SubscriptionList.XMLNSC.Subscriptions.Subscription[J].StatusId; 
+							SET rOutBodyRef.UsersList.UserItem[I].SubscriptionsList.SubscriptionsItem[J].Status.StatusEn VALUE = Environment.Variables.SubscriptionList.XMLNSC.Subscriptions.Subscription[J].StatusEn;
+							SET rOutBodyRef.UsersList.UserItem[I].SubscriptionsList.SubscriptionsItem[J].Status.StatusAr VALUE = Environment.Variables.SubscriptionList.XMLNSC.Subscriptions.Subscription[J].StatusAr;
+							SET rOutBodyRef.UsersList.UserItem[I].SubscriptionsList.SubscriptionsItem[J].StartDate VALUE = Environment.Variables.SubscriptionList.XMLNSC.Subscriptions.Subscription[J].StartDate; 
+							SET rOutBodyRef.UsersList.UserItem[I].SubscriptionsList.SubscriptionsItem[J].ExpiredDate VALUE = Environment.Variables.SubscriptionList.XMLNSC.Subscriptions.Subscription[J].ExpiredDate; 
+							SET rOutBodyRef.UsersList.UserItem[I].SubscriptionsList.SubscriptionsItem[J].Subscription.SubscriptionId VALUE = Environment.Variables.SubscriptionList.XMLNSC.Subscriptions.Subscription[J].SubscriptionId; 
+							SET rOutBodyRef.UsersList.UserItem[I].SubscriptionsList.SubscriptionsItem[J].Subscription.SubscriptionTypeEn VALUE = Environment.Variables.SubscriptionList.XMLNSC.Subscriptions.Subscription[J].SubscriptionTypeEn;
+							SET rOutBodyRef.UsersList.UserItem[I].SubscriptionsList.SubscriptionsItem[J].Subscription.SubscriptionTypeAr VALUE = Environment.Variables.SubscriptionList.XMLNSC.Subscriptions.Subscription[J].SubscriptionTypeAr; 
+							SET J = J + 1;
+						END WHILE;
+					ELSE
+						SET rOutBodyRef.UsersList.UserItem[I].SubscriptionsList VALUE = NULL; 
+					END IF;
+					SET I = I + 1;
+				END WHILE;
+				SET rOutBodyRef.TotalRecordsCount VALUE = Environment.Variables.DB.ResultSet[1].TotalRecordsCount; 
+			ELSE
+				CALL Create_esbXML_Response_Header(loadedPropertiesRef.NoData,rInHeaderRef,rOutHeaderRef); 
+			END IF;
+			
+		ELSE
+			CALL Create_esbXML_Response_Header(loadedPropertiesRef.MissingParameters,rInHeaderRef,rOutHeaderRef); 
+		END IF;
+		
+		
+		
+		
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+	
+	-- create procedure 
+	CREATE PROCEDURE Get_NearlySubsToBeExpired( 
+	                                    IN IdNo CHAR,					
+	                                    IN UserID INT,		
+	                                    IN LaborOfficeId INT,	
+	                                    IN SequenceNumber INT,
+	                                    IN UnifiedNumberId INT, 
+	                                    IN DateFrom CHAR,  			
+	                                    IN DateTo  CHAR,   		
+	                                    IN PageSize   INT,		
+	                                    IN PageIndex INT, 			
+	                                    INOUT TotalRecordsCount INT
+				 		  	 )															 
+LANGUAGE DATABASE DYNAMIC RESULT SETS 1 EXTERNAL NAME "dbo.Get_NearlySubsToBeExpired";
+
+END MODULE;

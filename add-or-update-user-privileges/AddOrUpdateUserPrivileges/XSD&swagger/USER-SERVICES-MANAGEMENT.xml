@@ -1,0 +1,67 @@
+<properties refresh-policy="automatic">
+
+
+<group name="AddOrUpdateUserPrivileges.AddOrUpdateUserPrivilegesFlow"> 
+		<group name="Logging">
+			<property name="LogEnabled" value="TRUE" /> 
+			<property name="AuditEnabled" value="FALSE" />
+			<property name="key1" value="" />
+			<property name="value1" value="" />
+			<property name="key2" value="" />
+			<property name="value2" value="" />
+			<property name="key3" value="" />
+			<property name="value3" value="" />
+			<property name="key4" value="" />
+			<property name="value4" value="" />
+		</group>
+		<group name="Variables">
+			<property name="NoDataFound" value="E0000024" />
+			<property name="MissingParameters" value="E0000004" />
+			<property name="ChannelID" value="ESB" />
+			 
+			<property name="getUnified" value="MGEUN001"/>  
+
+			<property name="EstabEligCode" value="CUEE0001" />
+			<property name="UserInfoCode" value="GUI00001" />
+			<property name="LabourInfoCode" value="MGLI0001" />
+			<property name="TimeOutError"    value="E9999998" />
+			<property name="ServiceId"    value="12"/>
+			<property name="ErrorCode"    value="E0000042"/> 
+			<property name="InactiveUser"    value="E0000050"/>
+			<property name="NoActiveSubscription" value="The User isnt Registered On This Establishment So User Management Privileges Couldnt Be Added" />
+			<property name="NoActiveService" value="E0000095"/>
+			<property name="SomeMatchedSubscriptions" value="User has some matched subscriptions"/>
+			<property name="SomeMatchedSubscription" value="E0000094"/>
+			<property name="Noprivileges" value="E0000097"/>
+			<property name="NoSubscription" value="User has No Subscription"/>
+			<property name="ActiveSubscription" value="User has Active Subscription"/>
+			<property name="Active" value="Success"/>
+			<property name="NoActive" value="Error"/>
+			<property name="NoActiveService" value="NoActiveServiceId"/>
+			<property name="NoDataFound" value="E0000024" />
+			<property name="NoMatchLaborerInfo" value="User has Not Registered" />
+			<property name="procedureNotUpdated" value="E0000096" />
+			<property name="NoMatchLaborerInform" value="E0000115" />
+			<property name="noUserInfo" value="E0000118" />
+			<property name="userEstab" value="MGUE0001" />
+            <property name="NoEstError" value="E0000128" />
+			<property name="Ask_Owner" value="E0000048" />
+			<property name="owner" value="E0000127" />
+
+			
+			
+		</group>
+		<group name="SchemaValidation">
+            <property name="ValidationEnabled" value="TRUE" />
+        </group>
+		<group name="Retry">
+				<property name="RetryEnabled" value="FALSE" />
+			<property name="minWaitDurationSec" value="60" />
+			<property name="maxRetryCount" value="5" />
+		</group>
+	</group>
+	
+
+	
+</properties>
+	

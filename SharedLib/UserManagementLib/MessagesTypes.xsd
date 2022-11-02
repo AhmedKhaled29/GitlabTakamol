@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:bons0= "http://Qiwa/Common/Types"
+	xmlns:bons1="http://Qiwa/UserManagement/GetUserManagementServices/v1.0"
+	xmlns:bons2="http://Qiwa/UserManagement/CreateUser/v1.0"
+	xmlns:bons3="http://Qiwa/UserManagement/GetSubscriptionsConfigurations/v1.0"
+	xmlns:bons4="http://Qiwa/UserManagement/GetUserEligibleServices/v1.0"
+	xmlns:bons5="http://Qiwa/UserManagement/GetUserInformation/v1.0"
+	xmlns:bons6="http://Qiwa/UserManagement/SearchUserSubscriptions/v1.0"
+	xmlns:bons7="http://Qiwa/UserManagement/UpdateUserInformation/v1.0"
+	xmlns:bons8="http://Qiwa/UserManagement/ValidateMobileNumber/v1.0"
+	xmlns:bons9="http://Qiwa/UserManagement/UpdateOrConfirmMobileNumber/v1.0"
+	xmlns:bons10="http://Qiwa/UserManagement/CheckUserEligibility/v1.0"
+	xmlns:bons11="http://Qiwa/UserManagement/CheckUserEstablishmentsEligibility/v1.0"
+	xmlns:bons12="http://Qiwa/UserManagement/SubscribeUserToEstablishments/v1.0"
+	xmlns:bons13="http://Qiwa/UserManagement/AddEstablishmentUserSubscription/v1.0"
+	xmlns:bons14="http://Qiwa/UserManagement/RenewUserSubscription/v1.0"
+	xmlns:bons15="http://Qiwa/UserManagement/AddOrUpdateUserPrivileges/v1.0"
+	xmlns:bons16="http://Qiwa/UserManagement/CheckAddedUserEligibility/v1.0"
+	xmlns:bons17="http://Qiwa/UserManagement/DeleteUser/v1.0"
+	xmlns:bons18="http://Qiwa/UserManagement/UpdateOrTerminateUserSubscription/v1.0"
+	xmlns:bons19="http://Qiwa/UserManagement/CalculateUserManagementSubscriptionPrice/v1.0"
+	xmlns:bons20="http://Qiwa/UserManagement/GetQiwaWorkspaceEstablishments/v1.0"
+	xmlns:bons21="http://Qiwa/UserManagement/GetEstablishmentAuthorizedUser/v1.0"
+	xmlns:bons22="http://Qiwa/UserManagement/GetPaymentswithoutUserSubscriptions/v1.0"
+	xmlns:bons23="http://Qiwa/UserManagement/SearchUsersSubUniNum/v1.0"
+	xmlns:bons24="http://Qiwa/UserManagement/GetNearlySubsToBeExpired/v1.0"
+	xmlns:bons25="http://Qiwa/UserManagement/GetUMServicesNonSubscribedUsers/v1.0"
+	>
+	
+	<xsd:import
+		namespace="http://Qiwa/UserManagement/GetUserManagementServices/v1.0"
+		schemaLocation="GetUserManagementServices/GetUserManagementServices.xsd" />
+		
+	<xsd:import
+		namespace="http://Qiwa/UserManagement/CreateUser/v1.0"
+		schemaLocation="CreateUser/CreateUser.xsd" />
+		
+	<xsd:import
+		namespace="http://Qiwa/UserManagement/GetSubscriptionsConfigurations/v1.0"
+		schemaLocation="GetSubscriptionsConfigurations/GetSubscriptionsConfigurations.xsd" />
+		
+	<xsd:import
+		namespace="http://Qiwa/UserManagement/GetUserEligibleServices/v1.0"
+		schemaLocation="GetUserEligibleServices/GetUserEligibleServices.xsd" />
+		
+	<xsd:import
+		namespace="http://Qiwa/UserManagement/GetUserInformation/v1.0"
+		schemaLocation="getUserInformation/getUserInformation.xsd" />
+		
+	<xsd:import
+		namespace="http://Qiwa/UserManagement/SearchUserSubscriptions/v1.0"
+		schemaLocation="SearchUserSubscriptions/SearchUserSubscriptions.xsd" />
+		
+	<xsd:import
+		namespace="http://Qiwa/UserManagement/UpdateUserInformation/v1.0"
+		schemaLocation="UpdateUserInformation/UpdateUserInformation.xsd" />
+		
+	<xsd:import
+		namespace="http://Qiwa/UserManagement/ValidateMobileNumber/v1.0"
+		schemaLocation="ValidateMobileNumber/ValidateMobileNumber.xsd" />
+		
+	<xsd:import
+		namespace="http://Qiwa/UserManagement/UpdateOrConfirmMobileNumber/v1.0"
+		schemaLocation="UpdateOrConfirmMobileNumber/UpdateOrConfirmMobileNumber.xsd" />
+		
+	<xsd:import
+		namespace="http://Qiwa/UserManagement/CheckUserEligibility/v1.0"
+		schemaLocation="CheckUserEligibility/CheckUserEligibility.xsd" />
+		
+	<xsd:import
+		namespace="http://Qiwa/UserManagement/CheckUserEstablishmentsEligibility/v1.0"
+		schemaLocation="CheckUserEstablishmentsEligibility/CheckUserEstablishmentsEligibility.xsd" />
+		
+	<xsd:import
+		namespace="http://Qiwa/UserManagement/SubscribeUserToEstablishments/v1.0"
+		schemaLocation="SubscribeUserToEstablishments/SubscribeUserToEstablishments.xsd" />
+		
+	<xsd:import
+		namespace="http://Qiwa/UserManagement/AddEstablishmentUserSubscription/v1.0"
+		schemaLocation="AddEstablishmentUserSubscription/AddEstablishmentUserSubscription.xsd" />
+		
+	<xsd:import
+		namespace="http://Qiwa/UserManagement/RenewUserSubscription/v1.0"
+		schemaLocation="RenewUserSubscription/RenewUserSubscription.xsd" />
+		
+	<xsd:import
+		namespace="http://Qiwa/UserManagement/AddOrUpdateUserPrivileges/v1.0"
+		schemaLocation="AddOrUpdateUserPrivileges/AddOrUpdateUserPrivileges.xsd" />
+		
+	<xsd:import
+		namespace="http://Qiwa/UserManagement/CheckAddedUserEligibility/v1.0"
+		schemaLocation="CheckAddedUserEligibility/CheckAddedUserEligibility.xsd" />
+	
+	<xsd:import
+		namespace="http://Qiwa/UserManagement/DeleteUser/v1.0"
+		schemaLocation="DeleteUser/DeleteUser.xsd" />
+		
+		
+	<xsd:import
+		namespace="http://Qiwa/UserManagement/UpdateOrTerminateUserSubscription/v1.0"
+		schemaLocation="UpdateOrTerminateUserSubscription/UpdateOrTerminateUserSubscription.xsd" />
+		
+	<xsd:import
+		namespace="http://Qiwa/UserManagement/CalculateUserManagementSubscriptionPrice/v1.0"
+		schemaLocation="CalculateUserManagementSubscriptionPrice/CalculateUserManagementSubscriptionPrice.xsd" />
+		
+	<xsd:import
+		namespace="http://Qiwa/UserManagement/GetQiwaWorkspaceEstablishments/v1.0"
+		schemaLocation="GetQiwaWorkspaceEstablishments/GetQiwaWorkspaceEstablishments.xsd" />
+		
+	<xsd:import
+		namespace="http://Qiwa/UserManagement/GetEstablishmentAuthorizedUser/v1.0"
+		schemaLocation="GetEstablishmentAuthorizedUser/GetEstablishmentAuthorizedUser.xsd" />
+		
+	<xsd:import
+		namespace="http://Qiwa/UserManagement/GetPaymentswithoutUserSubscriptions/v1.0"
+		schemaLocation="GetPaymentswithoutUserSubscriptions/GetPaymentswithoutUserSubscriptions.xsd" />
+	
+	<xsd:import
+		namespace="http://Qiwa/UserManagement/SearchUsersSubUniNum/v1.0"
+		schemaLocation="SearchUsersSubUniNum/SearchUsersSubUniNum.xsd" />
+	<xsd:import
+		namespace="http://Qiwa/UserManagement/GetNearlySubsToBeExpired/v1.0"
+		schemaLocation="GetNearlySubsToBeExpired/GetNearlySubsToBeExpired.xsd" />
+		
+		<xsd:import
+		namespace="http://Qiwa/UserManagement/GetUMServicesNonSubscribedUsers/v1.0"
+		schemaLocation="GetUMServicesNonSubscribedUsers/GetUMServicesNonSubscribedUsers.xsd" />
+		
+	
+	<xsd:element name="GetUserManagementServicesRq" type="bons1:GetUserManagementServicesRq_Type"/>
+	<xsd:element name="GetUserManagementServicesRs" type="bons1:GetUserManagementServicesRs_Type"/>
+	
+	<xsd:element name="CreateUserRq" type="bons2:CreateUserRq_Type"/>
+	<xsd:element name="CreateUserRs" type="bons2:CreateUserRs_Type"/>
+	
+	<xsd:element name="GetSubscriptionsConfigurationsRq" type="bons3:GetSubscriptionsConfigurationsRq_Type"/>
+	<xsd:element name="GetSubscriptionsConfigurationsRs" type="bons3:GetSubscriptionsConfigurationsRs_Type"/>
+	
+	<xsd:element name="GetUserEligibleServicesRq" type="bons4:GetUserEligibleServicesRq_Type"/>
+	<xsd:element name="GetUserEligibleServicesRs" type="bons4:GetUserEligibleServicesRs_Type"/>
+	
+	<xsd:element name="GetUserInformationRq" type="bons5:GetUserInformationRq_Type"/>
+	<xsd:element name="GetUserInformationRs" type="bons5:GetUserInformationRs_Type"/>
+	
+	<xsd:element name="SearchUserSubscriptionsRq" type="bons6:SearchUserSubscriptionsRq_Type"/>
+	<xsd:element name="SearchUserSubscriptionsRs" type="bons6:SearchUserSubscriptionsRs_Type"/>
+	
+	<xsd:element name="UpdateUserInformationRq" type="bons7:UpdateUserInformationRq_Type"/>
+	<xsd:element name="UpdateUserInformationRs" type="bons7:UpdateUserInformationRs_Type"/>
+	
+	<xsd:element name="ValidateMobileNumberRq" type="bons8:ValidateMobileNumberRq_Type"/>
+	<xsd:element name="ValidateMobileNumberRs" type="bons8:ValidateMobileNumberRs_Type"/>
+	
+	<xsd:element name="UpdateOrConfirmMobileNumberRq" type="bons9:UpdateOrConfirmMobileNumberRq_Type"/>
+	<xsd:element name="UpdateOrConfirmMobileNumberRs" type="bons9:UpdateOrConfirmMobileNumberRs_Type"/>
+	
+	<xsd:element name="CheckUserEligibilityRq" type="bons10:CheckUserEligibilityRq_Type"/> 
+	<xsd:element name="CheckUserEligibilityRs" type="bons10:CheckUserEligibilityRs_Type"/>
+	
+	<xsd:element name="CheckUserEstablishmentsEligibilityRq" type="bons11:CheckUserEstablishmentsEligibilityRq_Type"/> 
+	<xsd:element name="CheckUserEstablishmentsEligibilityRs" type="bons11:CheckUserEstablishmentsEligibilityRs_Type"/>
+	
+	<xsd:element name="SubscribeUserToEstablishmentsRq" type="bons12:SubscribeUserToEstablishmentsRq_Type"/>
+	<xsd:element name="SubscribeUserToEstablishmentsRs" type="bons12:SubscribeUserToEstablishmentsRs_Type"/>
+	
+	<xsd:element name="AddEstablishmentUserSubscriptionRq" type="bons13:AddEstablishmentUserSubscriptionRq_Type"/>
+	<xsd:element name="AddEstablishmentUserSubscriptionRs" type="bons13:AddEstablishmentUserSubscriptionRs_Type"/>
+	
+	<xsd:element name="RenewUserSubscriptionRq" type="bons14:RenewUserSubscriptionRq_Type"/>
+	<xsd:element name="RenewUserSubscriptionRs" type="bons14:RenewUserSubscriptionRs_Type"/>
+	
+	<xsd:element name="AddOrUpdateUserPrivilegesRq" type="bons15:AddOrUpdateUserPrivilegesRq_Type"/>
+	<xsd:element name="AddOrUpdateUserPrivilegesRs" type="bons15:AddOrUpdateUserPrivilegesRs_Type"/>
+	
+	<xsd:element name="CheckAddedUserEligibilityRq" type="bons16:CheckAddedUserEligibilityRq_Type"/>
+	<xsd:element name="CheckAddedUserEligibilityRs" type="bons16:CheckAddedUserEligibilityRs_Type"/>
+	
+	<xsd:element name="DeleteUserRq" type="bons17:DeleteUserRq_Type"/>
+	<xsd:element name="DeleteUserRs" type="bons17:DeleteUserRs_Type"/>
+	
+	<xsd:element name="UpdateOrTerminateUserSubscriptionRq" type="bons18:UpdateOrTerminateUserSubscriptionRq_Type"/>
+	<xsd:element name="UpdateOrTerminateUserSubscriptionRs" type="bons18:UpdateOrTerminateUserSubscriptionRs_Type"/>
+
+	<xsd:element name="CalculateUserManagementSubscriptionPriceRq" type="bons19:CalculateUserManagementSubscriptionPriceRq_Type"/> 
+	<xsd:element name="CalculateUserManagementSubscriptionPriceRs" type="bons19:CalculateUserManagementSubscriptionPriceRs_Type"/>
+	
+	<xsd:element name="GetQiwaWorkspaceEstablishmentsRq" type="bons20:GetQiwaWorkspaceEstablishmentsRq_Type"/>
+	<xsd:element name="GetQiwaWorkspaceEstablishmentsRs" type="bons20:GetQiwaWorkspaceEstablishmentsRs_Type"/>
+	
+	<xsd:element name="GetEstablishmentAuthorizedUserRq" type="bons21:GetEstablishmentAuthorizedUserRq_Type"/>
+	<xsd:element name="GetEstablishmentAuthorizedUserRs" type="bons21:GetEstablishmentAuthorizedUserRs_Type"/>
+	
+	<xsd:element name="GetPaymentswithoutUserSubscriptionsRq" type="bons22:GetPaymentswithoutUserSubscriptionsRq_Type"/>
+	<xsd:element name="GetPaymentswithoutUserSubscriptionsRs" type="bons22:GetPaymentswithoutUserSubscriptionsRs_Type"/>
+	
+	<xsd:element name="SearchUsersSubUniNumRq" type="bons23:SearchUsersSubUniNumRq_Type"/>
+	<xsd:element name="SearchUsersSubUniNumRs" type="bons23:SearchUsersSubUniNumRs_Type"/>
+	
+	<xsd:element name="GetNearlySubsToBeExpiredRq" type="bons24:GetNearlySubsToBeExpiredRq_Type"/>
+	<xsd:element name="GetNearlySubsToBeExpiredRs" type="bons24:GetNearlySubsToBeExpiredRs_Type"/>
+	
+	<xsd:element name="GetUMServicesNonSubscribedUsersRq" type="bons25:GetUMServicesNonSubscribedUsersRq_Type"/> 
+	<xsd:element name="GetUMServicesNonSubscribedUsersRs" type="bons25:GetUMServicesNonSubscribedUsersRs_Type"/>
+	
+</xsd:schema>

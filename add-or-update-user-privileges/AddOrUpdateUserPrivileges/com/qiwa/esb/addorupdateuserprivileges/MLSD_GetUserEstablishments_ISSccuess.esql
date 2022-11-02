@@ -1,0 +1,30 @@
+BROKER SCHEMA com.qiwa.esb.addorupdateuserprivileges
+PATH Qiwa.Framework.Lib;
+
+
+CREATE FILTER MODULE MLSD_GetUserEstablishments_ISSccuess
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		 DECLARE errorCode CHAR Environment.Properties.AddOrUpdateUserPrivileges.AddOrUpdateUserPrivilegesFlow.Variables.NoEstError;
+		 DECLARE error CHAR Environment.Properties.AddOrUpdateUserPrivileges.AddOrUpdateUserPrivilegesFlow.Variables.Ask_Owner;
+
+          IF Root.XMLNSC.GetUserEstablishmentsMLSDRs.Header.ResponseStatus.Code  = GetESBSuccessCode() OR
+      	  Root.XMLNSC.GetUserEstablishmentsMLSDRs.Header.ResponseStatus.Code = errorCode THEN 
+ 
+			  SET Environment.Variabl.GetUserRs = Root.XMLNSC.GetUserEstablishmentsMLSDRs.Body;      
+			 
+
+		
+			  RETURN TRUE;
+	
+         ELSE 
+         	
+			
+			SET Environment.Variables.MWResponse.status = Root.XMLNSC.GetUserEstablishmentsMLSDRs.Header.ResponseStatus.Code;
+			 
+			RETURN FALSE;
+		 
+		END IF;	
+	END;
+
+END MODULE;
